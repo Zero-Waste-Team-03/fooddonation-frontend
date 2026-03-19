@@ -1,9 +1,6 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, type ReactNode } from "react";
+import { useAtom, useAtomValue } from "jotai";
+import { accessTokenAtom, isAuthenticatedAtom } from "@/store/atoms";
 
 export interface AuthContext {
   isAuthenticated: boolean;
@@ -15,27 +12,14 @@ export interface AuthContext {
 const AuthCtx = createContext<AuthContext | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("access_token")
-  );
+  const [token, setToken] = useAtom(accessTokenAtom);
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom);
 
-  const login = (newToken: string) => {
-    localStorage.setItem("access_token", newToken);
-    setToken(newToken);
-  };
+  const login = (newToken: string) => setToken(newToken);
 
-  const logout = () => {
-    localStorage.removeItem("access_token");
-    setToken(null);
-  };
+  const logout = () => setToken(null);
 
-  return (
-    <AuthCtx.Provider
-      value={{ isAuthenticated: !!token, token, login, logout }}
-    >
-      {children}
-    </AuthCtx.Provider>
-  );
+  return <AuthCtx.Provider value={{ isAuthenticated, token, login, logout }}>{children}</AuthCtx.Provider>;
 }
 
 export function useAuthContext() {

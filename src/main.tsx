@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { Provider } from "jotai";
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider, useAuthContext } from "@/providers/AuthProvider";
 import { ApolloProvider } from "@/providers/ApolloProvider";
@@ -26,10 +27,12 @@ function InnerApp() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ApolloProvider>
-      <AuthProvider>
-        <InnerApp />
-      </AuthProvider>
-    </ApolloProvider>
+    <Provider>
+      <ApolloProvider>
+        <AuthProvider>
+          <InnerApp />
+        </AuthProvider>
+      </ApolloProvider>
+    </Provider>
   </StrictMode>
 );
