@@ -75,4 +75,15 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+
+  .maplibregl-popup-content {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .maplibregl-popup-tip {
+    display: none !important;
+  }
 }
