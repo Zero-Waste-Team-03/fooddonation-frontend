@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AnalyticsPage } from "@/features/analytics/pages/AnalyticsPage";
+import { OverviewPage } from "@/features/overview/pages/OverviewPage";
 
 export const Route = createFileRoute("/_protected/")({
-  component: AnalyticsPage,
+  component: OverviewPage,
 });

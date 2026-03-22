@@ -12,11 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
-import { Route as ProtectedZonesRouteImport } from './routes/_protected/zones'
 import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
 import { Route as ProtectedReportsRouteImport } from './routes/_protected/reports'
-import { Route as ProtectedModerationRouteImport } from './routes/_protected/moderation'
-import { Route as ProtectedAnalyticsRouteImport } from './routes/_protected/analytics'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as ProtectedUsersIndexRouteImport } from './routes/_protected/users/index'
 import { Route as ProtectedDonationsIndexRouteImport } from './routes/_protected/donations/index'
@@ -36,11 +33,6 @@ const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProtectedRoute,
 } as any)
-const ProtectedZonesRoute = ProtectedZonesRouteImport.update({
-  id: '/zones',
-  path: '/zones',
-  getParentRoute: () => ProtectedRoute,
-} as any)
 const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -49,16 +41,6 @@ const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
 const ProtectedReportsRoute = ProtectedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedModerationRoute = ProtectedModerationRouteImport.update({
-  id: '/moderation',
-  path: '/moderation',
-  getParentRoute: () => ProtectedRoute,
-} as any)
-const ProtectedAnalyticsRoute = ProtectedAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -91,11 +73,8 @@ const ProtectedDonationsDonationIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof ProtectedIndexRoute
   '/login': typeof AuthLoginRoute
-  '/analytics': typeof ProtectedAnalyticsRoute
-  '/moderation': typeof ProtectedModerationRoute
   '/reports': typeof ProtectedReportsRoute
   '/settings': typeof ProtectedSettingsRoute
-  '/zones': typeof ProtectedZonesRoute
   '/donations/$donationId': typeof ProtectedDonationsDonationIdRoute
   '/users/$userId': typeof ProtectedUsersUserIdRoute
   '/donations/': typeof ProtectedDonationsIndexRoute
@@ -104,11 +83,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof ProtectedIndexRoute
   '/login': typeof AuthLoginRoute
-  '/analytics': typeof ProtectedAnalyticsRoute
-  '/moderation': typeof ProtectedModerationRoute
   '/reports': typeof ProtectedReportsRoute
   '/settings': typeof ProtectedSettingsRoute
-  '/zones': typeof ProtectedZonesRoute
   '/donations/$donationId': typeof ProtectedDonationsDonationIdRoute
   '/users/$userId': typeof ProtectedUsersUserIdRoute
   '/donations': typeof ProtectedDonationsIndexRoute
@@ -119,11 +95,8 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_protected': typeof ProtectedRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
-  '/_protected/analytics': typeof ProtectedAnalyticsRoute
-  '/_protected/moderation': typeof ProtectedModerationRoute
   '/_protected/reports': typeof ProtectedReportsRoute
   '/_protected/settings': typeof ProtectedSettingsRoute
-  '/_protected/zones': typeof ProtectedZonesRoute
   '/_protected/': typeof ProtectedIndexRoute
   '/_protected/donations/$donationId': typeof ProtectedDonationsDonationIdRoute
   '/_protected/users/$userId': typeof ProtectedUsersUserIdRoute
@@ -135,11 +108,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/analytics'
-    | '/moderation'
     | '/reports'
     | '/settings'
-    | '/zones'
     | '/donations/$donationId'
     | '/users/$userId'
     | '/donations/'
@@ -148,11 +118,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
-    | '/analytics'
-    | '/moderation'
     | '/reports'
     | '/settings'
-    | '/zones'
     | '/donations/$donationId'
     | '/users/$userId'
     | '/donations'
@@ -162,11 +129,8 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_protected'
     | '/_auth/login'
-    | '/_protected/analytics'
-    | '/_protected/moderation'
     | '/_protected/reports'
     | '/_protected/settings'
-    | '/_protected/zones'
     | '/_protected/'
     | '/_protected/donations/$donationId'
     | '/_protected/users/$userId'
@@ -202,13 +166,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedIndexRouteImport
       parentRoute: typeof ProtectedRoute
     }
-    '/_protected/zones': {
-      id: '/_protected/zones'
-      path: '/zones'
-      fullPath: '/zones'
-      preLoaderRoute: typeof ProtectedZonesRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
     '/_protected/settings': {
       id: '/_protected/settings'
       path: '/settings'
@@ -221,20 +178,6 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof ProtectedReportsRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
-    '/_protected/moderation': {
-      id: '/_protected/moderation'
-      path: '/moderation'
-      fullPath: '/moderation'
-      preLoaderRoute: typeof ProtectedModerationRouteImport
-      parentRoute: typeof ProtectedRoute
-    }
-    '/_protected/analytics': {
-      id: '/_protected/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof ProtectedAnalyticsRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_auth/login': {
@@ -286,11 +229,8 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface ProtectedRouteChildren {
-  ProtectedAnalyticsRoute: typeof ProtectedAnalyticsRoute
-  ProtectedModerationRoute: typeof ProtectedModerationRoute
   ProtectedReportsRoute: typeof ProtectedReportsRoute
   ProtectedSettingsRoute: typeof ProtectedSettingsRoute
-  ProtectedZonesRoute: typeof ProtectedZonesRoute
   ProtectedIndexRoute: typeof ProtectedIndexRoute
   ProtectedDonationsDonationIdRoute: typeof ProtectedDonationsDonationIdRoute
   ProtectedUsersUserIdRoute: typeof ProtectedUsersUserIdRoute
@@ -299,11 +239,8 @@ interface ProtectedRouteChildren {
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
-  ProtectedAnalyticsRoute: ProtectedAnalyticsRoute,
-  ProtectedModerationRoute: ProtectedModerationRoute,
   ProtectedReportsRoute: ProtectedReportsRoute,
   ProtectedSettingsRoute: ProtectedSettingsRoute,
-  ProtectedZonesRoute: ProtectedZonesRoute,
   ProtectedIndexRoute: ProtectedIndexRoute,
   ProtectedDonationsDonationIdRoute: ProtectedDonationsDonationIdRoute,
   ProtectedUsersUserIdRoute: ProtectedUsersUserIdRoute,

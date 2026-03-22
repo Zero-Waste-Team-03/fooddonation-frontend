@@ -4,11 +4,8 @@ import {
   BarChart2,
   Gift,
   LayoutDashboard,
-  MapPin,
   Settings2,
-  ShieldCheck,
   Users,
-  Flag,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -18,10 +15,7 @@ const navItems = [
   { label: "Overview", to: "/", icon: LayoutDashboard },
   { label: "User Management", to: "/users", icon: Users },
   { label: "Donation Monitoring", to: "/donations", icon: Gift },
-  { label: "Moderation", to: "/moderation", icon: ShieldCheck },
-  { label: "Zones", to: "/zones", icon: MapPin },
-  { label: "Analytics", to: "/analytics", icon: BarChart2 },
-  { label: "Reports & Analytics", to: "/reports", icon: Flag },
+  { label: "Reports & Analytics", to: "/reports", icon: BarChart2 },
   { label: "Settings", to: "/settings", icon: Settings2 },
 ] as const;
 

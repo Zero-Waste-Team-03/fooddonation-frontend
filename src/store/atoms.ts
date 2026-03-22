@@ -3,7 +3,7 @@ import { atomWithStorage } from "jotai/utils";
 
 export const accessTokenAtom = atomWithStorage<string | null>(
   "access_token",
-  null
+  "token"//null
 );
 
 export const isAuthenticatedAtom = atom(
@@ -18,5 +18,3 @@ export const sidebarCollapsedAtom = atomWithStorage<boolean>(
 export const selectedUserIdAtom = atom<string | null>(null);
 
 export const selectedDonationIdAtom = atom<string | null>(null);
-
-export const selectedZoneIdAtom = atom<string | null>(null);
