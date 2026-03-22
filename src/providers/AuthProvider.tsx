@@ -2,10 +2,15 @@ import { createContext, useContext, type ReactNode } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { accessTokenAtom, isAuthenticatedAtom } from "@/store/atoms";
 
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
 export interface AuthContext {
   isAuthenticated: boolean;
   token: string | null;
-  login: (token: string) => void;
+  login: (credentials: LoginCredentials) => void;
   logout: () => void;
 }
 
@@ -15,7 +20,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useAtom(accessTokenAtom);
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
 
-  const login = (newToken: string) => setToken(newToken);
+  const login = (credentials: LoginCredentials) => {
+    setToken(`stub:${credentials.email}`);
+  };
 
   const logout = () => setToken(null);
 

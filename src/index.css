@@ -1,1 +1,78 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
+
+@layer base {
+  :root {
+    --color-primary: #2d6a4f;
+    --color-primary-hover: #0f5238;
+    --color-primary-foreground: #a8e7c5;
+    --color-secondary: #f2f4f3;
+    --color-secondary-foreground: #191c1c;
+    --color-background: #f8faf9;
+    --color-foreground: #191c1c;
+    --color-card: #ffffff;
+    --color-card-foreground: #1e293b;
+    --color-border: rgba(45, 108, 80, 0.05);
+    --color-input: #e6e9e8;
+    --color-input-focus: rgba(45, 108, 80, 1);
+    --color-muted: #f6f7f7;
+    --color-muted-foreground: #64748b;
+    --color-accent: rgba(45, 108, 80, 0.05);
+    --color-accent-foreground: #2d6c50;
+    --color-destructive: #dc2626;
+    --color-destructive-foreground: #ffffff;
+    --color-success: #16a34a;
+    --color-success-foreground: #ffffff;
+    --color-warning: #f89b29;
+    --color-warning-foreground: #301400;
+    --color-info: #3b82f6;
+    --color-info-foreground: #ffffff;
+    --color-ring: #2d6c50;
+    --color-sidebar-text: #475569;
+    --color-sidebar-subtitle: #94a3b8;
+    --color-sidebar-rail-border: rgba(45, 108, 80, 0.1);
+    --color-sidebar-section-border: rgba(45, 108, 80, 0.05);
+    --color-nav-active-bg: #2d6c50;
+    --color-nav-active-fg: #ffffff;
+    --color-progress-track: #e2e8f0;
+    --color-label: #404943;
+    --color-placeholder: #94a3b8;
+    --color-login-card-border: rgba(191, 201, 193, 0.1);
+    --color-page-title: #1e293b;
+    --color-header-bg: rgba(255, 255, 255, 0.8);
+    --color-header-border: rgba(45, 108, 80, 0.05);
+    --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, monospace;
+    --radius-xs: 12px;
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+    --radius-login-card: 12px;
+    --shadow-card: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+    --shadow-dropdown: 0px 2px 4px -2px rgba(0, 0, 0, 0.1),
+      0px 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-modal: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-login-card: 0px 32px 64px -12px rgba(25, 28, 28, 0.06);
+    --sidebar-width: 256px;
+    --sidebar-width-collapsed: 72px;
+    --header-height: 64px;
+    --page-padding-x: 32px;
+    --page-padding-y: 32px;
+    --page-section-gap: 32px;
+  }
+
+  * {
+    border-color: var(--color-border);
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}

@@ -1,3 +1,135 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuthContext } from "@/providers/AuthProvider";
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+
 export function LoginForm() {
-  return <div />;
+  const { login } = useAuthContext();
+  const navigate = useNavigate();
+  const search = useSearch({ from: "/_auth/login" });
+  const [submitting, setSubmitting] = useState(false);
+
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = form.handleSubmit(async (values) => {
+    setSubmitting(true);
+    try {
+      login(values);
+      const target =
+        typeof search.redirect === "string" && search.redirect.length > 0
+          ? search.redirect
+          : "/";
+      await navigate({ to: target });
+    } finally {
+      setSubmitting(false);
+    }
+  });
+
+  return (
+    <div className="flex min-h-screen flex-row flex-wrap items-center justify-center gap-0 bg-muted px-6 py-20">
+      <div className="flex w-full max-w-md flex-col gap-12">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <div className="flex size-20 items-center justify-center rounded-full bg-card shadow-card">
+            <span className="font-display text-2xl font-bold text-primary">G</span>
+          </div>
+          <div className="flex flex-col gap-2">
+            <h1 className="font-display text-3xl font-bold leading-none tracking-[-0.025em] text-primary-hover">
+              Gasp&apos;Zero
+            </h1>
+            <p className="text-sm font-normal leading-normal tracking-[0.025em] text-label uppercase">
+              Administrative Portal
+            </p>
+          </div>
+        </div>
+        <form
+          onSubmit={onSubmit}
+          className="relative flex flex-col gap-8 rounded-[var(--radius-login-card)] border border-login-card-border bg-card p-10 pt-10 pb-6 shadow-login"
+        >
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-1">
+              <h2 className="font-display text-2xl font-bold leading-[1.33] text-foreground">
+                Welcome back
+              </h2>
+              <p className="text-sm leading-normal text-label">
+                Please enter your administrative credentials.
+              </p>
+            </div>
+            <div className="flex flex-col gap-6 pb-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="login-email">Admin Email</Label>
+                <Input
+                  id="login-email"
+                  type="email"
+                  autoComplete="email"
+                  aria-invalid={Boolean(form.formState.errors.email)}
+                  {...form.register("email")}
+                />
+                {form.formState.errors.email ? (
+                  <p className="text-sm text-destructive" role="alert">
+                    {form.formState.errors.email.message}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="login-password">Password</Label>
+                <Input
+                  id="login-password"
+                  type="password"
+                  autoComplete="current-password"
+                  aria-invalid={Boolean(form.formState.errors.password)}
+                  {...form.register("password")}
+                />
+                {form.formState.errors.password ? (
+                  <p className="text-sm text-destructive" role="alert">
+                    {form.formState.errors.password.message}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </div>
+          <Button
+            type="submit"
+            className="h-12 w-full rounded-[var(--radius-login-card)] text-base font-semibold"
+            disabled={submitting}
+          >
+            {submitting ? "Signing in..." : "Sign In to Dashboard"}
+          </Button>
+          <div className="flex flex-col gap-6 border-t border-sidebar-section-border pt-6">
+            <p className="text-center text-xs leading-normal text-label">
+              Protected by enterprise-grade security protocols.
+            </p>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                <span className="size-2 rounded-full bg-success" aria-hidden />
+                <span>Secure End-to-End Encryption</span>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="link"
+              className="text-sm font-normal text-label"
+            >
+              Return to Public Site
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }
