@@ -1,9 +1,10 @@
 import { useAtom } from "jotai";
 import { Link } from "@tanstack/react-router";
-import { BarChart2, Gift, LayoutDashboard, Settings2, Users } from "lucide-react";
+import { BarChart2, Gift, LayoutDashboard, LogOut, Settings2, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { sidebarCollapsedAtom } from "@/store";
+import { useAuthContext } from "@/providers/AuthProvider";
 
 const navItems = [
   { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
@@ -15,6 +16,7 @@ const navItems = [
 
 export function Sidebar() {
   const [collapsed] = useAtom(sidebarCollapsedAtom);
+  const { logout } = useAuthContext();
 
   return (
     <aside
@@ -74,6 +76,18 @@ export function Sidebar() {
             7.2 tons / 10 tons goal
           </p>
         </div>
+        <button
+          type="button"
+          onClick={logout}
+          className={cn(
+            "mt-3 flex w-full items-center gap-3 rounded-md py-2.5 pr-3 pl-3 text-sm font-medium text-sidebar-text transition-colors hover:bg-accent hover:text-accent-foreground",
+            collapsed && "w-10 justify-center px-0"
+          )}
+          aria-label="Logout"
+        >
+          <LogOut className="size-5 shrink-0" aria-hidden />
+          {!collapsed && <span className="truncate">Logout</span>}
+        </button>
       </div>
     </aside>
   );

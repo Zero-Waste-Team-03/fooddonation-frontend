@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -6,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLogin } from "../hooks/useLogin";
-import { Route } from "@/routes/login";
+import { Route } from "@/routes/_auth/login";
 
 const loginSchema = z.object({
   email: z.email("Invalid email address"),
@@ -15,7 +16,11 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export function LoginForm() {
+type LoginFormProps = {
+  showResetSuccess?: boolean;
+};
+
+export function LoginForm({ showResetSuccess = false }: LoginFormProps) {
   const { redirect } = Route.useSearch();
   const { handleLogin, loading, errorMessage } = useLogin(redirect);
 
@@ -53,6 +58,11 @@ export function LoginForm() {
         >
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-1">
+              {showResetSuccess ? (
+                <p role="status" aria-live="polite" className="text-center text-sm text-success">
+                  Your password has been reset. You can now log in.
+                </p>
+              ) : null}
               <h2 className="font-display text-2xl font-bold leading-[1.33] text-foreground">
                 Welcome back
               </h2>
@@ -90,6 +100,12 @@ export function LoginForm() {
                     {form.formState.errors.password.message}
                   </p>
                 ) : null}
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
               </div>
             </div>
             {errorMessage ? (

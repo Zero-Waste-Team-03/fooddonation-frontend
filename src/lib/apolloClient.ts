@@ -4,7 +4,7 @@ import { onError } from "@apollo/client/link/error";
 import { CombinedGraphQLErrors, ServerError } from "@apollo/client/errors";
 import { router } from "@/main";
 
-const LOGIN_OPERATION_NAME = "Login";
+const AUTH_OPERATION_NAMES = new Set(["Login", "ForgotPassword", "ResetPassword"]);
 
 function isErrorWithMessage(error: unknown): error is { message: string } {
   return (
@@ -32,11 +32,12 @@ const authLink = setContext((_, { headers }) => {
 const errorLink = onError(({ error, operation }) => {
   const graphQLErrors = CombinedGraphQLErrors.is(error) ? error.errors : undefined;
   const networkError = ServerError.is(error) ? error : undefined;
-  const isLoginOperation = operation.operationName === LOGIN_OPERATION_NAME;
+  const operationName = operation.operationName ?? "";
+  const isAuthOperation = AUTH_OPERATION_NAMES.has(operationName);
 
   if (graphQLErrors) {
     for (const err of graphQLErrors) {
-      if (isLoginOperation) {
+      if (isAuthOperation) {
         return;
       }
 

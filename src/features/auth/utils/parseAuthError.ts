@@ -5,6 +5,10 @@ export type AuthErrorMessage =
   | "No account found with this email address."
   | "Your account has been deactivated. Contact support."
   | "Too many login attempts. Please try again later."
+  | "This reset link has expired. Please request a new one."
+  | "This reset link is invalid. Please request a new one."
+  | "This reset link has already been used. Please request a new one."
+  | "Password is too weak. Use at least 8 characters."
   | "A network error occurred. Check your connection and try again."
   | "An unexpected error occurred. Please try again.";
 
@@ -156,6 +160,43 @@ export function parseAuthError(error: unknown): AuthErrorMessage {
 
   if (isRateLimited) {
     return "Too many login attempts. Please try again later.";
+  }
+
+  const isExpiredResetLink =
+    code === "TOKEN_EXPIRED" ||
+    message.includes("token expired") ||
+    message.includes("expired");
+
+  if (isExpiredResetLink) {
+    return "This reset link has expired. Please request a new one.";
+  }
+
+  const isUsedResetLink =
+    code === "TOKEN_USED" ||
+    message.includes("already used") ||
+    message.includes("token used");
+
+  if (isUsedResetLink) {
+    return "This reset link has already been used. Please request a new one.";
+  }
+
+  const isWeakPassword =
+    code === "WEAK_PASSWORD" ||
+    (message.includes("password") && message.includes("weak"));
+
+  if (isWeakPassword) {
+    return "Password is too weak. Use at least 8 characters.";
+  }
+
+  const isInvalidResetLink =
+    code === "TOKEN_INVALID" ||
+    code === "BAD_REQUEST" ||
+    statusCode === 400 ||
+    message.includes("invalid token") ||
+    message.includes("bad request");
+
+  if (isInvalidResetLink) {
+    return "This reset link is invalid. Please request a new one.";
   }
 
   return "An unexpected error occurred. Please try again.";

@@ -2,7 +2,7 @@ import { createContext, useContext, type ReactNode } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { accessTokenAtom, authUserAtom, isAuthenticatedAtom, refreshTokenAtom } from "@/store/atoms";
 import type { AuthUser } from "@/types/auth.types";
-import { jotaiStore } from "@/main";
+import { jotaiStore, router } from "@/main";
 
 export interface AuthContext {
   isAuthenticated: boolean;
@@ -51,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setUser(null);
     setRefreshToken(null);
+    void router.navigate({ to: "/login", search: { redirect: "/dashboard" } });
   };
 
   return (
