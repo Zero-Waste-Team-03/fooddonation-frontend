@@ -1,16 +1,8 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+export * from "./atoms/auth.atoms";
 
 export type ThemeMode = "light" | "dark";
-
-export const accessTokenAtom = atomWithStorage<string | null>(
-  "access_token",
-  "token"//null
-);
-
-export const isAuthenticatedAtom = atom(
-  (get) => get(accessTokenAtom) !== null
-);
 
 export const sidebarCollapsedAtom = atomWithStorage<boolean>(
   "sidebar_collapsed",

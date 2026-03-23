@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import { Provider, useAtomValue } from "jotai";
+import { Provider as JotaiProvider, createStore, useAtomValue } from "jotai";
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider, useAuthContext } from "@/providers/AuthProvider";
 import { ApolloProvider } from "@/providers/ApolloProvider";
@@ -16,12 +16,14 @@ import "@fontsource/plus-jakarta-sans/800.css";
 import "@/index.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-const router = createRouter({
+export const router = createRouter({
   routeTree,
   context: {
     auth: undefined!,
   },
 });
+
+export const jotaiStore = createStore();
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -44,12 +46,12 @@ function InnerApp() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Provider>
+    <JotaiProvider store={jotaiStore}>
       <ApolloProvider>
         <AuthProvider>
           <InnerApp />
         </AuthProvider>
       </ApolloProvider>
-    </Provider>
+    </JotaiProvider>
   </StrictMode>
 );

@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -7,20 +6,20 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuthContext } from "@/providers/AuthProvider";
+import { useLogin } from "../hooks/useLogin";
+import { Route } from "@/routes/login";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  const { login } = useAuthContext();
-  const navigate = useNavigate();
-  const search = useSearch({ from: "/_auth/login" });
-  const [submitting, setSubmitting] = useState(false);
+  const { redirect } = Route.useSearch();
+  const { handleLogin, loading, error } = useLogin(redirect);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -28,18 +27,22 @@ export function LoginForm() {
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
-    setSubmitting(true);
     try {
-      login(values);
-      const target =
-        typeof search.redirect === "string" && search.redirect.length > 0
-          ? search.redirect
-          : "/dashboard";
-      await navigate({ to: target });
-    } finally {
-      setSubmitting(false);
+      setSubmitError(null);
+      await handleLogin(
+        {
+          email: values.email,
+          password: values.password,
+        }
+      );
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Unable to sign in. Please try again."
+      );
     }
   });
+
+  const formLevelError = submitError ?? error?.message ?? null;
 
   return (
     <div className="flex min-h-screen flex-row flex-wrap items-center justify-center gap-0 bg-muted px-6 py-20">
@@ -102,13 +105,18 @@ export function LoginForm() {
                 ) : null}
               </div>
             </div>
+            {formLevelError ? (
+              <p className="text-sm text-destructive" role="alert">
+                {formLevelError}
+              </p>
+            ) : null}
           </div>
           <Button
             type="submit"
             className="h-12 w-full rounded-[var(--radius-login-card)] text-base font-semibold"
-            disabled={submitting}
+            disabled={loading}
           >
-            {submitting ? "Signing in..." : "Sign In to Dashboard"}
+            {loading ? "Signing in..." : "Sign In to Dashboard"}
           </Button>
           <div className="flex flex-col gap-6 border-t border-sidebar-section-border pt-6">
             <p className="text-center text-xs leading-normal text-label">

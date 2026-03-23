@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@apollo/client": "^4.1.6",
@@ -37,6 +38,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "@graphql-codegen/cli": "^6.2.1",
+    "@graphql-codegen/introspection": "^5.0.1",
+    "@graphql-codegen/typescript": "^5.0.9",
+    "@graphql-codegen/typescript-operations": "^5.0.9",
+    "@graphql-codegen/typescript-react-apollo": "^4.4.1",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-router-devtools": "^1.166.9",
     "@tanstack/router-plugin": "^1.166.14",

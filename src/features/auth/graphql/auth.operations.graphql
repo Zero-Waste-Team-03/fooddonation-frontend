@@ -1,0 +1,25 @@
+mutation Login($loginInput: LoginInput!) {
+  login(loginInput: $loginInput) {
+    accessToken
+    refreshToken
+    user {
+      id
+      email
+      role
+      displayName
+    }
+  }
+}
+
+query CurrentUser {
+  currentUser {
+    id
+    email
+    role
+    displayName
+    isMailVerified
+    description
+    reputationScore
+    locationId
+  }
+}

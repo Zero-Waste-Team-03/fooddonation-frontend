@@ -94,11 +94,7 @@ export function SettingsPage() {
           </div>
         </div>
 
-        <div className="sticky bottom-0 z-10 -mx-[var(--page-padding-x)] border-t border-border bg-background/95 px-[var(--page-padding-x)] py-4 backdrop-blur">
-          <div className="flex justify-end">
-            <Button className="h-11 rounded-[20px] px-5">Save Changes</Button>
-          </div>
-        </div>
+        <Button className="h-11 rounded-[20px] px-5 absolute bottom-8 right-8">Save Changes</Button>
       </div>
     </PageWrapper>
   );
