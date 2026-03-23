@@ -134,6 +134,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
           <Link
             to="/login"
+            search={{ redirect: "/dashboard" }}
             className="text-center text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
           >
             Back to login

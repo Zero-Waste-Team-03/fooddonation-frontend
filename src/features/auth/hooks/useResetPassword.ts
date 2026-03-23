@@ -21,7 +21,7 @@ export function useResetPassword() {
         return;
       }
 
-      await navigate({ to: "/login", search: { reset: "success" } });
+      await navigate({ to: "/login", search: { redirect: "/login", reset: "success" } });
     } catch (error) {
       setErrorMessage(parseAuthError(error));
     }

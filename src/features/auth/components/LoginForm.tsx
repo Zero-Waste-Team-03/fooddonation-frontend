@@ -102,6 +102,7 @@ export function LoginForm({ showResetSuccess = false }: LoginFormProps) {
                 ) : null}
                 <Link
                   to="/forgot-password"
+                  search={{ redirect: redirect ?? "/dashboard" }}
                   className="text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
                 >
                   Forgot password?

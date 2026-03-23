@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_auth/reset-password")({
   validateSearch: (search) => {
     const parsed = resetPasswordSearchSchema.safeParse(search);
     if (!parsed.success) {
-      throw redirect({ to: "/forgot-password" });
+      throw redirect({ to: "/forgot-password", search: { redirect: "/dashboard" } });
     }
     return parsed.data;
   },
