@@ -1,20 +1,29 @@
 import { UserPlus } from "lucide-react";
+import { useAtom } from "jotai";
 import { Button } from "@/components/ui/button";
 import { PageWrapper } from "@/components/layout/PageWrapper";
+import { createUserDialogOpenAtom } from "@/store";
 
 import { UserStats } from "../components/UserStats";
 import { UserFilters } from "../components/UserFilters";
 import { UserTable } from "../components/UserTable";
-import { NewUserDialog } from "../components/NewUserDialog";
+import { CreateUserDialog, type CreateUserFormValues } from "../components/CreateUserDialog";
 
 export function UsersPage() {
+  const [createUserDialogOpen, setCreateUserDialogOpen] = useAtom(createUserDialogOpenAtom);
+
+  const handleCreateUserSubmit = async (data: CreateUserFormValues): Promise<void> => {
+    console.log("Create user submit", data);
+  };
+
   const customActions = (
-    <NewUserDialog>
-      <Button className="h-10 rounded-xl bg-[#1e6047] hover:bg-[#164a36] text-white shadow-sm px-5 font-semibold transition-colors">
+      <Button
+        className="h-10 rounded-xl px-5 font-semibold shadow-card"
+        onClick={() => setCreateUserDialogOpen(true)}
+      >
         <UserPlus className="mr-2 size-4" />
         Add New User
       </Button>
-    </NewUserDialog>
   );
 
   return (
@@ -28,6 +37,12 @@ export function UsersPage() {
         <UserFilters />
         <UserTable />
       </div>
+
+      <CreateUserDialog
+        open={createUserDialogOpen}
+        onOpenChange={setCreateUserDialogOpen}
+        onSubmit={handleCreateUserSubmit}
+      />
     </PageWrapper>
   );
 }

@@ -11,9 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as AuthRouteImport } from './routes/_auth'
-import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedSettingsRouteImport } from './routes/_protected/settings'
 import { Route as ProtectedReportsRouteImport } from './routes/_protected/reports'
+import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as ProtectedUsersIndexRouteImport } from './routes/_protected/users/index'
 import { Route as ProtectedDonationsIndexRouteImport } from './routes/_protected/donations/index'
@@ -28,10 +29,10 @@ const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ProtectedRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
   id: '/settings',
@@ -41,6 +42,11 @@ const ProtectedSettingsRoute = ProtectedSettingsRouteImport.update({
 const ProtectedReportsRoute = ProtectedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => ProtectedRoute,
+} as any)
+const ProtectedDashboardRoute = ProtectedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -71,8 +77,9 @@ const ProtectedDonationsDonationIdRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof ProtectedIndexRoute
+  '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
+  '/dashboard': typeof ProtectedDashboardRoute
   '/reports': typeof ProtectedReportsRoute
   '/settings': typeof ProtectedSettingsRoute
   '/donations/$donationId': typeof ProtectedDonationsDonationIdRoute
@@ -81,8 +88,9 @@ export interface FileRoutesByFullPath {
   '/users/': typeof ProtectedUsersIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof ProtectedIndexRoute
+  '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
+  '/dashboard': typeof ProtectedDashboardRoute
   '/reports': typeof ProtectedReportsRoute
   '/settings': typeof ProtectedSettingsRoute
   '/donations/$donationId': typeof ProtectedDonationsDonationIdRoute
@@ -92,12 +100,13 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/_protected': typeof ProtectedRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
+  '/_protected/dashboard': typeof ProtectedDashboardRoute
   '/_protected/reports': typeof ProtectedReportsRoute
   '/_protected/settings': typeof ProtectedSettingsRoute
-  '/_protected/': typeof ProtectedIndexRoute
   '/_protected/donations/$donationId': typeof ProtectedDonationsDonationIdRoute
   '/_protected/users/$userId': typeof ProtectedUsersUserIdRoute
   '/_protected/donations/': typeof ProtectedDonationsIndexRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/dashboard'
     | '/reports'
     | '/settings'
     | '/donations/$donationId'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/dashboard'
     | '/reports'
     | '/settings'
     | '/donations/$donationId'
@@ -126,12 +137,13 @@ export interface FileRouteTypes {
     | '/users'
   id:
     | '__root__'
+    | '/'
     | '/_auth'
     | '/_protected'
     | '/_auth/login'
+    | '/_protected/dashboard'
     | '/_protected/reports'
     | '/_protected/settings'
-    | '/_protected/'
     | '/_protected/donations/$donationId'
     | '/_protected/users/$userId'
     | '/_protected/donations/'
@@ -139,6 +151,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   ProtectedRoute: typeof ProtectedRouteWithChildren
 }
@@ -159,12 +172,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_protected/': {
-      id: '/_protected/'
+    '/': {
+      id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof ProtectedIndexRouteImport
-      parentRoute: typeof ProtectedRoute
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_protected/settings': {
       id: '/_protected/settings'
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof ProtectedReportsRouteImport
+      parentRoute: typeof ProtectedRoute
+    }
+    '/_protected/dashboard': {
+      id: '/_protected/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof ProtectedDashboardRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_auth/login': {
@@ -229,9 +249,9 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface ProtectedRouteChildren {
+  ProtectedDashboardRoute: typeof ProtectedDashboardRoute
   ProtectedReportsRoute: typeof ProtectedReportsRoute
   ProtectedSettingsRoute: typeof ProtectedSettingsRoute
-  ProtectedIndexRoute: typeof ProtectedIndexRoute
   ProtectedDonationsDonationIdRoute: typeof ProtectedDonationsDonationIdRoute
   ProtectedUsersUserIdRoute: typeof ProtectedUsersUserIdRoute
   ProtectedDonationsIndexRoute: typeof ProtectedDonationsIndexRoute
@@ -239,9 +259,9 @@ interface ProtectedRouteChildren {
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedDashboardRoute: ProtectedDashboardRoute,
   ProtectedReportsRoute: ProtectedReportsRoute,
   ProtectedSettingsRoute: ProtectedSettingsRoute,
-  ProtectedIndexRoute: ProtectedIndexRoute,
   ProtectedDonationsDonationIdRoute: ProtectedDonationsDonationIdRoute,
   ProtectedUsersUserIdRoute: ProtectedUsersUserIdRoute,
   ProtectedDonationsIndexRoute: ProtectedDonationsIndexRoute,
@@ -253,6 +273,7 @@ const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   ProtectedRoute: ProtectedRouteWithChildren,
 }

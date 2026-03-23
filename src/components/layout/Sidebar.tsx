@@ -1,18 +1,12 @@
 import { useAtom } from "jotai";
 import { Link } from "@tanstack/react-router";
-import {
-  BarChart2,
-  Gift,
-  LayoutDashboard,
-  Settings2,
-  Users,
-} from "lucide-react";
+import { BarChart2, Gift, LayoutDashboard, Settings2, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { sidebarCollapsedAtom } from "@/store";
 
 const navItems = [
-  { label: "Overview", to: "/", icon: LayoutDashboard },
+  { label: "Overview", to: "/dashboard", icon: LayoutDashboard },
   { label: "User Management", to: "/users", icon: Users },
   { label: "Donation Monitoring", to: "/donations", icon: Gift },
   { label: "Reports & Analytics", to: "/reports", icon: BarChart2 },
@@ -30,38 +24,28 @@ export function Sidebar() {
       )}
     >
       <div
-        className={cn(
-          "flex flex-row items-center gap-3 p-6",
-          collapsed && "justify-center px-4"
-        )}
+        className={cn("flex flex-row items-center gap-3 p-6", collapsed && "justify-center px-4")}
       >
         <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary">
-          <span className="font-display text-sm font-bold text-primary-foreground">
-            G
-          </span>
+          <span className="font-display text-sm font-bold text-primary-foreground">G</span>
         </div>
         {!collapsed && (
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="font-display text-xl font-bold leading-none tracking-[-0.025em] text-primary">
               Gasp&apos;Zero
             </span>
-            <span className="text-[10px] font-semibold leading-normal tracking-[0.1em] text-sidebar-subtitle uppercase">
+            <span className="text-[10px] font-semibold leading-normal tracking-widest text-sidebar-subtitle uppercase">
               Admin Console
             </span>
           </div>
         )}
       </div>
-      <nav
-        className={cn(
-          "flex flex-1 flex-col gap-1 px-4 pb-4",
-          collapsed && "items-center px-2"
-        )}
-      >
+      <nav className={cn("flex flex-1 flex-col gap-1 px-4 pb-4", collapsed && "items-center px-2")}>
         {navItems.map(({ label, to, icon: Icon }) => (
           <Link
             key={to}
             to={to}
-            activeOptions={{ exact: to === "/" }}
+            activeOptions={{ exact: to === "/dashboard" }}
             activeProps={{
               className:
                 "bg-nav-active text-nav-active-foreground [&_svg]:text-nav-active-foreground",
@@ -81,12 +65,7 @@ export function Sidebar() {
         ))}
       </nav>
       <div className="mt-auto border-t border-sidebar-section-border p-4">
-        <div
-          className={cn(
-            "rounded-xl bg-accent p-4",
-            collapsed && "hidden"
-          )}
-        >
+        <div className={cn("rounded-xl bg-accent p-4", collapsed && "hidden")}>
           <p className="text-xs font-semibold text-primary">Impact Goal</p>
           <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-progress-track">
             <div className="h-full w-[72%] rounded-full bg-primary" />

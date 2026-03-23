@@ -19,7 +19,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         }}
       >
         <Header />
-        <main className="flex-1 overflow-y-auto px-[var(--page-padding-x)] py-[var(--page-padding-y)]">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto px-[var(--page-padding-x)] py-[var(--page-padding-y)]">
           {children}
         </main>
       </div>

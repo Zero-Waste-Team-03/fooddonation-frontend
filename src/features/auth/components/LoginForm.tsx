@@ -34,7 +34,7 @@ export function LoginForm() {
       const target =
         typeof search.redirect === "string" && search.redirect.length > 0
           ? search.redirect
-          : "/";
+          : "/dashboard";
       await navigate({ to: target });
     } finally {
       setSubmitting(false);
