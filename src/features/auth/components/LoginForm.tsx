@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -18,8 +17,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const { redirect } = Route.useSearch();
-  const { handleLogin, loading, error } = useLogin(redirect);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { handleLogin, loading, errorMessage } = useLogin(redirect);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -27,22 +25,11 @@ export function LoginForm() {
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
-    try {
-      setSubmitError(null);
-      await handleLogin(
-        {
-          email: values.email,
-          password: values.password,
-        }
-      );
-    } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : "Unable to sign in. Please try again."
-      );
-    }
+    await handleLogin({
+      email: values.email,
+      password: values.password,
+    });
   });
-
-  const formLevelError = submitError ?? error?.message ?? null;
 
   return (
     <div className="flex min-h-screen flex-row flex-wrap items-center justify-center gap-0 bg-muted px-6 py-20">
@@ -105,9 +92,9 @@ export function LoginForm() {
                 ) : null}
               </div>
             </div>
-            {formLevelError ? (
-              <p className="text-sm text-destructive" role="alert">
-                {formLevelError}
+            {errorMessage ? (
+              <p className="text-sm text-destructive" role="alert" aria-live="polite">
+                {errorMessage}
               </p>
             ) : null}
           </div>
