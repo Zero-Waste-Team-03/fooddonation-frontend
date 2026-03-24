@@ -91,7 +91,7 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="w-full max-w-[calc(100%-2rem)] rounded-4xl border-none bg-card p-0 shadow-modal sm:max-w-218.5"
+        className="w-full max-w-[calc(100%-2rem)] p-0 sm:max-w-218.5"
       >
         <div className="space-y-7 p-8 sm:p-10 sm:pb-14">
           <Form {...form}>
@@ -110,7 +110,7 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
                         <Input
                           id="create-user-name"
                           placeholder="e.g. Julian Thorne"
-                          className="h-11 rounded-xl border-0 bg-input px-4"
+                          className="h-11"
                           {...field}
                         />
                       </FormControl>
@@ -132,7 +132,7 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
                           id="create-user-email"
                           type="email"
                           placeholder="julian@mindfulcurator.org"
-                          className="h-11 rounded-xl border-0 bg-input px-4"
+                          className="h-11"
                           {...field}
                         />
                       </FormControl>
@@ -262,7 +262,7 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
                           <Input
                             id="create-user-organization-name"
                             disabled={organizationFieldsDisabled}
-                            className="h-11 rounded-xl border-0 bg-input px-4 disabled:opacity-60"
+                            className="h-11 disabled:opacity-60"
                             {...field}
                           />
                         </FormControl>
@@ -284,7 +284,7 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
                             id="create-user-organization-type"
                             disabled={organizationFieldsDisabled}
                             placeholder="NGO"
-                            className="h-11 rounded-xl border-0 bg-input px-4 disabled:opacity-60"
+                            className="h-11 disabled:opacity-60"
                             {...field}
                           />
                         </FormControl>
@@ -306,7 +306,7 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
                         <Input
                           id="create-user-location-address"
                           disabled={organizationFieldsDisabled}
-                          className="h-11 rounded-xl border-0 bg-input px-4 disabled:opacity-60"
+                          className="h-11 disabled:opacity-60"
                           {...field}
                         />
                       </FormControl>

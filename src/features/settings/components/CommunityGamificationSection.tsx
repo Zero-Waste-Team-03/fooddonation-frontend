@@ -37,7 +37,7 @@ export function CommunityGamificationSection({
   });
 
   return (
-    <section className="rounded-[20px] bg-card p-6 shadow-card">
+    <section className="rounded-[20px] border border-border bg-card p-6">
       <h2 className="mb-5 flex items-center gap-2 font-display text-lg font-semibold text-foreground">
         <Sparkles className="size-4 text-primary" />
         <span>Community &amp; Gamification</span>

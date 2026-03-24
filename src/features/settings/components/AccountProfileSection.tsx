@@ -33,7 +33,7 @@ export function AccountProfileSection({ initialValues, onSubmit }: AccountProfil
   });
 
   return (
-    <section className="rounded-[20px] bg-card p-6 shadow-card">
+    <section className="rounded-[20px] border border-border bg-card p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
           <UserRound className="size-4 text-primary" />
@@ -71,7 +71,7 @@ export function AccountProfileSection({ initialValues, onSubmit }: AccountProfil
                       Full Name
                     </FormLabel>
                     <FormControl>
-                      <Input id="settings-full-name" className="h-8 rounded-xl border-0 bg-input text-sm" {...field} />
+                      <Input id="settings-full-name" className="h-10 text-sm" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -87,7 +87,7 @@ export function AccountProfileSection({ initialValues, onSubmit }: AccountProfil
                       Email Address
                     </FormLabel>
                     <FormControl>
-                      <Input id="settings-email" type="email" className="h-8 rounded-xl border-0 bg-input text-sm" {...field} />
+                      <Input id="settings-email" type="email" className="h-10 text-sm" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -103,7 +103,7 @@ export function AccountProfileSection({ initialValues, onSubmit }: AccountProfil
                       Role
                     </FormLabel>
                     <FormControl>
-                      <Input id="settings-role" readOnly className="h-8 rounded-xl border-0 bg-input text-sm" {...field} />
+                      <Input id="settings-role" readOnly className="h-10 text-sm" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

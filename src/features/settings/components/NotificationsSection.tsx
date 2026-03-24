@@ -32,7 +32,7 @@ export function NotificationsSection({ initialValues, onSubmit }: NotificationsS
   });
 
   return (
-    <section className="rounded-[20px] bg-card p-6 shadow-card">
+    <section className="rounded-[20px] border border-border bg-card p-6">
       <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-foreground">
         <Bell className="size-4 text-primary" />
         <span>Notifications</span>

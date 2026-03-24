@@ -52,7 +52,7 @@ function StatusBadge({ status }: { status: UserStatus }) {
 
 export function UserTable() {
   return (
-    <div className="rounded-3xl border bg-card overflow-hidden shadow-sm">
+    <div className="rounded-3xl border bg-card overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-transparent hover:bg-transparent border-b border-border/50">

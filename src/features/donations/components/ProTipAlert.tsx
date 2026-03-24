@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export function ProTipAlert() {
   return (
-    <div className="mt-8 relative overflow-hidden rounded-2xl border border-amber-200/50 bg-[#fffdf0] px-6 py-4 shadow-sm dark:border-amber-900/50 dark:bg-amber-950/20">
+    <div className="mt-8 relative overflow-hidden rounded-2xl border border-amber-200/50 bg-[#fffdf0] px-6 py-4 dark:border-amber-900/50 dark:bg-amber-950/20">
       <div className="flex items-start gap-4">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#fdeecb] text-amber-700 dark:bg-amber-900/50 flex-none">
           <Lightbulb className="size-5" />

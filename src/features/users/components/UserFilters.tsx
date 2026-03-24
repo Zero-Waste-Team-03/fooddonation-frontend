@@ -8,7 +8,7 @@ export function UserFilters() {
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input 
           placeholder="Search by name or email..." 
-          className="pl-10 bg-card border-none rounded-xl h-11 shadow-sm text-sm"
+          className="h-11 pl-10 text-sm"
         />
       </div>
       

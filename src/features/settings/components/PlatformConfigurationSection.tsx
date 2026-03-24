@@ -38,7 +38,7 @@ export function PlatformConfigurationSection({
   });
 
   return (
-    <section className="rounded-[20px] bg-card p-6 shadow-card">
+    <section className="rounded-[20px] border border-border bg-card p-6">
       <h2 className="mb-5 flex items-center gap-2 font-display text-lg font-semibold text-foreground">
         <Settings2 className="size-4 text-primary" />
         <span>Platform Configuration</span>
@@ -80,7 +80,7 @@ export function PlatformConfigurationSection({
                   </FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <SelectTrigger id="settings-community-currency" className="h-10 w-full rounded-xl border-0 bg-input px-4 text-sm">
+                      <SelectTrigger id="settings-community-currency" className="h-11 w-full text-sm">
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
                       <SelectContent>
@@ -114,7 +114,7 @@ export function PlatformConfigurationSection({
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input id="settings-monthly-target" className="h-10 rounded-xl border-0 bg-input pr-10" {...field} />
+                        <Input id="settings-monthly-target" className="h-11 pr-10" {...field} />
                         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold uppercase text-muted-foreground">KG</span>
                       </div>
                     </FormControl>
@@ -133,7 +133,7 @@ export function PlatformConfigurationSection({
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input id="settings-donation-goal" className="h-10 rounded-xl border-0 bg-input pr-14" {...field} />
+                        <Input id="settings-donation-goal" className="h-11 pr-14" {...field} />
                         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold uppercase text-muted-foreground">ITEMS</span>
                       </div>
                     </FormControl>
@@ -159,7 +159,7 @@ export function PlatformConfigurationSection({
                 <FormControl>
                   <textarea
                     id="settings-guidelines-preview"
-                    className="min-h-28 w-full rounded-xl border-0 bg-input px-4 py-3 text-sm text-foreground placeholder:text-placeholder focus-visible:outline-none"
+                    className="min-h-28 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-ring"
                     {...field}
                   />
                 </FormControl>

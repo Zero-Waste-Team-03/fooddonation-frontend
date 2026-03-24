@@ -21,7 +21,7 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
         {children}
       </DialogTrigger>
       {/* Properly override the base dialog width with responsive max-w utilities */}
-      <DialogContent className="sm:max-w-2xl md:max-w-3xl p-0 overflow-hidden border-none rounded-4xl shadow-2xl" showCloseButton={false}>
+      <DialogContent className="sm:max-w-2xl md:max-w-3xl p-0 overflow-hidden" showCloseButton={false}>
         <div className="flex flex-col h-full w-full bg-card">
           
           {/* Header section with toggle */}
@@ -61,14 +61,14 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
                 <Label className="text-[13px] font-bold text-foreground">Full Name</Label>
                 <Input 
                   placeholder="e.g. Julian Thorne" 
-                  className="bg-muted/50 border-none rounded-xl h-11 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-emerald-500"
+                  className="h-11 text-sm"
                 />
               </div>
               <div className="flex flex-col gap-2.5">
                 <Label className="text-[13px] font-bold text-foreground">Official Email</Label>
                 <Input 
                   placeholder="julian@mindfulcurator.org" 
-                  className="bg-muted/50 border-none rounded-xl h-11 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-emerald-500"
+                  className="h-11 text-sm"
                 />
               </div>
             </div>
@@ -148,7 +148,7 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
                   <Label className="text-[13px] font-bold text-muted-foreground">Organization Name</Label>
                   <Input 
                     disabled={tab === "admin"}
-                    className="bg-muted/30 border-none rounded-xl h-11 shadow-none"
+                    className="h-11"
                   />
                 </div>
                 <div className="flex flex-col gap-2.5">
@@ -157,7 +157,7 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
                     <Input 
                       disabled={tab === "admin"}
                       placeholder={tab === "admin" ? "" : "NGO"}
-                      className="bg-muted/30 border-none rounded-xl h-11 shadow-none pr-10 text-sm"
+                      className="h-11 pr-10 text-sm"
                     />
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   </div>
@@ -168,7 +168,7 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
                 <Label className="text-[13px] font-bold text-muted-foreground">Location Address</Label>
                 <Input 
                   disabled={tab === "admin"}
-                  className="bg-muted/30 border-none rounded-xl h-11 shadow-none"
+                  className="h-11"
                 />
               </div>
             </div>
