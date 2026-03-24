@@ -1,65 +1,82 @@
-import appStoreIcon from "@/assets/landing/app-store-icon.svg";
-import playStoreIcon from "@/assets/landing/play-store-icon.svg";
 import { Link } from "@tanstack/react-router";
 
 export function Footer() {
   return (
-    <footer className="w-full bg-muted pt-20 pb-10 flex flex-col gap-12">
+    <footer className="w-full relative bg-foreground text-background pt-32 pb-10 flex flex-col gap-12 mt-24">
+      {/* Wave Divider */}
+      <div className="absolute top-0 left-0 right-0 overflow-hidden leading-none z-10 -translate-y-[99%]">
+        <svg
+          viewBox="0 0 1440 80"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+          className="w-full h-16 md:h-24 fill-foreground"
+        >
+          <path d="M0,80 C360,80 1080,0 1440,0 L1440,80 L0,80 Z" />
+        </svg>
+      </div>
+
       {/* Top Section */}
-      <div className="w-full max-w-[1280px] mx-auto px-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-10 border-t border-primary/5 pt-10">
-        <div className="flex flex-col gap-2">
-          <span className="font-display font-extrabold text-[30px] tracking-[-0.025em] text-primary-hover">
-            Gasp’Zero
-          </span>
-          <p className="font-sans font-normal text-sm leading-[1.625] tracking-[0.025em] text-muted-foreground max-w-[300px]">
+      <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+        <div className="flex flex-col gap-4">
+          <span className="font-display font-bold text-3xl text-primary">Gasp’Zero</span>
+          <p className="font-sans text-sm leading-relaxed text-background/60 max-w-[300px]">
             An Organic Editorial Initiative focused on radical generosity and food sustainability.
           </p>
         </div>
 
-        <div className="flex flex-row gap-6">
-          <button className="flex items-center gap-2 px-4 py-2 bg-foreground rounded-lg hover:opacity-90 transition-opacity">
-            <img src={appStoreIcon} alt="App Store" className="w-[18px] h-[18px]" />
-            <div className="flex flex-col items-start justify-center">
-              <span className="font-sans font-normal text-[8px] uppercase tracking-[0.04em] text-background opacity-70 leading-none">
-                App Store
-              </span>
-            </div>
-          </button>
-
-          <button className="flex items-center gap-2 px-4 py-2 bg-foreground rounded-lg hover:opacity-90 transition-opacity">
-            <img src={playStoreIcon} alt="Google Play" className="w-[18px] h-[18px]" />
-            <div className="flex flex-col items-start justify-center">
-              <span className="font-sans font-normal text-[8px] uppercase tracking-[0.04em] text-background opacity-70 leading-none">
-                Google Play
-              </span>
-            </div>
-          </button>
+        <div className="flex flex-row gap-4">
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Download on Google Play"
+            className="hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="/badges/google-play.svg"
+              alt="Get it on Google Play"
+              className="h-10 w-auto"
+            />
+          </a>
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Download on the App Store"
+            className="hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="/badges/app-store.svg"
+              alt="Download on the App Store"
+              className="h-10 w-auto"
+            />
+          </a>
         </div>
       </div>
 
       {/* Links Section */}
-      <div className="flex flex-wrap justify-center gap-8 px-6">
+      <div className="flex flex-wrap justify-center gap-8 px-6 border-t border-background/10 pt-10 mx-6 md:mx-auto w-full max-w-[1280px]">
         <Link
           to="/"
-          className="font-sans font-normal text-sm tracking-[0.025em] text-muted-foreground hover:text-foreground transition-colors"
+          className="font-sans text-sm text-background/60 hover:text-background transition-colors"
         >
           Privacy Policy
         </Link>
         <Link
           to="/"
-          className="font-sans font-normal text-sm tracking-[0.025em] text-muted-foreground hover:text-foreground transition-colors"
+          className="font-sans text-sm text-background/60 hover:text-background transition-colors"
         >
           Terms of Service
         </Link>
         <Link
           to="/"
-          className="font-sans font-normal text-sm tracking-[0.025em] text-muted-foreground hover:text-foreground transition-colors"
+          className="font-sans text-sm text-background/60 hover:text-background transition-colors"
         >
           Donor Guidelines
         </Link>
         <Link
           to="/dashboard"
-          className="font-sans font-normal text-sm tracking-[0.025em] text-muted-foreground hover:text-foreground transition-colors"
+          className="font-sans text-sm text-background/60 hover:text-background transition-colors"
         >
           Admin Portal
         </Link>
@@ -67,7 +84,7 @@ export function Footer() {
 
       {/* Copyright Section */}
       <div className="w-full text-center px-6">
-        <p className="font-sans font-normal text-sm tracking-[0.025em] text-muted-foreground/70">
+        <p className="font-sans text-sm text-background/40">
           © 2026 Gasp’Zero. An Organic Editorial Initiative.
         </p>
       </div>
