@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useRef } from "react";
 
 const navLinks = [
   { label: "Mission", href: "#mission" },
@@ -10,16 +9,23 @@ const navLinks = [
 
 export function Navbar() {
   const [activeHref, setActiveHref] = useState("");
-  const [scrolled, setScrolled] = useState(false);
+  const [heroScrolled, setHeroScrolled] = useState(false);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const [isFirstRender, setIsFirstRender] = useState(true);
+  const itemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 80);
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
+    const handleScroll = () => {
+      const heroHeight = window.innerHeight;
+      setHeroScrolled(window.scrollY > heroHeight * 0.6);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Check initial state
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    const sections = navLinks.map((l) => document.querySelector(l.href));
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -30,48 +36,128 @@ export function Navbar() {
       },
       { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
     );
-    sections.forEach((s) => s && observer.observe(s));
+
+    navLinks.forEach((link) => {
+      const el = document.querySelector(link.href);
+      if (el) observer.observe(el);
+    });
+
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const index = navLinks.findIndex((l) => l.href === activeHref);
+    if (index !== -1 && itemsRef.current[index]) {
+      const el = itemsRef.current[index];
+      if (el) {
+        setIndicatorStyle({
+          left: el.offsetLeft,
+          width: el.offsetWidth,
+          opacity: 1,
+        });
+      }
+    } else if (activeHref === "" && isFirstRender && itemsRef.current[0]) {
+      // Initialize under first item hidden if nothing active yet, to prevent jumping
+      const el = itemsRef.current[0];
+      if (el) {
+        setIndicatorStyle({
+          left: el.offsetLeft,
+          width: el.offsetWidth,
+          opacity: 0,
+        });
+      }
+    }
+  }, [activeHref, isFirstRender]);
+
+  useEffect(() => {
+    // Enable animations after a brief delay
+    const timer = setTimeout(() => setIsFirstRender(false), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <nav
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300",
-        "bg-background/85 backdrop-blur-md",
-        scrolled ? "border-b border-border" : "border-b border-transparent"
-      )}
+      style={{
+        background: heroScrolled
+          ? "color-mix(in srgb, var(--color-background), transparent 8%)"
+          : "transparent",
+        backdropFilter: heroScrolled ? "blur(16px)" : "none",
+        borderBottom: `1px solid ${heroScrolled ? "var(--color-border)" : "transparent"}`,
+        height: "80px",
+        transition: "all 300ms ease",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+      }}
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className="container mx-auto px-6 h-full flex items-center justify-between">
+      <div className="container mx-auto px-6 h-full flex items-center justify-between relative">
         <a
           href="#"
-          className="font-display font-bold text-xl text-primary tracking-tight"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 900,
+            fontSize: "24px",
+            letterSpacing: "-0.03em",
+            color: heroScrolled ? "var(--color-foreground)" : "var(--hero-text)",
+
+            transition: "color 300ms ease",
+            textDecoration: "none",
+          }}
           aria-label="Gasp'Zero Home"
         >
           Gasp’Zero
         </a>
 
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
+        <div className="hidden md:flex items-center gap-8 relative">
+          {/* Active Indicator */}
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              bottom: "-4px",
+              height: "2px",
+              borderRadius: "999px",
+              backgroundColor: "var(--color-primary)",
+              left: 0,
+              width: `${indicatorStyle.width}px`,
+              transform: `translateX(${indicatorStyle.left}px)`,
+              opacity: indicatorStyle.opacity,
+              transition: isFirstRender
+                ? "none"
+                : "transform 300ms cubic-bezier(0.16, 1, 0.3, 1), width 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease",
+              pointerEvents: "none",
+            }}
+          />
+
+          {navLinks.map((link, index) => (
             <a
               key={link.href}
               href={link.href}
-              className={cn(
-                "relative text-sm font-medium transition-colors duration-200",
-                activeHref === link.href
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
+              ref={(el) => {
+                itemsRef.current[index] = el;
+              }}
+              style={{
+                fontSize: "14px",
+                fontWeight: 500,
+                color:
+                  activeHref === link.href
+                    ? "var(--color-primary)"
+                    : heroScrolled
+                      ? "var(--color-foreground)"
+                      : "var(--hero-text)",
+                opacity: activeHref === link.href ? 1 : heroScrolled ? 0.7 : 0.9,
+                transition: "color 200ms ease, opacity 200ms ease",
+                textDecoration: "none",
+                padding: "8px 0",
+              }}
             >
               {link.label}
-              <span
-                className={cn(
-                  "absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-200",
-                  activeHref === link.href ? "w-full" : "w-0"
-                )}
-              />
             </a>
           ))}
         </div>

@@ -24,78 +24,123 @@ function StatCard({
   const count = useCountUp(inView, { end, suffix, prefix, decimals, duration: 2500 });
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-2 pl-8 border-l-4 border-primary/20 reveal",
-        inView && "in-view"
-      )}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      <span className="font-display font-bold text-5xl md:text-6xl text-primary leading-none tabular-nums">
-        {count}
-      </span>
-      <span className="font-sans font-bold text-xs uppercase tracking-widest text-muted-foreground">
-        {label}
-      </span>
+    <div className="flex flex-col gap-6 relative min-w-[200px]">
+      {/* Animated Horizontal Rule */}
+      <div
+        className={cn(
+          "h-[2px] bg-primary transition-all duration-1000 ease-out origin-left opacity-30",
+          inView ? "w-full scale-x-100" : "w-0 scale-x-0"
+        )}
+        style={{ transitionDelay: `${delay}ms` }}
+      />
+
+      <div
+        className={cn(
+          "flex flex-col gap-2 transition-all duration-700",
+          inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}
+        style={{ transitionDelay: `${delay + 200}ms` }}
+      >
+        <span
+          className="leading-none tabular-nums tracking-tighter"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 900,
+            fontSize: "clamp(64px, 10vw, 120px)",
+            color: "var(--color-primary)",
+          }}
+        >
+          {count}
+        </span>
+        <span
+          className="text-sm font-bold uppercase tracking-widest"
+          style={{ color: "var(--hero-text-muted)" }}
+        >
+          {label}
+        </span>
+      </div>
     </div>
   );
 }
 
 export function ImpactSection() {
-  const { ref, inView } = useInView<HTMLElement>({ threshold: 0.3 });
+  const { ref, inView } = useInView<HTMLElement>({ threshold: 0.2 });
 
   return (
-    <section ref={ref} id="impact" className="w-full bg-card py-24 relative overflow-hidden">
-      {/* Background Blob */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary opacity-[0.04] rounded-full blur-3xl pointer-events-none" />
-
-      {/* Top Wave Divider (Transition from Background) */}
-      <div className="absolute top-0 left-0 right-0 overflow-hidden leading-none z-10 -translate-y-[1px] rotate-180">
+    <section
+      ref={ref}
+      id="impact"
+      className="relative w-full py-32 mt-24 z-10"
+      style={{ backgroundColor: "var(--hero-bg)" }}
+    >
+      {/* Top Wave Divider (Overlaps previous section) */}
+      <div className="absolute top-0 left-0 right-0 overflow-hidden leading-none z-10 -translate-y-[98%] pointer-events-none">
         <svg
-          viewBox="0 0 1440 60"
+          viewBox="0 0 1440 80"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
-          className="w-full h-12 md:h-16 fill-card"
+          className="w-full h-16 md:h-24"
+          style={{ fill: "var(--hero-bg)" }}
         >
-          <path d="M0,60 C360,20 1080,20 1440,60 L1440,60 L0,60 Z" />
+          <path d="M0,80 C360,80 1080,0 1440,0 L1440,80 L0,80 Z" />
         </svg>
       </div>
 
-      <div className="container mx-auto px-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-16 relative z-10">
-        {/* Left Content */}
-        <div className={cn("flex flex-col gap-8 max-w-[600px] reveal", inView && "in-view")}>
-          <h2 className="font-display font-bold text-4xl md:text-5xl text-foreground leading-tight">
-            Measure the Change
-          </h2>
-          <p className="font-sans font-normal text-xl leading-relaxed text-muted-foreground">
-            Transparency is our core value. See the real-time difference our community curators are
-            making worldwide.
-          </p>
-        </div>
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-20">
+          {/* Text Content */}
+          <div className="flex flex-col gap-8 max-w-[500px]">
+            <h2
+              className={cn(
+                "leading-[0.95] transition-all duration-700",
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              )}
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 900,
+                fontSize: "clamp(40px, 5vw, 72px)",
+                color: "var(--hero-text)",
+              }}
+            >
+              Measure the Change
+            </h2>
+            <p
+              className={cn(
+                "text-xl leading-relaxed transition-all duration-700 delay-100",
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              )}
+              style={{ color: "var(--hero-text-muted)" }}
+            >
+              Transparency is our core value. See the real-time difference our community curators
+              are making worldwide.
+            </p>
+          </div>
 
-        {/* Right Stats */}
-        <div className="flex flex-col sm:flex-row gap-12 w-full lg:w-auto">
-          <StatCard end={42890} label="KG Food Saved" inView={inView} delay={200} />
-          <StatCard
-            end={12.4}
-            suffix="k"
-            decimals={1}
-            label="Active Donors"
-            inView={inView}
-            delay={400}
-          />
+          {/* Stats */}
+          <div className="flex flex-col sm:flex-row gap-16 lg:gap-32 w-full lg:w-auto">
+            <StatCard end={42890} label="KG Food Saved" inView={inView} delay={200} />
+            <StatCard
+              end={12.4}
+              suffix="k"
+              decimals={1}
+              label="Active Donors"
+              inView={inView}
+              delay={400}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Bottom Wave Divider (Transition to Background) */}
-      <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none z-10 translate-y-[1px]">
+      {/* Bottom Wave Divider (Overlaps next section) */}
+      <div className="absolute bottom-0 left-0 right-0 overflow-hidden leading-none z-10 translate-y-[98%] pointer-events-none">
         <svg
-          viewBox="0 0 1440 60"
+          viewBox="0 0 1440 80"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
-          className="w-full h-12 md:h-16 fill-background"
+          className="w-full h-16 md:h-24"
+          style={{ fill: "var(--hero-bg)" }}
         >
-          <path d="M0,0 C360,40 1080,40 1440,0 L1440,60 L0,60 Z" />
+          <path d="M0,0 C360,0 1080,80 1440,80 L1440,0 L0,0 Z" />
         </svg>
       </div>
     </section>
