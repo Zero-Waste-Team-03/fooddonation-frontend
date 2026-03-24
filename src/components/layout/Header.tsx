@@ -3,7 +3,8 @@ import { Bell, MoonStar, PanelLeft, Search, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { sidebarCollapsedAtom, themeAtom } from "@/store";
+import { sidebarCollapsedAtom } from "@/store/atoms";
+import { themeAtom } from "@/store/atoms/ui.atoms";
 
 export function Header() {
   const [, setCollapsed] = useAtom(sidebarCollapsedAtom);
@@ -33,7 +34,7 @@ export function Header() {
           />
           <Input
             readOnly
-            placeholder="Search analytics, users or donations..."
+            placeholder="Search analytics, users or donations…"
             className="h-auto rounded-md border-0 bg-muted py-2.5 pr-4 pl-10 text-sm leading-[1.21]"
             aria-label="Search"
           />

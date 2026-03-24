@@ -6,7 +6,7 @@ import { Provider as JotaiProvider, createStore, useAtomValue } from "jotai";
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider, useAuthContext } from "@/providers/AuthProvider";
 import { ApolloProvider } from "@/providers/ApolloProvider";
-import { themeAtom } from "@/store";
+import { themeAtom } from "@/store/atoms/ui.atoms";
 import "@fontsource-variable/inter";
 import "@fontsource/plus-jakarta-sans/400.css";
 import "@fontsource/plus-jakarta-sans/500.css";

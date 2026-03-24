@@ -120,7 +120,7 @@ export function LoginForm({ showResetSuccess = false }: LoginFormProps) {
             className="h-12 w-full rounded-(--radius-login-card) text-base font-semibold"
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign In to Dashboard"}
+            {loading ? "Signing in…" : "Sign In to Dashboard"}
           </Button>
           <div className="flex flex-col gap-6 border-t border-sidebar-section-border pt-6">
             <p className="text-center text-xs leading-normal text-label">
@@ -132,13 +132,12 @@ export function LoginForm({ showResetSuccess = false }: LoginFormProps) {
                 <span>Secure End-to-End Encryption</span>
               </div>
             </div>
-            <Button
-              type="button"
-              variant="link"
-              className="text-sm font-normal text-label"
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center text-sm font-normal text-label underline-offset-4 hover:underline"
             >
               Return to Public Site
-            </Button>
+            </Link>
           </div>
         </form>
       </div>

@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { BarChart2, Gift, LayoutDashboard, LogOut, Settings2, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { sidebarCollapsedAtom } from "@/store";
+import { sidebarCollapsedAtom } from "@/store/atoms";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 const navItems = [

@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import type { ReactNode } from "react";
 
-import { sidebarCollapsedAtom } from "@/store";
+import { sidebarCollapsedAtom } from "@/store/atoms";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 

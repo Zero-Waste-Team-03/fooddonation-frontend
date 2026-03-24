@@ -1,6 +1,11 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { useAtomValue } from "jotai";
-import { accessTokenAtom, authUserAtom, isAuthenticatedAtom, refreshTokenAtom } from "@/store";
+import {
+  accessTokenAtom,
+  authUserAtom,
+  isAuthenticatedAtom,
+  refreshTokenAtom,
+} from "@/store/atoms/auth.atoms";
 import type { AuthUser } from "@/types/auth.types";
 import { jotaiStore, router } from "@/main";
 

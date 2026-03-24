@@ -2,7 +2,7 @@ import { UserPlus } from "lucide-react";
 import { useAtom } from "jotai";
 import { Button } from "@/components/ui/button";
 import { PageWrapper } from "@/components/layout/PageWrapper";
-import { createUserDialogOpenAtom } from "@/store";
+import { createUserDialogOpenAtom } from "@/store/atoms/users.atoms";
 
 import { UserStats } from "../components/UserStats";
 import { UserFilters } from "../components/UserFilters";

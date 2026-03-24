@@ -3,7 +3,7 @@ import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { CombinedGraphQLErrors, ServerError } from "@apollo/client/errors";
 import { jotaiStore, router } from "@/main";
-import { accessTokenAtom, authUserAtom, refreshTokenAtom } from "@/store";
+import { accessTokenAtom, authUserAtom, refreshTokenAtom } from "@/store/atoms/auth.atoms";
 
 const AUTH_OPERATION_NAMES = new Set(["Login", "ForgotPassword", "ResetPassword"]);
 

@@ -6,12 +6,12 @@ import { cn } from "@/lib/utils";
 
 type StatBadgeVariant = "success" | "destructive" | "warning" | "info" | "neutral";
 
-const badgeVariantClass: Record<StatBadgeVariant, string> = {
-  success: "bg-success/10 text-success",
-  destructive: "bg-destructive/10 text-destructive",
-  warning: "bg-warning/10 text-warning",
-  info: "bg-info/10 text-info",
-  neutral: "bg-muted text-muted-foreground",
+const badgeVariantMap: Record<StatBadgeVariant, "success" | "destructive" | "warning" | "info" | "secondary"> = {
+  success: "success",
+  destructive: "destructive",
+  warning: "warning",
+  info: "info",
+  neutral: "secondary",
 };
 
 export type StatMetricCardProps = {
@@ -47,7 +47,8 @@ export function StatMetricCard({
         </div>
         {deltaLabel ? (
           <Badge
-            className={cn("w-fit", badgeVariantClass[badgeVariant])}
+            variant={badgeVariantMap[badgeVariant]}
+            className="w-fit"
           >
             {deltaLabel}
           </Badge>

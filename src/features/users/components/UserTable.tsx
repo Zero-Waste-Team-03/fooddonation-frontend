@@ -52,60 +52,68 @@ function StatusBadge({ status }: { status: UserStatus }) {
 
 export function UserTable() {
   return (
-    <div className="rounded-3xl border bg-card overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-transparent hover:bg-transparent border-b border-border/50">
-            <TableHead className="w-75 text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">Name & Email</TableHead>
-            <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Role</TableHead>
-            <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Reputation</TableHead>
-            <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Join Date</TableHead>
-            <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Status</TableHead>
-            <TableHead className="text-right text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {mockUsers.map((user) => (
-            <TableRow key={user.id} className="hover:bg-muted/30 border-b border-border/50">
-              <TableCell className="px-6 py-4">
-                <div className="flex items-center gap-4">
-                  <div className="size-11 shrink-0 rounded-full overflow-hidden bg-muted border border-border/50 shadow-sm">
-                    <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-bold text-foreground text-[14px]">{user.name}</span>
-                    <span className="text-[13px] text-muted-foreground tracking-wide">{user.email}</span>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell className="py-4">
-                <RoleBadge role={user.role} />
-              </TableCell>
-              <TableCell className="py-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex size-4.5 items-center justify-center rounded-full bg-orange-100 text-orange-500">
-                    <Star className="size-2.5 fill-orange-500" />
-                  </div>
-                  <span className="font-bold text-[13px] text-foreground">{user.reputation} pts</span>
-                </div>
-              </TableCell>
-              <TableCell className="py-4">
-                <span className="font-medium text-muted-foreground text-[13px]">
-                  {user.joinDate}
-                </span>
-              </TableCell>
-              <TableCell className="py-4">
-                <StatusBadge status={user.status} />
-              </TableCell>
-              <TableCell className="text-right px-6 py-4">
-                <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted">
-                  <MoreHorizontal className="size-4" />
-                </Button>
-              </TableCell>
+    <div className="overflow-x-auto rounded-3xl border bg-card">
+      <div className="overflow-hidden">
+        <Table>
+          <caption className="sr-only">Platform users with role, reputation, join date, and status</caption>
+          <TableHeader>
+            <TableRow className="bg-transparent hover:bg-transparent border-b border-border/50">
+              <TableHead className="w-75 text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">Name & Email</TableHead>
+              <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Role</TableHead>
+              <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Reputation</TableHead>
+              <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Join Date</TableHead>
+              <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Status</TableHead>
+              <TableHead className="text-right text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {mockUsers.map((user) => (
+              <TableRow key={user.id} className="hover:bg-muted/30 border-b border-border/50">
+                <TableCell className="px-6 py-4">
+                  <div className="flex items-center gap-4">
+                    <div className="size-11 shrink-0 rounded-full overflow-hidden bg-muted border border-border/50 shadow-sm">
+                      <img src={user.avatar} alt={user.name} width={44} height={44} className="h-full w-full object-cover" />
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-bold text-foreground text-[14px]">{user.name}</span>
+                      <span className="text-[13px] text-muted-foreground tracking-wide">{user.email}</span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="py-4">
+                  <RoleBadge role={user.role} />
+                </TableCell>
+                <TableCell className="py-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-4.5 items-center justify-center rounded-full bg-orange-100 text-orange-500" aria-hidden>
+                      <Star className="size-2.5 fill-orange-500" aria-hidden />
+                    </div>
+                    <span className="font-bold text-[13px] text-foreground">{user.reputation} pts</span>
+                  </div>
+                </TableCell>
+                <TableCell className="py-4">
+                  <span className="font-medium text-muted-foreground text-[13px]">
+                    {user.joinDate}
+                  </span>
+                </TableCell>
+                <TableCell className="py-4">
+                  <StatusBadge status={user.status} />
+                </TableCell>
+                <TableCell className="text-right px-6 py-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted"
+                    aria-label={`Open actions for ${user.name}`}
+                  >
+                    <MoreHorizontal className="size-4" aria-hidden />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       
       {/* Pagination Footer */}
       <div className="flex items-center justify-between px-6 py-4 bg-transparent mt-1">
