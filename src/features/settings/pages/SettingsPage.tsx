@@ -39,10 +39,6 @@ const notificationsInitialValues = {
   systemReports: false,
 };
 
-const appearanceInitialValues = {
-  appearanceTheme: "ETHOS_LIGHT" as const,
-};
-
 export function SettingsPage() {
   return (
     <PageWrapper
@@ -85,12 +81,7 @@ export function SettingsPage() {
                 console.log("Notifications submit", data);
               }}
             />
-            <AppearanceSection
-              initialValues={appearanceInitialValues}
-              onSubmit={async (data) => {
-                console.log("Appearance submit", data);
-              }}
-            />
+            <AppearanceSection />
           </div>
         </div>
 

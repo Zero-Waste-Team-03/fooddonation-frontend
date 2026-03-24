@@ -1,12 +1,17 @@
 import { useAtom } from "jotai";
-import { Bell, PanelLeft, Search } from "lucide-react";
+import { Bell, MoonStar, PanelLeft, Search, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { sidebarCollapsedAtom } from "@/store";
+import { sidebarCollapsedAtom, themeAtom } from "@/store";
 
 export function Header() {
   const [, setCollapsed] = useAtom(sidebarCollapsedAtom);
+  const [theme, setTheme] = useAtom(themeAtom);
+
+  const handleToggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   return (
     <header className="flex h-header w-full shrink-0 items-center justify-between gap-8 border-b border-border bg-header-surface px-8 backdrop-blur-md">
@@ -35,6 +40,16 @@ export function Header() {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-10 rounded-md"
+          aria-label="Toggle theme"
+          onClick={handleToggleTheme}
+        >
+          {theme === "dark" ? <Sun className="size-5" aria-hidden /> : <MoonStar className="size-5" aria-hidden />}
+        </Button>
         <Button
           type="button"
           variant="ghost"
