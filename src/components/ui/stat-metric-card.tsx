@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -45,14 +46,11 @@ export function StatMetricCard({
           ) : null}
         </div>
         {deltaLabel ? (
-          <span
-            className={cn(
-              "w-fit rounded-full px-2 py-1 text-xs font-semibold",
-              badgeVariantClass[badgeVariant],
-            )}
+          <Badge
+            className={cn("w-fit", badgeVariantClass[badgeVariant])}
           >
             {deltaLabel}
-          </span>
+          </Badge>
         ) : null}
       </CardContent>
     </Card>

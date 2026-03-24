@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { PlatformConfigurationSettings } from "@/types/settings.types";
@@ -56,9 +57,9 @@ export function PlatformConfigurationSection({
                     <FormLabel htmlFor="settings-default-expiration" className="text-xs font-semibold text-foreground">
                       Default Donation Expiration
                     </FormLabel>
-                    <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                    <Badge variant="success" className="h-6 px-2.5">
                       {field.value}
-                    </span>
+                    </Badge>
                   </div>
                   <div className="h-1.5 w-40 rounded-full bg-muted">
                     <div className="h-full w-2/3 rounded-full bg-success" />

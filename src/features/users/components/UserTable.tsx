@@ -14,20 +14,20 @@ import { mockUsers, UserRole, UserStatus } from "../data/mockUsers";
 function RoleBadge({ role }: { role: UserRole }) {
   if (role === "DONOR") {
     return (
-      <Badge variant="outline" className="bg-emerald-50/80 text-emerald-700 border-emerald-200/60 font-bold uppercase tracking-wider text-[10px] h-6 px-3 rounded-full shadow-sm">
+      <Badge variant="success" className="h-6 px-3">
         DONOR
       </Badge>
     );
   }
   if (role === "BENEFICIARY") {
     return (
-      <Badge variant="outline" className="bg-blue-50/80 text-blue-600 border-blue-200/60 font-bold uppercase tracking-wider text-[10px] h-6 px-3 rounded-full shadow-sm">
+      <Badge variant="info" className="h-6 px-3">
         BENEFICIARY
       </Badge>
     );
   }
   return (
-    <Badge variant="outline" className="bg-orange-50/80 text-orange-600 border-orange-200/60 font-bold uppercase tracking-wider text-[10px] h-6 px-3 rounded-full shadow-sm">
+    <Badge variant="warning" className="h-6 px-3">
       FOOD SAVER
     </Badge>
   );
@@ -36,14 +36,14 @@ function RoleBadge({ role }: { role: UserRole }) {
 function StatusBadge({ status }: { status: UserStatus }) {
   if (status === "Active") {
     return (
-      <Badge variant="outline" className="bg-emerald-50/80 text-emerald-600 border-emerald-200/60 font-semibold h-6 px-2.5 rounded-full shadow-sm">
+      <Badge variant="success" className="h-6 px-2.5">
         <span className="mr-1.5 size-1.5 rounded-full bg-emerald-500"></span>
         Active
       </Badge>
     );
   }
   return (
-    <Badge variant="outline" className="bg-rose-50/80 text-rose-600 border-rose-200/60 font-semibold h-6 px-2.5 rounded-full shadow-sm">
+    <Badge variant="destructive" className="h-6 px-2.5">
       <span className="mr-1.5 size-1.5 rounded-full bg-rose-500"></span>
       Suspended
     </Badge>

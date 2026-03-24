@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 function StatusBadge({ status }: { status: DonationStatus }) {
   if (status === "Active") {
     return (
-      <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100 font-semibold h-6 px-2.5">
+      <Badge variant="success" className="h-6 px-2.5">
         <span className="mr-1.5 size-1.5 rounded-full bg-emerald-500"></span>
         Active
       </Badge>
@@ -23,14 +23,14 @@ function StatusBadge({ status }: { status: DonationStatus }) {
   }
   if (status === "Flagged") {
     return (
-      <Badge variant="outline" className="bg-rose-50 text-rose-600 border-rose-100 font-semibold h-6 px-2.5">
+      <Badge variant="destructive" className="h-6 px-2.5">
         <span className="mr-1.5 size-1.5 rounded-full bg-rose-500"></span>
         Flagged
       </Badge>
     );
   }
   return (
-    <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-100 font-semibold h-6 px-2.5">
+    <Badge variant="warning" className="h-6 px-2.5">
       <span className="mr-1.5 size-1.5 rounded-full bg-amber-500"></span>
       Pending
     </Badge>
@@ -81,7 +81,7 @@ export function DonationTable() {
                 </div>
               </TableCell>
               <TableCell className="py-4">
-                <Badge variant="secondary" className="bg-muted text-muted-foreground font-semibold px-2.5 py-0 h-6 text-[11px] rounded-full border-none shadow-none">
+                <Badge variant="secondary" className="h-6 px-2.5">
                   {donation.category}
                 </Badge>
               </TableCell>
