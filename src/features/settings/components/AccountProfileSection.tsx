@@ -48,7 +48,7 @@ export function AccountProfileSection({ initialValues, onSubmit }: AccountProfil
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-[90px_minmax(0,1fr)] gap-4">
             <div className="space-y-1">
-              <div className="relative flex size-[78px] items-end justify-end overflow-hidden rounded-[12px] bg-[#f3a786]">
+              <div className="relative flex size-19.5 items-end justify-end overflow-hidden rounded-[12px] bg-[#f3a786]">
                 <UserRound className="absolute left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2 text-card" />
                 <button
                   type="button"

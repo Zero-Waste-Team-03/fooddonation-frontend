@@ -280,7 +280,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   );
 
   return (
-    <div className={cn("relative h-full w-full min-h-[1px]", className)}>
+    <div className={cn("relative h-full w-full min-h-px", className)}>
       <div
         ref={containerRef}
         className="absolute inset-0 min-h-[inherit] rounded-[inherit]"
@@ -528,7 +528,7 @@ function MarkerPopup({
   return createPortal(
     <div
       className={cn(
-        "relative min-w-[200px] rounded-lg border border-border bg-card p-3 text-card-foreground shadow-dropdown",
+        "relative min-w-50 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-dropdown",
         className,
       )}
     >
@@ -925,7 +925,7 @@ function MapPopup({
   return createPortal(
     <div
       className={cn(
-        "relative min-w-[200px] rounded-lg border border-border bg-card p-3 text-card-foreground shadow-dropdown",
+        "relative min-w-50 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-dropdown",
         className,
       )}
     >
