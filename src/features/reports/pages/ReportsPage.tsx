@@ -7,9 +7,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { Cloud, Heart, Users } from "lucide-react";
 
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Card, CardContent } from "@/components/ui/card";
+import { StatMetricCard } from "@/components/ui/stat-metric-card";
 import type { ActivityPoint, MetricCardData } from "@/types/analytics.types";
 
 const METRIC_CARDS: MetricCardData[] = [
@@ -54,28 +56,24 @@ export function ReportsPage() {
     >
       <div className="flex flex-col gap-8">
         <div className="grid gap-6 md:grid-cols-3">
-          {METRIC_CARDS.map((card) => (
-            <Card
-              key={card.id}
-              className="overflow-hidden rounded-md border-border bg-card shadow-card"
-            >
-              <CardContent className="flex flex-col gap-6 p-6">
-                <div className="flex flex-row items-start justify-between gap-4">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {card.label}
-                    </p>
-                    <p className="font-display text-2xl font-bold text-page-title">
-                      {card.value}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-success/10 px-2 py-1 text-xs font-semibold text-success">
-                    {card.deltaLabel}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {METRIC_CARDS.map((card) => {
+            const icon =
+              card.id === "donations"
+                ? Heart
+                : card.id === "weight"
+                  ? Cloud
+                  : Users;
+
+            return (
+              <StatMetricCard
+                key={card.id}
+                label={card.label}
+                value={card.value}
+                deltaLabel={card.deltaLabel}
+                icon={icon}
+              />
+            );
+          })}
         </div>
         <Card className="rounded-md border-border shadow-card">
           <CardContent className="p-6">

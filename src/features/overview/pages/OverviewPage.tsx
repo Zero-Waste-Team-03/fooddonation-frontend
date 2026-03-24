@@ -21,6 +21,7 @@ import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatMetricCard } from "@/components/ui/stat-metric-card";
 import {
   Map,
   MapControls,
@@ -35,7 +36,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 
 type OverviewKpi = {
   id: string;
@@ -199,35 +199,14 @@ export function OverviewPage() {
       <div className="flex flex-col gap-8">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {OVERVIEW_KPIS.map((card) => {
-            const KpiIcon = card.icon;
             return (
-            <Card
+            <StatMetricCard
               key={card.id}
-              className="overflow-hidden border-border bg-card shadow-card"
-            >
-              <CardContent className="flex flex-col gap-4 p-6">
-                <div className="flex flex-row items-start justify-between gap-4">
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {card.label}
-                    </p>
-                    <p className="font-display text-2xl font-bold text-page-title">
-                      {card.value}
-                    </p>
-                  </div>
-                  <div
-                    className={cn(
-                      "flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary",
-                    )}
-                  >
-                    <KpiIcon className="size-5" aria-hidden />
-                  </div>
-                </div>
-                <span className="w-fit rounded-full bg-success/10 px-2 py-1 text-xs font-semibold text-success">
-                  {card.deltaLabel}
-                </span>
-              </CardContent>
-            </Card>
+              label={card.label}
+              value={card.value}
+              deltaLabel={card.deltaLabel}
+              icon={card.icon}
+            />
             );
           })}
         </div>
