@@ -56,7 +56,7 @@ export function UserTable() {
       <Table>
         <TableHeader>
           <TableRow className="bg-transparent hover:bg-transparent border-b border-border/50">
-            <TableHead className="w-[300px] text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">Name & Email</TableHead>
+            <TableHead className="w-75 text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">Name & Email</TableHead>
             <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Role</TableHead>
             <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Reputation</TableHead>
             <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Join Date</TableHead>
@@ -83,8 +83,8 @@ export function UserTable() {
               </TableCell>
               <TableCell className="py-4">
                 <div className="flex items-center gap-2">
-                  <div className="flex size-[18px] items-center justify-center rounded-full bg-orange-100 text-orange-500">
-                    <Star className="size-[10px] fill-orange-500" />
+                  <div className="flex size-4.5 items-center justify-center rounded-full bg-orange-100 text-orange-500">
+                    <Star className="size-2.5 fill-orange-500" />
                   </div>
                   <span className="font-bold text-[13px] text-foreground">{user.reputation} pts</span>
                 </div>

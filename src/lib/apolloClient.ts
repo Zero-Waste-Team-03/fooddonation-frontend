@@ -2,7 +2,8 @@ import { ApolloClient, InMemoryCache, createHttpLink, from } from "@apollo/clien
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { CombinedGraphQLErrors, ServerError } from "@apollo/client/errors";
-import { router } from "@/main";
+import { jotaiStore, router } from "@/main";
+import { accessTokenAtom, authUserAtom, refreshTokenAtom } from "@/store";
 
 const AUTH_OPERATION_NAMES = new Set(["Login", "ForgotPassword", "ResetPassword"]);
 
@@ -20,7 +21,7 @@ const httpLink = createHttpLink({
 });
 
 const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem("access_token");
+  const token = jotaiStore.get(accessTokenAtom);
   return {
     headers: {
       ...headers,
@@ -45,9 +46,9 @@ const errorLink = onError(({ error, operation }) => {
         err.extensions?.code === "UNAUTHENTICATED" ||
         err.extensions?.code === "FORBIDDEN"
       ) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("auth_user");
-        localStorage.removeItem("refresh_token");
+        jotaiStore.set(accessTokenAtom, null);
+        jotaiStore.set(authUserAtom, null);
+        jotaiStore.set(refreshTokenAtom, null);
         void router.navigate({ to: "/login", search: { redirect: "/" } });
         return;
       }

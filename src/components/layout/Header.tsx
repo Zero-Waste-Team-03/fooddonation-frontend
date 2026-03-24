@@ -9,7 +9,7 @@ export function Header() {
   const [, setCollapsed] = useAtom(sidebarCollapsedAtom);
 
   return (
-    <header className="flex h-header w-full shrink-0 items-center justify-between gap-8 border-b border-border bg-header-surface px-8 backdrop-blur-[12px]">
+    <header className="flex h-header w-full shrink-0 items-center justify-between gap-8 border-b border-border bg-header-surface px-8 backdrop-blur-md">
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <Button
           type="button"

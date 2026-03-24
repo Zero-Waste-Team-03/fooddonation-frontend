@@ -54,7 +54,7 @@ export function LoginForm({ showResetSuccess = false }: LoginFormProps) {
         </div>
         <form
           onSubmit={onSubmit}
-          className="relative flex flex-col gap-8 rounded-[var(--radius-login-card)] border border-login-card-border bg-card p-10 pt-10 pb-6 shadow-login"
+          className="relative flex flex-col gap-8 rounded-(--radius-login-card) border border-login-card-border bg-card p-10 pt-10 pb-6 shadow-login"
         >
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-1">
@@ -117,7 +117,7 @@ export function LoginForm({ showResetSuccess = false }: LoginFormProps) {
           </div>
           <Button
             type="submit"
-            className="h-12 w-full rounded-[var(--radius-login-card)] text-base font-semibold"
+            className="h-12 w-full rounded-(--radius-login-card) text-base font-semibold"
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign In to Dashboard"}

@@ -91,7 +91,7 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="w-full max-w-[calc(100%-2rem)] rounded-[32px] border-none bg-card p-0 shadow-modal sm:max-w-[874px]"
+        className="w-full max-w-[calc(100%-2rem)] rounded-4xl border-none bg-card p-0 shadow-modal sm:max-w-218.5"
       >
         <div className="space-y-7 p-8 sm:p-10 sm:pb-14">
           <Form {...form}>
@@ -155,14 +155,14 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
                           variant="ghost"
                           className={
                             field.value === "ADMIN"
-                              ? "h-auto min-h-[108px] w-full items-start justify-between rounded-xl border border-primary/25 bg-primary/10 p-4 text-left sm:p-5"
-                              : "h-auto min-h-[108px] w-full items-start justify-between rounded-xl border border-border/70 bg-muted/70 p-4 text-left sm:p-5"
+                              ? "h-auto min-h-27 w-full items-start justify-between rounded-xl border border-primary/25 bg-primary/10 p-4 text-left sm:p-5"
+                              : "h-auto min-h-27 w-full items-start justify-between rounded-xl border border-border/70 bg-muted/70 p-4 text-left sm:p-5"
                           }
                           onClick={() => field.onChange("ADMIN")}
                         >
                           <div className="min-w-0 space-y-1 pr-2">
                             <p className="text-base font-semibold text-primary">Super Admin</p>
-                            <p className="text-xs leading-5 text-muted-foreground break-words">
+                            <p className="text-xs leading-5 text-muted-foreground wrap-break-words">
                               Full system access, including financial records and audit logs.
                             </p>
                           </div>
@@ -174,8 +174,8 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
                           variant="ghost"
                           className={
                             field.value === "USER"
-                              ? "h-auto min-h-[108px] w-full items-start justify-between rounded-xl border border-primary/25 bg-primary/10 p-4 text-left sm:p-5"
-                              : "h-auto min-h-[108px] w-full items-start justify-between rounded-xl border border-border/70 bg-muted/70 p-4 text-left sm:p-5"
+                              ? "h-auto min-h-27 w-full items-start justify-between rounded-xl border border-primary/25 bg-primary/10 p-4 text-left sm:p-5"
+                              : "h-auto min-h-27 w-full items-start justify-between rounded-xl border border-border/70 bg-muted/70 p-4 text-left sm:p-5"
                           }
                           onClick={() => field.onChange("USER")}
                         >
@@ -333,7 +333,7 @@ export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDia
                   </Button>
                   <Button
                     type="submit"
-                    className="h-11 min-w-[170px] rounded-xl px-9 font-semibold text-primary-foreground shadow-card"
+                    className="h-11 min-w-42.5 rounded-xl px-9 font-semibold text-primary-foreground shadow-card"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Creating..." : "Create Account"}

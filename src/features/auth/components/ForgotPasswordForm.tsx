@@ -42,7 +42,7 @@ export function ForgotPasswordForm() {
           </div>
         </div>
 
-        <div className="relative flex flex-col gap-8 rounded-[var(--radius-login-card)] border border-login-card-border bg-card p-10 pt-10 pb-6 shadow-login">
+        <div className="relative flex flex-col gap-8 rounded-(--radius-login-card) border border-login-card-border bg-card p-10 pt-10 pb-6 shadow-login">
           {success ? (
             <div className="flex flex-col gap-6">
               <h2 className="font-display text-2xl font-bold leading-[1.33] text-foreground">
@@ -97,7 +97,7 @@ export function ForgotPasswordForm() {
 
               <Button
                 type="submit"
-                className="h-12 w-full rounded-[var(--radius-login-card)] text-base font-semibold"
+                className="h-12 w-full rounded-(--radius-login-card) text-base font-semibold"
                 disabled={loading}
               >
                 {loading ? "Sending..." : "Send reset link"}

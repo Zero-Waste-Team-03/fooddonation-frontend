@@ -21,7 +21,7 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
         {children}
       </DialogTrigger>
       {/* Properly override the base dialog width with responsive max-w utilities */}
-      <DialogContent className="sm:max-w-2xl md:max-w-3xl p-0 overflow-hidden border-none rounded-[32px] shadow-2xl" showCloseButton={false}>
+      <DialogContent className="sm:max-w-2xl md:max-w-3xl p-0 overflow-hidden border-none rounded-4xl shadow-2xl" showCloseButton={false}>
         <div className="flex flex-col h-full w-full bg-card">
           
           {/* Header section with toggle */}

@@ -6,7 +6,7 @@ import { Provider as JotaiProvider, createStore, useAtomValue } from "jotai";
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider, useAuthContext } from "@/providers/AuthProvider";
 import { ApolloProvider } from "@/providers/ApolloProvider";
-import { themeModeAtom } from "@/store";
+import { themeAtom } from "@/store";
 import "@fontsource-variable/inter";
 import "@fontsource/plus-jakarta-sans/400.css";
 import "@fontsource/plus-jakarta-sans/500.css";
@@ -33,20 +33,35 @@ declare module "@tanstack/react-router" {
 
 function InnerApp() {
   const auth = useAuthContext();
-  const themeMode = useAtomValue(themeModeAtom);
+
+  return <RouterProvider router={router} context={{ auth }} />;
+}
+
+function ThemeApplier() {
+  const theme = useAtomValue(themeAtom);
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.toggle("dark", themeMode === "dark");
-    root.style.colorScheme = themeMode;
-  }, [themeMode]);
+    root.classList.remove("light", "dark");
 
-  return <RouterProvider router={router} context={{ auth }} />;
+    const resolvedTheme =
+      theme === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : theme;
+
+    root.classList.add(resolvedTheme);
+    root.style.colorScheme = resolvedTheme;
+  }, [theme]);
+
+  return null;
 }
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <JotaiProvider store={jotaiStore}>
+      <ThemeApplier />
       <ApolloProvider>
         <AuthProvider>
           <InnerApp />
