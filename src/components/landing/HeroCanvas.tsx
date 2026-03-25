@@ -100,9 +100,7 @@ export function HeroCanvas() {
       raf = requestAnimationFrame(draw);
     };
 
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    );
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
@@ -124,6 +122,7 @@ export function HeroCanvas() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
+      style={{ zIndex: 1 }}
       aria-hidden="true"
     />
   );

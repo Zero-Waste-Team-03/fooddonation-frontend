@@ -1,13 +1,38 @@
+import { lazy, Suspense, useEffect, useState } from "react";
 import { HeroCanvas } from "./HeroCanvas";
 import { Button } from "@/components/ui/button";
 
+const Hero3DScene = lazy(() =>
+  import("@/features/landing/components/Hero3DScene").then((m) => ({
+    default: m.Hero3DScene,
+  }))
+);
+
 export function HeroSection() {
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setReducedMotion(e.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
   return (
     <section
       id="hero"
       className="relative min-h-screen flex items-center overflow-hidden w-full"
       style={{ background: "var(--hero-bg)" }}
     >
+      <Suspense fallback={null}>
+        <Hero3DScene reducedMotion={reducedMotion} />
+      </Suspense>
+
       <HeroCanvas />
 
       <div className="relative z-10 container mx-auto px-6 py-32">
