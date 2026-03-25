@@ -42,8 +42,8 @@
     --color-header-bg: rgba(255, 255, 255, 0.8);
     --color-header-border: rgba(45, 108, 80, 0.05);
     --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
-    --font-display: "Fraunces", serif;
-    --font-display-weight-black: 900;
+    --font-display: "Plus Jakarta Sans", sans-serif;
+    --font-display-weight-black: 800;
     --hero-bg: #0a1a0f;
     --hero-text: #f0f7ec;
     --hero-text-muted: rgba(240, 247, 236, 0.6);
