@@ -7,7 +7,7 @@ export function MissionSection() {
       <div className="max-w-[1280px] mx-auto px-6 flex flex-col gap-20">
         {/* Top Content - Right Aligned */}
         <div className="flex flex-col items-end gap-6 w-full max-w-[768px] ml-auto">
-          <h2 className="font-display font-bold text-4xl text-primary-hover tracking-[-0.025em] text-right">
+          <h2 className="font-display font-bold text-4xl text-primary tracking-[-0.025em] text-right">
             Our Mission
           </h2>
           <p className="font-display font-normal text-[30px] leading-[1.2] text-foreground text-right">
@@ -20,7 +20,7 @@ export function MissionSection() {
         {/* Bottom Content - 2 Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left Column - Image */}
-          <div className="relative rounded-xl overflow-hidden shadow-[0px_32px_64px_-12px_rgba(25,28,28,0.06)] bg-card aspect-video w-full">
+          <div className="relative rounded-xl overflow-hidden shadow-card bg-card aspect-video w-full">
             <img
               src={missionImage}
               alt="Community food sharing"
@@ -41,7 +41,7 @@ export function MissionSection() {
 
             <div className="flex items-center gap-4 mt-2">
               <img src={missionIcon} alt="" className="w-[48px] h-[48px]" />
-              <span className="font-sans font-medium text-base text-primary-hover">
+              <span className="font-sans font-medium text-base text-primary">
                 Carbon-neutral distribution network
               </span>
             </div>

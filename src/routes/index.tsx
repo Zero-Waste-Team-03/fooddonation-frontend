@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   return (
-    <main className="min-h-screen bg-background flex flex-col items-center w-full">
+    <main className="min-h-screen bg-background flex flex-col items-center w-full landing-page-theme">
       <Header />
       <HeroSection />
       <MissionSection />

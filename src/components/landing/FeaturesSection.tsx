@@ -21,9 +21,9 @@ export function FeaturesSection() {
       {/* Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Large Card (Top Left) */}
-        <div className="lg:col-span-2 relative flex flex-col justify-between p-10 bg-card rounded-[32px] shadow-[0px_32px_64px_-12px_rgba(25,28,28,0.06)] overflow-hidden min-h-[400px]">
+        <div className="lg:col-span-2 relative flex flex-col justify-between p-10 bg-card rounded-[32px] shadow-card overflow-hidden min-h-[400px]">
           <div>
-            <div className="w-14 h-14 flex items-center justify-center bg-primary/20 rounded-2xl mb-5">
+            <div className="w-14 h-14 flex items-center justify-center bg-secondary rounded-2xl mb-5">
               <img src={featureDonateIcon} alt="" className="w-6 h-6" />
             </div>
             <h3 className="font-display font-bold text-[30px] leading-[1.2] text-card-foreground mb-4">
@@ -53,12 +53,12 @@ export function FeaturesSection() {
             <h3 className="font-display font-bold text-2xl text-warning-foreground">
               Find Local Food
             </h3>
-            <p className="font-sans font-normal text-lg leading-[1.625] text-warning-foreground opacity-90">
+            <p className="font-sans font-normal text-lg leading-[1.625] text-warning-foreground">
               Browse a live feed of fresh, quality surplus items within 2km of your location.
             </p>
           </div>
 
-          <div className="flex flex-col gap-4 pt-8 border-t border-warning-foreground/10">
+          <div className="flex flex-col gap-4 pt-8 border-t border-warning-foreground">
             <div className="flex items-center -space-x-3">
               <div className="w-10 h-10 rounded-full border-2 border-warning bg-card overflow-hidden">
                 <img src={avatar1} alt="" className="w-full h-full object-cover" />

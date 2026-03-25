@@ -52,8 +52,7 @@
     --radius-full: 9999px;
     --radius-login-card: 12px;
     --shadow-card: none;
-    --shadow-dropdown: 0px 2px 4px -2px rgba(0, 0, 0, 0.1),
-      0px 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-dropdown: 0px 2px 4px -2px rgba(0, 0, 0, 0.1), 0px 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-modal: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
     --shadow-login-card: none;
     --sidebar-width: 256px;
@@ -65,7 +64,7 @@
   }
 
   .dark {
-    --color-primary: #2f8f67;
+    --color-primary: #39ad7d;
     --color-primary-hover: #46a97d;
     --color-primary-foreground: #ffffff;
     --color-secondary: #0a0a0a;
@@ -103,6 +102,48 @@
     --color-page-title: #fafafa;
     --color-header-bg: rgba(0, 0, 0, 0.88);
     --color-header-border: rgba(255, 255, 255, 0.12);
+  }
+
+  /* Scoped Theme for Landing Page (Dark Mode) */
+  .dark .landing-page-theme {
+    --color-primary: #10b981;
+    --color-primary-hover: #059669;
+    --color-primary-foreground: #ffffff;
+    --color-secondary: #27272a;
+    --color-secondary-foreground: #fafafa;
+    --color-background: #09090b;
+    --color-foreground: #fafafa;
+    --color-card: #18181b;
+    --color-card-foreground: #fafafa;
+    --color-border: #27272a;
+    --color-input: #27272a;
+    --color-input-focus: #10b981;
+    --color-muted: #27272a;
+    --color-muted-foreground: #a1a1aa;
+    --color-accent: #27272a;
+    --color-accent-foreground: #fafafa;
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #ffffff;
+    --color-success: #22c55e;
+    --color-success-foreground: #052e16;
+    --color-warning: #f59e0b;
+    --color-warning-foreground: #451a03;
+    --color-info: #3b82f6;
+    --color-info-foreground: #172554;
+    --color-ring: #27272a;
+    --color-sidebar-text: #e4e4e7;
+    --color-sidebar-subtitle: #a1a1aa;
+    --color-sidebar-rail-border: #27272a;
+    --color-sidebar-section-border: #27272a;
+    --color-nav-active-bg: #10b981;
+    --color-nav-active-fg: #ffffff;
+    --color-progress-track: #27272a;
+    --color-label: #e4e4e7;
+    --color-placeholder: #a1a1aa;
+    --color-login-card-border: #27272a;
+    --color-page-title: #fafafa;
+    --color-header-bg: #09090b;
+    --color-header-border: #27272a;
   }
 
   * {

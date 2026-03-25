@@ -11,7 +11,7 @@ export function Header() {
     setTheme(theme === "dark" ? "light" : "dark");
   };
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-header-surface backdrop-blur-xl border-b border-[var(--color-header-border)] h-header">
+    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-header-surface border-b border-[var(--color-header-border)] h-header">
       <div className="flex items-center gap-2">
         <span className="font-sans text-[30px] font-extrabold tracking-tighter text-primary leading-tight">
           Gasp’Zero
@@ -27,19 +27,19 @@ export function Header() {
         </Link>
         <Link
           to="/"
-          className="font-display text-base font-normal text-primary/70 hover:text-primary transition-colors"
+          className="font-display text-base font-normal text-muted-foreground hover:text-primary transition-colors"
         >
           How it Works
         </Link>
         <Link
           to="/"
-          className="font-display text-base font-normal text-primary/70 hover:text-primary transition-colors"
+          className="font-display text-base font-normal text-muted-foreground hover:text-primary transition-colors"
         >
           Impact
         </Link>
         <Link
           to="/"
-          className="font-display text-base font-normal text-primary/70 hover:text-primary transition-colors"
+          className="font-display text-base font-normal text-muted-foreground hover:text-primary transition-colors"
         >
           Support
         </Link>
