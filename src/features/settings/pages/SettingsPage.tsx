@@ -318,7 +318,7 @@ export function SettingsPage() {
                   control={preferencesForm.control}
                   name="appearance"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex items-center gap-4">
                       <FormLabel>Appearance</FormLabel>
                       <FormControl>
                         <Select
@@ -350,8 +350,8 @@ export function SettingsPage() {
                     name="isNewDonationsAlertsEnabled"
                     render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-md border border-border p-3">
-                        <FormLabel>New Donations Alerts</FormLabel>
-                        <FormControl>
+                        <FormLabel className="mb-0">New Donations Alerts</FormLabel>
+                        <FormControl className="mb-0">
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                       </FormItem>
@@ -362,8 +362,8 @@ export function SettingsPage() {
                     name="isSystemReports"
                     render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-md border border-border p-3">
-                        <FormLabel>System Reports</FormLabel>
-                        <FormControl>
+                        <FormLabel className="mb-0">System Reports</FormLabel>
+                        <FormControl className="mb-0">
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                       </FormItem>
@@ -374,8 +374,8 @@ export function SettingsPage() {
                     name="isUrgentAlertsEnabled"
                     render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-md border border-border p-3">
-                        <FormLabel>Urgent Alerts</FormLabel>
-                        <FormControl>
+                        <FormLabel className="mb-0">Urgent Alerts</FormLabel>
+                        <FormControl className="mb-0">
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                       </FormItem>
