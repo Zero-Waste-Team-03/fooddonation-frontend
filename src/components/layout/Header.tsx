@@ -1,19 +1,9 @@
 import { useAtom } from "jotai";
 import { useAtomValue } from "jotai";
-import { Bell, Monitor, Moon, PanelLeft, Search, Sun } from "lucide-react";
+import { Bell, Monitor, Moon, PanelLeft, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { authUserAtom, sidebarCollapsedAtom, themeAtom, type Theme } from "@/store";
+import { authUserAtom, sidebarCollapsedAtom, themeAtom } from "@/store";
 
 function profileInitials(displayName: string | null | undefined, email: string) {
   if (displayName?.trim()) {
@@ -24,12 +14,6 @@ function profileInitials(displayName: string | null | undefined, email: string) 
   }
   return email[0]?.toUpperCase() ?? "?";
 }
-
-const themeLabels: Record<Theme, string> = {
-  system: "System default",
-  light: "Light",
-  dark: "Dark",
-};
 
 export function Header() {
   const [, setCollapsed] = useAtom(sidebarCollapsedAtom);
@@ -55,29 +39,16 @@ export function Header() {
         >
           <PanelLeft className="size-5" aria-hidden />
         </Button>
-        <div className="relative min-w-0 flex-1 max-w-xl">
-          <Search
-            className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden
-          />
-          <Input
-            readOnly
-            placeholder="Search analytics, users or donations…"
-            className="h-auto rounded-md border-0 bg-muted py-2.5 pr-4 pl-10 text-sm leading-[1.21]"
-            aria-label="Search"
-          />
-        </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-10 rounded-md"
-              aria-label="Theme"
-            >
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-10 shrink-0 rounded-md"
+          aria-label="Toggle sidebar"
+          onClick={() => setTheme(theme === "light" ? "dark" : theme === "dark" ? "system" : "light")}
+        >
               {theme === "system" ? (
                 <Monitor className="size-5" aria-hidden />
               ) : theme === "dark" ? (
@@ -85,18 +56,7 @@ export function Header() {
               ) : (
                 <Sun className="size-5" aria-hidden />
               )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={theme} onValueChange={(v) => setTheme(v as Theme)}>
-              <DropdownMenuRadioItem value="system">{themeLabels.system}</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="light">{themeLabels.light}</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="dark">{themeLabels.dark}</DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        </Button>
         <Button
           type="button"
           variant="ghost"
