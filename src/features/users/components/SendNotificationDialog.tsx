@@ -121,12 +121,14 @@ export function SendNotificationDialog({
         <DialogFooter>
           <Button
             variant="outline"
+            className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
             onClick={() => onOpenChange(false)}
             disabled={loading}
           >
             Cancel
           </Button>
           <Button
+            className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
             onClick={handleConfirm}
             disabled={loading || !title.trim() || !body.trim()}
           >

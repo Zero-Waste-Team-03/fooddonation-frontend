@@ -1,18 +1,46 @@
 import { useAtom } from "jotai";
-import { Bell, MoonStar, PanelLeft, Search, Sun } from "lucide-react";
+import { useAtomValue } from "jotai";
+import { Bell, Monitor, Moon, PanelLeft, Search, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { sidebarCollapsedAtom } from "@/store/atoms";
-import { themeAtom } from "@/store/atoms/ui.atoms";
+import { authUserAtom, sidebarCollapsedAtom, themeAtom, type Theme } from "@/store";
+
+function profileInitials(displayName: string | null | undefined, email: string) {
+  if (displayName?.trim()) {
+    const parts = displayName.trim().split(/\s+/);
+    const a = parts[0]?.[0] ?? "";
+    const b = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : "";
+    return ((a + b).toUpperCase() || email[0]?.toUpperCase()) ?? "?";
+  }
+  return email[0]?.toUpperCase() ?? "?";
+}
+
+const themeLabels: Record<Theme, string> = {
+  system: "System default",
+  light: "Light",
+  dark: "Dark",
+};
 
 export function Header() {
   const [, setCollapsed] = useAtom(sidebarCollapsedAtom);
   const [theme, setTheme] = useAtom(themeAtom);
+  const authUser = useAtomValue(authUserAtom);
 
-  const handleToggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+  const displayName = authUser?.displayName?.trim() || null;
+  const email = authUser?.email ?? "";
+  const role = authUser?.role?.trim() ?? "";
+  const title = displayName || email || "Account";
+  const subtitle = displayName ? role || email : role;
 
   return (
     <header className="flex h-header w-full shrink-0 items-center justify-between gap-8 border-b border-border bg-header-surface px-8 backdrop-blur-md">
@@ -41,16 +69,34 @@ export function Header() {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-10 rounded-md"
-          aria-label="Toggle theme"
-          onClick={handleToggleTheme}
-        >
-          {theme === "dark" ? <Sun className="size-5" aria-hidden /> : <MoonStar className="size-5" aria-hidden />}
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-10 rounded-md"
+              aria-label="Theme"
+            >
+              {theme === "system" ? (
+                <Monitor className="size-5" aria-hidden />
+              ) : theme === "dark" ? (
+                <Moon className="size-5" aria-hidden />
+              ) : (
+                <Sun className="size-5" aria-hidden />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup value={theme} onValueChange={(v) => setTheme(v as Theme)}>
+              <DropdownMenuRadioItem value="system">{themeLabels.system}</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="light">{themeLabels.light}</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dark">{themeLabels.dark}</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button
           type="button"
           variant="ghost"
@@ -63,13 +109,19 @@ export function Header() {
         <div className="hidden h-8 w-px bg-border sm:block" aria-hidden />
         <div className="hidden items-center gap-3 sm:flex">
           <div className="text-right">
-            <p className="text-sm font-medium text-page-title">Sarah Jenkins</p>
-            <p className="text-xs text-muted-foreground">Super Admin</p>
+            <p className="truncate text-sm font-medium text-page-title" title={title}>
+              {title}
+            </p>
+            <p className="truncate text-xs text-muted-foreground" title={subtitle || undefined}>
+              {subtitle || "—"}
+            </p>
           </div>
           <div
-            className="size-10 shrink-0 rounded-full border border-sidebar-rail-border bg-muted"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full border border-sidebar-rail-border bg-muted text-xs font-bold text-muted-foreground"
             aria-hidden
-          />
+          >
+            {authUser ? profileInitials(authUser.displayName, email) : "—"}
+          </div>
         </div>
       </div>
     </header>

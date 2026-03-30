@@ -73,7 +73,11 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
                 <p className="font-medium text-foreground">Password changed</p>
                 <p className="mt-1 text-sm text-muted-foreground">{successMessage}</p>
               </div>
-              <Button variant="outline" onClick={close}>
+              <Button
+                variant="outline"
+                className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
+                onClick={close}
+              >
                 Close
               </Button>
             </div>
@@ -184,10 +188,20 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
                   </p>
                 ) : null}
                 <div className="flex items-center justify-end gap-2 pt-1">
-                  <Button type="button" variant="outline" onClick={close} disabled={loading}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
+                    onClick={close}
+                    disabled={loading}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={loading}>
+                  <Button
+                    type="submit"
+                    className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
+                    disabled={loading}
+                  >
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Change Password
                   </Button>

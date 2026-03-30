@@ -47,21 +47,9 @@ export function UsersPage() {
 
   // Get selected user for dialogs
   const selectedUser = useMemo(
-    () => users.find((u) => u.id === selectedUserId) || null,
+    () => users.find((u) => u.id === selectedUserId) ?? null,
     [users, selectedUserId]
   );
-
-  // Client-side filter (basic search in case API doesn't filter perfectly)
-  const filteredUsers = useMemo(() => {
-    if (!filters.search) return users;
-    const search = filters.search.toLowerCase();
-    return users.filter(
-      (u) =>
-        u.displayName?.toLowerCase().includes(search) ||
-        u.email?.toLowerCase().includes(search) ||
-        u.location?.city?.toLowerCase().includes(search)
-    );
-  }, [users, filters.search]);
 
   const handleFilterChange = useCallback((newFilters: UserFiltersType) => {
     if (
@@ -115,7 +103,7 @@ export function UsersPage() {
 
   const customActions = (
     <Button
-      className="h-10 rounded-xl px-5 font-semibold shadow-card"
+      className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
       onClick={() => setCreateUserDialogOpen(true)}
     >
       <UserPlus className="mr-2 size-4" />
@@ -138,12 +126,12 @@ export function UsersPage() {
           filters={filters}
           onFiltersChange={handleFilterChange}
           totalCount={pagination?.totalCount || 0}
-          filteredCount={filteredUsers.length}
+          filteredCount={users.length}
         />
 
         {/* Users Table */}
         <UserTable
-          users={filteredUsers}
+          users={users}
           loading={usersLoading}
           onSuspend={(userId) => handleUserAction(userId, "suspend")}
           onActivate={(userId) => handleUserAction(userId, "activate")}

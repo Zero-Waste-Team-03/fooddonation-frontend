@@ -18,14 +18,14 @@ type UserFiltersProps = {
   filteredCount: number;
 };
 
-const ROLES = ["ADMIN", "USER", "FOOD_SAVER", "INSTITUTIONAL"] as const;
+const ROLES = ["Administrator", "Organizations", "Stores", "User"] as const;
 const STATUSES = ["ACTIVE", "SUSPENDED", "BANNED", "DEACTIVATED"] as const;
 
 const roleLabels: Record<(typeof ROLES)[number], string> = {
-  ADMIN: "Admin",
-  USER: "User",
-  FOOD_SAVER: "Food saver",
-  INSTITUTIONAL: "Institutional",
+  Administrator: "Administrator",
+  Organizations: "Organization accounts",
+  Stores: "Stores",
+  User: "Standard user",
 };
 
 const statusLabels: Record<(typeof STATUSES)[number], string> = {

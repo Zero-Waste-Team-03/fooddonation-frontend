@@ -34,14 +34,47 @@ type UserTableProps = {
 function getRoleBadgeVariant(role: string) {
   switch (role) {
     case "ADMIN":
+    case "Administrator":
       return "destructive";
     case "FOOD_SAVER":
       return "success";
     case "INSTITUTIONAL":
       return "info";
+    case "Organizations":
+      return "info";
+    case "Stores":
+      return "warning";
+    case "User":
+      return "secondary";
     default:
       return "secondary";
   }
+}
+
+const roleDisplayLabels: Record<string, string> = {
+  Administrator: "Administrator",
+  Organizations: "Organizations",
+  Stores: "Stores",
+  User: "User",
+  ADMIN: "Admin",
+  USER: "User",
+  FOOD_SAVER: "Food saver",
+  INSTITUTIONAL: "Institutional",
+};
+
+const statusDisplayLabels: Record<string, string> = {
+  ACTIVE: "Active",
+  SUSPENDED: "Suspended",
+  BANNED: "Banned",
+  DEACTIVATED: "Deactivated",
+};
+
+function formatRoleLabel(role: string) {
+  return roleDisplayLabels[role] ?? role;
+}
+
+function formatStatusLabel(status: string) {
+  return statusDisplayLabels[status] ?? status;
 }
 
 function getStatusBadgeVariant(status: string) {
@@ -197,12 +230,12 @@ export function UserTable({
                 </TableCell>
                 <TableCell className="py-4">
                   <Badge variant={getRoleBadgeVariant(user.role)}>
-                    {user.role}
+                    {formatRoleLabel(user.role)}
                   </Badge>
                 </TableCell>
                 <TableCell className="py-4">
                   <Badge variant={getStatusBadgeVariant(user.status)}>
-                    {user.status}
+                    {formatStatusLabel(user.status)}
                   </Badge>
                 </TableCell>
                 <TableCell className="py-4 text-sm font-medium text-foreground">
@@ -239,14 +272,14 @@ export function UserTable({
                       {user.status === "ACTIVE" ? (
                         <DropdownMenuItem
                           onClick={() => onSuspend(user.id)}
-                          className="text-destructive"
+                          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                         >
                           Suspend User
                         </DropdownMenuItem>
                       ) : (
                         <DropdownMenuItem
                           onClick={() => onActivate(user.id)}
-                          className="text-success"
+                          className="text-success focus:bg-success/10 focus:text-success"
                         >
                           Activate User
                         </DropdownMenuItem>

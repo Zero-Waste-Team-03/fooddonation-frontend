@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 type StatBadgeVariant = "success" | "destructive" | "warning" | "info" | "neutral";
@@ -53,6 +54,23 @@ export function StatMetricCard({
             {deltaLabel}
           </Badge>
         ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+export function StatMetricCardSkeleton({ className }: { className?: string }) {
+  return (
+    <Card className={cn("overflow-hidden border-border bg-card shadow-card", className)}>
+      <CardContent className="flex flex-col gap-4 p-6">
+        <div className="flex flex-row items-start justify-between gap-4">
+          <div className="flex min-w-0 flex-col gap-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-8 w-20" />
+          </div>
+          <Skeleton className="size-10 shrink-0 rounded-lg" />
+        </div>
+        <Skeleton className="h-6 w-16 rounded-full" />
       </CardContent>
     </Card>
   );

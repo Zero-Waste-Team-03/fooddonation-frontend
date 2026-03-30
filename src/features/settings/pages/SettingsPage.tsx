@@ -202,7 +202,13 @@ export function SettingsPage() {
                 {errorMessage ? <p role="alert" className="text-sm text-destructive">{errorMessage}</p> : null}
                 {success ? <p className="text-sm text-success">Profile updated successfully.</p> : null}
                 <div className="flex justify-end">
-                  <Button type="submit" disabled={updateLoading || userLoading}>Save Profile</Button>
+                  <Button
+                    type="submit"
+                    className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
+                    disabled={updateLoading || userLoading}
+                  >
+                    Save Profile
+                  </Button>
                 </div>
               </form>
             </Form>
@@ -288,7 +294,13 @@ export function SettingsPage() {
                 {errorMessage ? <p role="alert" className="text-sm text-destructive">{errorMessage}</p> : null}
                 {success ? <p className="text-sm text-success">Location updated successfully.</p> : null}
                 <div className="flex justify-end">
-                  <Button type="submit" disabled={updateLoading || userLoading}>Save Location</Button>
+                  <Button
+                    type="submit"
+                    className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
+                    disabled={updateLoading || userLoading}
+                  >
+                    Save Location
+                  </Button>
                 </div>
               </form>
             </Form>
@@ -373,7 +385,13 @@ export function SettingsPage() {
                 {errorMessage ? <p role="alert" className="text-sm text-destructive">{errorMessage}</p> : null}
                 {success ? <p className="text-sm text-success">Preferences updated successfully.</p> : null}
                 <div className="flex justify-end">
-                  <Button type="submit" disabled={updateLoading || userLoading}>Save Preferences</Button>
+                  <Button
+                    type="submit"
+                    className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
+                    disabled={updateLoading || userLoading}
+                  >
+                    Save Preferences
+                  </Button>
                 </div>
               </form>
             </Form>
@@ -392,7 +410,11 @@ export function SettingsPage() {
                   Last changed: {formatLastChangedDate(user?.lastChangedPasswordDate)}
                 </p>
               </div>
-              <Button variant="outline" onClick={() => setChangePasswordDialogOpen(true)}>
+              <Button
+                variant="outline"
+                className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
+                onClick={() => setChangePasswordDialogOpen(true)}
+              >
                 Change Password
               </Button>
             </div>

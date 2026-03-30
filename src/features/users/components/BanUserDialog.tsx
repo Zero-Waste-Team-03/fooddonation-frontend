@@ -48,11 +48,16 @@ export function BanUserDialog({
           </div>
         )}
         <div className="flex gap-3 justify-end">
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel
+            disabled={loading}
+            className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
+          >
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => user && onConfirm(user.id)}
             disabled={loading}
-            className="bg-destructive hover:bg-destructive/90"
+            className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {loading ? "Suspending..." : "Suspend"}
           </AlertDialogAction>

@@ -88,7 +88,11 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                   An invitation email has been sent to {submittedEmail}. They can log in directly using the link in the email.
                 </p>
               </div>
-              <Button variant="outline" onClick={handleClose}>
+              <Button
+                variant="outline"
+                className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
+                onClick={handleClose}
+              >
                 Done
               </Button>
             </div>
@@ -151,10 +155,20 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                   </p>
                 ) : null}
                 <DialogFooter className="items-center justify-end gap-2 pt-2 sm:flex-row">
-                  <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
+                    onClick={handleClose}
+                    disabled={loading}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={loading}>
+                  <Button
+                    type="submit"
+                    className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
+                    disabled={loading}
+                  >
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Send Invitation
                   </Button>
