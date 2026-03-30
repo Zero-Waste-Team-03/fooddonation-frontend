@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { User } from "@/types/user.types";
+import { roleLabels, ROLES, STATUSES, statusLabels } from "./UserFilters";
 
 type UserTableProps = {
   users: User[];
@@ -33,13 +34,10 @@ type UserTableProps = {
 
 function getRoleBadgeVariant(role: string) {
   switch (role) {
-    case "ADMIN":
     case "Administrator":
       return "destructive";
-    case "FOOD_SAVER":
+    case "Local Authority":
       return "success";
-    case "INSTITUTIONAL":
-      return "info";
     case "Organizations":
       return "info";
     case "Stores":
@@ -51,37 +49,19 @@ function getRoleBadgeVariant(role: string) {
   }
 }
 
-const roleDisplayLabels: Record<string, string> = {
-  Administrator: "Administrator",
-  Organizations: "Organizations",
-  Stores: "Stores",
-  User: "User",
-  ADMIN: "Admin",
-  USER: "User",
-  FOOD_SAVER: "Food saver",
-  INSTITUTIONAL: "Institutional",
-};
-
-const statusDisplayLabels: Record<string, string> = {
-  ACTIVE: "Active",
-  SUSPENDED: "Suspended",
-  BANNED: "Banned",
-  DEACTIVATED: "Deactivated",
-};
-
 function formatRoleLabel(role: string) {
-  return roleDisplayLabels[role] ?? role;
+  return roleLabels[ROLES[ROLES.indexOf(role as any)]] ?? role;
 }
 
 function formatStatusLabel(status: string) {
-  return statusDisplayLabels[status] ?? status;
+  return statusLabels[STATUSES[STATUSES.indexOf(status as any)]] ?? status;
 }
 
 function getStatusBadgeVariant(status: string) {
-  if (status === "ACTIVE") {
+  if (status === "Active") {
     return "success";
   }
-  if (status === "SUSPENDED" || status === "BANNED") {
+  if (status === "Suspended" || status === "Banned") {
     return "destructive";
   }
   return "secondary";
@@ -269,7 +249,7 @@ export function UserTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {user.status === "ACTIVE" ? (
+                      {user.status === "Active" ? (
                         <DropdownMenuItem
                           onClick={() => onSuspend(user.id)}
                           className="text-destructive focus:bg-destructive/10 focus:text-destructive"

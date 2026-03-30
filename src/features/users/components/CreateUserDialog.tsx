@@ -9,20 +9,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminCreateAccount } from "../hooks/useAdminCreateAccount";
-
-const roleValues = ["Administrator", "Organizations", "Stores", "User"] as const;
-
-const inviteRoleLabels: Record<(typeof roleValues)[number], string> = {
-  Administrator: "Administrator",
-  Organizations: "Organization accounts",
-  Stores: "Stores",
-  User: "Standard user",
-};
+import { roleLabels, ROLES } from "./UserFilters";
 
 const createAccountSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  role: z.enum(roleValues),
+  role: z.enum(ROLES),
 });
 
 type CreateAccountFormValues = z.infer<typeof createAccountSchema>;
@@ -137,9 +129,9 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                             <SelectValue placeholder="Select role" />
                           </SelectTrigger>
                           <SelectContent>
-                            {roleValues.map((role) => (
+                            {ROLES.map((role) => (
                               <SelectItem key={role} value={role}>
-                                {inviteRoleLabels[role]}
+                                {roleLabels[role]}
                               </SelectItem>
                             ))}
                           </SelectContent>

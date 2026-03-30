@@ -18,21 +18,22 @@ type UserFiltersProps = {
   filteredCount: number;
 };
 
-const ROLES = ["Administrator", "Organizations", "Stores", "User"] as const;
-const STATUSES = ["ACTIVE", "SUSPENDED", "BANNED", "DEACTIVATED"] as const;
+export const ROLES = ["Administrator", "Organizations", "Stores", "User", "Local Authority"] as const;
+export const STATUSES = ["Active", "Suspended", "Banned", "Deactivated"] as const;
 
-const roleLabels: Record<(typeof ROLES)[number], string> = {
+export const roleLabels: Record<(typeof ROLES)[number], string> = {
   Administrator: "Administrator",
-  Organizations: "Organization accounts",
+  Organizations: "Organization",
   Stores: "Stores",
   User: "Standard user",
+  "Local Authority": "Local Authority",
 };
 
-const statusLabels: Record<(typeof STATUSES)[number], string> = {
-  ACTIVE: "Active",
-  SUSPENDED: "Suspended",
-  BANNED: "Banned",
-  DEACTIVATED: "Deactivated",
+export const statusLabels: Record<(typeof STATUSES)[number], string> = {
+  Active: "Active",
+  Suspended: "Suspended",
+  Banned: "Banned",
+  Deactivated: "Deactivated",
 };
 
 export function UserFilters({
