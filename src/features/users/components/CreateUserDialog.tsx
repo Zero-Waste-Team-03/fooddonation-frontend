@@ -1,347 +1,167 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, Circle, CircleDot, Gavel, Info, ShieldCheck } from "lucide-react";
+import { Loader2, MailCheck } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAdminCreateAccount } from "../hooks/useAdminCreateAccount";
 
-const createUserSchema = z
-  .object({
-    accountType: z.enum(["NEW_ADMIN", "NEW_ORGANIZATION"]),
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    role: z.enum(["ADMIN", "USER"]),
-    organizationName: z.string().optional(),
-    organizationType: z.string().optional(),
-    locationAddress: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.accountType !== "NEW_ORGANIZATION") {
-      return;
-    }
+const roleValues = ["Administrator", "Organizations", "Stores", "User"] as const;
 
-    if (!data.organizationName || data.organizationName.trim().length < 2) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Organization name is required for organization accounts",
-        path: ["organizationName"],
-      });
-    }
+const inviteRoleLabels: Record<(typeof roleValues)[number], string> = {
+  Administrator: "Administrator",
+  Organizations: "Organization accounts",
+  Stores: "Stores",
+  User: "Standard user",
+};
 
-    if (!data.organizationType || data.organizationType.trim().length < 2) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Organization type is required for organization accounts",
-        path: ["organizationType"],
-      });
-    }
+const createAccountSchema = z.object({
+  displayName: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  role: z.enum(roleValues),
+});
 
-    if (!data.locationAddress || data.locationAddress.trim().length < 5) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Location address is required for organization accounts",
-        path: ["locationAddress"],
-      });
-    }
-  });
-
-export type CreateUserFormValues = z.infer<typeof createUserSchema>;
+type CreateAccountFormValues = z.infer<typeof createAccountSchema>;
 
 type CreateUserDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateUserFormValues) => Promise<void>;
 };
 
-const defaultValues: CreateUserFormValues = {
-  accountType: "NEW_ADMIN",
-  name: "",
+const defaultValues: CreateAccountFormValues = {
+  displayName: "",
   email: "",
-  role: "ADMIN",
-  organizationName: "",
-  organizationType: "",
-  locationAddress: "",
+  role: "User",
 };
 
-export function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDialogProps) {
-  const form = useForm<CreateUserFormValues>({
-    resolver: zodResolver(createUserSchema),
+export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) {
+  const [submittedEmail, setSubmittedEmail] = useState("");
+  const { handleCreate, loading, errorMessage, success, reset } = useAdminCreateAccount();
+  const form = useForm<CreateAccountFormValues>({
+    resolver: zodResolver(createAccountSchema),
     defaultValues,
   });
 
-  const accountType = form.watch("accountType");
-  const isSubmitting = form.formState.isSubmitting;
-  const organizationFieldsDisabled = accountType !== "NEW_ORGANIZATION";
-
-  const handleSubmit = form.handleSubmit(async (values) => {
-    await onSubmit(values);
-    console.log("Create user dialog submit", values);
-    onOpenChange(false);
+  const handleClose = () => {
     form.reset(defaultValues);
+    setSubmittedEmail("");
+    reset();
+    onOpenChange(false);
+  };
+
+  const handleDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      handleClose();
+      return;
+    }
+    onOpenChange(true);
+  };
+
+  const onSubmit = form.handleSubmit(async (values) => {
+    setSubmittedEmail(values.email);
+    await handleCreate(values);
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        showCloseButton={false}
-        className="w-full max-w-[calc(100%-2rem)] p-0 sm:max-w-218.5"
-      >
-        <div className="space-y-7 p-8 sm:p-10 sm:pb-14">
-          <Form {...form}>
-            <form onSubmit={handleSubmit} className="space-y-7">
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+      <DialogContent className="w-full max-w-[calc(100%-2rem)] p-0 sm:max-w-2xl" showCloseButton={false}>
+        <div className="space-y-6 p-8">
+          <DialogHeader className="space-y-1 text-left">
+            <DialogTitle className="text-xl font-semibold text-foreground">Invite User</DialogTitle>
+          </DialogHeader>
 
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          {success ? (
+            <div className="flex flex-col items-center gap-4 py-6 text-center">
+              <div
+                className="h-12 w-12 rounded-full flex items-center justify-center"
+                style={{ background: "var(--color-success)", opacity: 0.15 }}
+              >
+                <MailCheck className="h-6 w-6 text-success" />
+              </div>
+              <div>
+                <p className="font-medium text-foreground">Invitation sent</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  An invitation email has been sent to {submittedEmail}. They can log in directly using the link in the email.
+                </p>
+              </div>
+              <Button variant="outline" onClick={handleClose}>
+                Done
+              </Button>
+            </div>
+          ) : (
+            <Form {...form}>
+              <form onSubmit={onSubmit} className="space-y-5">
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="displayName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="create-user-name" className="text-[13px] font-semibold text-foreground">
-                        Full Name
-                      </FormLabel>
+                      <FormLabel>Display Name</FormLabel>
                       <FormControl>
-                        <Input
-                          id="create-user-name"
-                          placeholder="e.g. Julian Thorne"
-                          className="h-11"
-                          {...field}
-                        />
+                        <Input placeholder="Full name" className="h-11" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="create-user-email" className="text-[13px] font-semibold text-foreground">
-                        Official Email
-                      </FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
-                          id="create-user-email"
-                          type="email"
-                          placeholder="julian@mindfulcurator.org"
-                          className="h-11"
-                          {...field}
-                        />
+                        <Input type="email" placeholder="name@example.com" className="h-11" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem className="space-y-3.5">
-                    <FormLabel className="text-[13px] font-semibold text-foreground">Administrative Role</FormLabel>
-                    <FormControl>
-                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className={
-                            field.value === "ADMIN"
-                              ? "h-auto min-h-27 w-full items-start justify-between rounded-xl border border-primary/25 bg-primary/10 p-4 text-left sm:p-5"
-                              : "h-auto min-h-27 w-full items-start justify-between rounded-xl border border-border/70 bg-muted/70 p-4 text-left sm:p-5"
-                          }
-                          onClick={() => field.onChange("ADMIN")}
-                        >
-                          <div className="min-w-0 space-y-1 pr-2">
-                            <p className="text-base font-semibold text-primary">Super Admin</p>
-                            <p className="text-xs leading-5 text-muted-foreground wrap-break-words">
-                              Full system access, including financial records and audit logs.
-                            </p>
-                          </div>
-                          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
-                        </Button>
-
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className={
-                            field.value === "USER"
-                              ? "h-auto min-h-27 w-full items-start justify-between rounded-xl border border-primary/25 bg-primary/10 p-4 text-left sm:p-5"
-                              : "h-auto min-h-27 w-full items-start justify-between rounded-xl border border-border/70 bg-muted/70 p-4 text-left sm:p-5"
-                          }
-                          onClick={() => field.onChange("USER")}
-                        >
-                          <div className="min-w-0 space-y-1 pr-2">
-                            <p className="text-base font-semibold text-primary">Moderator</p>
-                            <p className="text-xs leading-5 text-muted-foreground wrap-break-words">
-                              Manage donations, resolve disputes, and oversee organization profiles.
-                            </p>
-                          </div>
-                          <Gavel className="mt-0.5 size-4 shrink-0 text-primary" />
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="accountType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="grid grid-cols-1 gap-2 py-0.5 text-sm font-semibold text-muted-foreground sm:grid-cols-2">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className={
-                            field.value === "NEW_ADMIN"
-                              ? "h-9 justify-center rounded-lg text-primary"
-                              : "h-9 justify-center rounded-lg text-muted-foreground"
-                          }
-                          onClick={() => field.onChange("NEW_ADMIN")}
-                        >
-                          {field.value === "NEW_ADMIN" ? (
-                            <CircleDot className="mr-2 size-4 text-primary" />
-                          ) : (
-                            <Circle className="mr-2 size-4 text-muted-foreground" />
-                          )}
-                          <ShieldCheck className="mr-1 size-4" />
-                          New Admin
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className={
-                            field.value === "NEW_ORGANIZATION"
-                              ? "h-9 justify-center rounded-lg text-primary"
-                              : "h-9 justify-center rounded-lg text-muted-foreground"
-                          }
-                          onClick={() => field.onChange("NEW_ORGANIZATION")}
-                        >
-                          {field.value === "NEW_ORGANIZATION" ? (
-                            <CircleDot className="mr-2 size-4 text-primary" />
-                          ) : (
-                            <Circle className="mr-2 size-4 text-muted-foreground" />
-                          )}
-                          <Building2 className="mr-1 size-4" />
-                          New Organization
-                        </Button>
-                      </div>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex items-center gap-2 text-xs text-foreground">
-                <Info className="size-3.5 text-muted-foreground" />
-                <p>Complete the section below only for multi-user organizational accounts.</p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="organizationName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="create-user-organization-name" className="text-[13px] font-semibold text-label">
-                          Organization Name
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            id="create-user-organization-name"
-                            disabled={organizationFieldsDisabled}
-                            className="h-11 disabled:opacity-60"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="organizationType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="create-user-organization-type" className="text-[13px] font-semibold text-label">
-                          Organization Type
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            id="create-user-organization-type"
-                            disabled={organizationFieldsDisabled}
-                            placeholder="NGO"
-                            className="h-11 disabled:opacity-60"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
                 <FormField
                   control={form.control}
-                  name="locationAddress"
+                  name="role"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="create-user-location-address" className="text-[13px] font-semibold text-label">
-                        Location Address
-                      </FormLabel>
+                      <FormLabel>Role</FormLabel>
                       <FormControl>
-                        <Input
-                          id="create-user-location-address"
-                          disabled={organizationFieldsDisabled}
-                          className="h-11 disabled:opacity-60"
-                          {...field}
-                        />
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="h-11">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {roleValues.map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {inviteRoleLabels[role]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <DialogFooter className="mt-4 items-center justify-between border-t border-border px-0 pt-7 sm:flex-row">
-                <p className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="size-2 rounded-full bg-warning" aria-hidden />
-                  Pending background verification
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="h-11 rounded-xl px-6 font-semibold text-primary hover:bg-accent"
-                    onClick={() => onOpenChange(false)}
-                    disabled={isSubmitting}
-                  >
+                {errorMessage ? (
+                  <p role="alert" className="text-sm text-destructive">
+                    {errorMessage}
+                  </p>
+                ) : null}
+                <DialogFooter className="items-center justify-end gap-2 pt-2 sm:flex-row">
+                  <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
                     Cancel
                   </Button>
-                  <Button
-                    type="submit"
-                    className="h-11 min-w-42.5 rounded-xl px-9 font-semibold text-primary-foreground shadow-card"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Creating..." : "Create Account"}
+                  <Button type="submit" disabled={loading}>
+                    {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Send Invitation
                   </Button>
-                </div>
-              </DialogFooter>
-            </form>
-          </Form>
+                </DialogFooter>
+              </form>
+            </Form>
+          )}
         </div>
       </DialogContent>
     </Dialog>

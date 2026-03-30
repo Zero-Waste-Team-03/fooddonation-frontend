@@ -21,6 +21,10 @@ const config: Config = {
           DEFAULT: "var(--color-card)",
           foreground: "var(--color-card-foreground)",
         },
+        popover: {
+          DEFAULT: "var(--color-popover)",
+          foreground: "var(--color-popover-foreground)",
+        },
         border: "var(--color-border)",
         input: {
           DEFAULT: "var(--color-input)",

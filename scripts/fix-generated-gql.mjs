@@ -3,18 +3,34 @@ import { resolve } from "node:path";
 
 const graphqlFilePath = resolve("src/gql/graphql.ts");
 
-const source = readFileSync(graphqlFilePath, "utf8");
+let source = readFileSync(graphqlFilePath, "utf8");
 
-const withoutApolloImport = source.replace(
+// Remove Apollo import
+source = source.replace(
   /\r?\nimport \* as Apollo from '@apollo\/client';/g,
   ""
 );
 
-const withoutSuspenseOverloadDeclarations = withoutApolloImport
-  .replace(/\r?\n\/\/ @ts-ignore/g, "")
-  .replace(
-    /\r?\nexport function use[A-Za-z0-9_]*SuspenseQuery\([^\n]*\):[^\n]*;/g,
-    ""
-  );
+// Remove all SuspenseQuery overload signatures
+source = source.replace(
+  /export function use[A-Za-z0-9_]*SuspenseQuery\([^)]*\):[^\n]*\n/g,
+  ""
+);
 
-writeFileSync(graphqlFilePath, withoutSuspenseOverloadDeclarations, "utf8");
+// Remove all SuspenseQuery function implementations
+// This pattern matches: export function name(...) { ... }
+source = source.replace(
+  /export function use[A-Za-z0-9_]*SuspenseQuery\([^)]*\)\s*\{[^}]*\n\s*\}/g,
+  ""
+);
+
+// Remove all *SuspenseQueryHookResult type exports
+source = source.replace(
+  /export type [A-Za-z0-9_]*SuspenseQueryHookResult[^\n]*;\n/g,
+  ""
+);
+
+source = source.replace(/^\s*\/\/\s*@ts-ignore.*\r?\n/gm, "");
+source = source.replace(/^\s*\/\/\s*@ts-expect-error.*\r?\n/gm, "");
+
+writeFileSync(graphqlFilePath, source, "utf8");

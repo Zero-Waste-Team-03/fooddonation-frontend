@@ -14,12 +14,32 @@ mutation Login($loginInput: LoginInput!) {
 query CurrentUser {
   currentUser {
     id
-    email
-    role
     displayName
-    isMailVerified
+    email
+    avatarAttachmentId
     description
     reputationScore
-    locationId
+    role
+    status
+    isMailVerified
+    lastChangedPasswordDate
+    createdAt
+    updatedAt
+    location {
+      id
+      city
+      country
+      latitude
+      longitude
+      neighborhood
+    }
+    settings {
+      id
+      appearance
+      isNewDonationsAlertsEnabled
+      isSystemReports
+      isUrgentAlertsEnabled
+      userId
+    }
   }
 }

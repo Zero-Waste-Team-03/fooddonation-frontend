@@ -1,4 +1,8 @@
-import { Star, MoreHorizontal } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  MoreHorizontal,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,131 +13,258 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { mockUsers, UserRole, UserStatus } from "../data/mockUsers";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { User } from "@/types/user.types";
 
-function RoleBadge({ role }: { role: UserRole }) {
-  if (role === "DONOR") {
-    return (
-      <Badge variant="success" className="h-6 px-3">
-        DONOR
-      </Badge>
-    );
+type UserTableProps = {
+  users: User[];
+  loading: boolean;
+  onSuspend: (userId: string) => void;
+  onActivate: (userId: string) => void;
+  onSendNotification: (userId: string) => void;
+};
+
+function getRoleBadgeVariant(role: string) {
+  switch (role) {
+    case "ADMIN":
+      return "destructive";
+    case "FOOD_SAVER":
+      return "success";
+    case "INSTITUTIONAL":
+      return "info";
+    default:
+      return "secondary";
   }
-  if (role === "BENEFICIARY") {
-    return (
-      <Badge variant="info" className="h-6 px-3">
-        BENEFICIARY
-      </Badge>
-    );
+}
+
+function getStatusBadgeVariant(status: string) {
+  if (status === "ACTIVE") {
+    return "success";
   }
+  if (status === "SUSPENDED" || status === "BANNED") {
+    return "destructive";
+  }
+  return "secondary";
+}
+
+function getInitials(displayName: string | undefined | null, email: string) {
+  if (displayName) {
+    const parts = displayName.split(" ");
+    return (
+      (parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")
+    ).toUpperCase();
+  }
+  return email[0].toUpperCase();
+}
+
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date);
+}
+
+function TableRowSkeleton() {
   return (
-    <Badge variant="warning" className="h-6 px-3">
-      FOOD SAVER
-    </Badge>
+    <TableRow>
+      <TableCell className="px-6 py-4">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-11 w-11 rounded-full bg-muted" />
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-4 w-32 bg-muted" />
+            <Skeleton className="h-3 w-40 bg-muted" />
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="py-4">
+        <Skeleton className="h-6 w-16 bg-muted rounded-full" />
+      </TableCell>
+      <TableCell className="py-4">
+        <Skeleton className="h-6 w-16 bg-muted rounded-full" />
+      </TableCell>
+      <TableCell className="py-4">
+        <Skeleton className="h-4 w-12 bg-muted" />
+      </TableCell>
+      <TableCell className="py-4">
+        <Skeleton className="h-4 w-5 bg-muted" />
+      </TableCell>
+      <TableCell className="py-4">
+        <Skeleton className="h-4 w-24 bg-muted" />
+      </TableCell>
+      <TableCell className="py-4">
+        <Skeleton className="h-4 w-24 bg-muted" />
+      </TableCell>
+      <TableCell className="text-right px-6 py-4">
+        <Skeleton className="h-8 w-8 rounded-full bg-muted ml-auto" />
+      </TableCell>
+    </TableRow>
   );
 }
 
-function StatusBadge({ status }: { status: UserStatus }) {
-  if (status === "Active") {
-    return (
-      <Badge variant="success" className="h-6 px-2.5">
-        <span className="mr-1.5 size-1.5 rounded-full bg-emerald-500"></span>
-        Active
-      </Badge>
-    );
-  }
+export function UserTable({
+  users,
+  loading,
+  onSuspend,
+  onActivate,
+  onSendNotification,
+}: UserTableProps) {
   return (
-    <Badge variant="destructive" className="h-6 px-2.5">
-      <span className="mr-1.5 size-1.5 rounded-full bg-rose-500"></span>
-      Suspended
-    </Badge>
-  );
-}
-
-export function UserTable() {
-  return (
-    <div className="overflow-x-auto rounded-3xl border bg-card">
-      <div className="overflow-hidden">
-        <Table>
-          <caption className="sr-only">Platform users with role, reputation, join date, and status</caption>
-          <TableHeader>
-            <TableRow className="bg-transparent hover:bg-transparent border-b border-border/50">
-              <TableHead className="w-75 text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">Name & Email</TableHead>
-              <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Role</TableHead>
-              <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Reputation</TableHead>
-              <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Join Date</TableHead>
-              <TableHead className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4">Status</TableHead>
-              <TableHead className="text-right text-[11px] font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">Actions</TableHead>
+    <div className="overflow-x-auto rounded-2xl border bg-card">
+      <Table>
+        <caption className="sr-only">
+          Platform users with role, reputation, join date, and status
+        </caption>
+        <TableHeader>
+          <TableRow className="bg-transparent hover:bg-transparent border-b border-border/50">
+            <TableHead className="w-1/4 text-xs font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">
+              User
+            </TableHead>
+            <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
+              Role
+            </TableHead>
+            <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
+              Status
+            </TableHead>
+            <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
+              Reputation
+            </TableHead>
+            <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
+              Verified
+            </TableHead>
+            <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
+              Location
+            </TableHead>
+            <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
+              Joined
+            </TableHead>
+            <TableHead className="text-right text-xs font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">
+              Actions
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <TableRowSkeleton key={i} />
+            ))
+          ) : users.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="p-6 text-center text-muted-foreground">
+                No users found
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {mockUsers.map((user) => (
-              <TableRow key={user.id} className="hover:bg-muted/30 border-b border-border/50">
+          ) : (
+            users.map((user) => (
+              <TableRow
+                key={user.id}
+                className="hover:bg-muted/30 border-b border-border/50"
+              >
                 <TableCell className="px-6 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="size-11 shrink-0 rounded-full overflow-hidden bg-muted border border-border/50 shadow-sm">
-                      <img src={user.avatar} alt={user.name} width={44} height={44} className="h-full w-full object-cover" />
+                  <div className="flex items-center gap-3">
+                    <div className="h-11 w-11 shrink-0 rounded-full bg-muted border border-border/50 shadow-sm flex items-center justify-center overflow-hidden">
+                      {user.avatarAttachmentId ? (
+                        <img
+                          src={`/api/attachments/${user.avatarAttachmentId}`}
+                          alt={user.displayName ?? user.email}
+                          width={44}
+                          height={44}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xs font-bold text-muted-foreground">
+                          {getInitials(user.displayName, user.email)}
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-bold text-foreground text-[14px]">{user.name}</span>
-                      <span className="text-[13px] text-muted-foreground tracking-wide">{user.email}</span>
+                      <span className="font-bold text-foreground text-sm">
+                        {user.displayName ?? "—"}
+                      </span>
+                      <span className="text-xs text-muted-foreground tracking-wide">
+                        {user.email}
+                      </span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="py-4">
-                  <RoleBadge role={user.role} />
+                  <Badge variant={getRoleBadgeVariant(user.role)}>
+                    {user.role}
+                  </Badge>
                 </TableCell>
                 <TableCell className="py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-4.5 items-center justify-center rounded-full bg-orange-100 text-orange-500" aria-hidden>
-                      <Star className="size-2.5 fill-orange-500" aria-hidden />
-                    </div>
-                    <span className="font-bold text-[13px] text-foreground">{user.reputation} pts</span>
-                  </div>
+                  <Badge variant={getStatusBadgeVariant(user.status)}>
+                    {user.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="py-4 text-sm font-medium text-foreground">
+                  {user.reputationScore}
                 </TableCell>
                 <TableCell className="py-4">
-                  <span className="font-medium text-muted-foreground text-[13px]">
-                    {user.joinDate}
-                  </span>
+                  {user.isMailVerified ? (
+                    <CheckCircle2 className="h-4 w-4 text-success" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-muted-foreground" />
+                  )}
                 </TableCell>
-                <TableCell className="py-4">
-                  <StatusBadge status={user.status} />
+                <TableCell className="py-4 text-sm text-muted-foreground">
+                  {user.location?.city && user.location?.country
+                    ? `${user.location.city}, ${user.location.country}`
+                    : "—"}
+                </TableCell>
+                <TableCell className="py-4 text-sm text-muted-foreground">
+                  {formatDate(user.createdAt)}
                 </TableCell>
                 <TableCell className="text-right px-6 py-4">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted"
-                    aria-label={`Open actions for ${user.name}`}
-                  >
-                    <MoreHorizontal className="size-4" aria-hidden />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted"
+                        aria-label={`Open actions for ${user.displayName ?? user.email}`}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {user.status === "ACTIVE" ? (
+                        <DropdownMenuItem
+                          onClick={() => onSuspend(user.id)}
+                          className="text-destructive"
+                        >
+                          Suspend User
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={() => onActivate(user.id)}
+                          className="text-success"
+                        >
+                          Activate User
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => onSendNotification(user.id)}
+                      >
+                        Send Notification
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      
-      {/* Pagination Footer */}
-      <div className="flex items-center justify-between px-6 py-4 bg-transparent mt-1">
-        <div className="text-[13px] text-muted-foreground">
-          Showing <span className="font-bold text-foreground">1</span> to <span className="font-bold text-foreground">10</span> of <span className="font-bold text-foreground">1,240</span> results
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Button variant="outline" size="sm" className="h-8 rounded-lg border border-border text-muted-foreground px-3 text-xs shadow-sm hover:bg-muted/50 transition-colors bg-card" disabled>
-            Previous
-          </Button>
-          <Button variant="default" size="sm" className="size-8 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold p-0 shadow-sm transition-colors">1</Button>
-          <Button variant="outline" size="sm" className="size-8 rounded-lg text-muted-foreground font-semibold border-transparent hover:bg-muted/50 p-0 hover:text-foreground transition-colors bg-transparent">2</Button>
-          <Button variant="outline" size="sm" className="size-8 rounded-lg text-muted-foreground font-semibold border-transparent hover:bg-muted/50 p-0 hover:text-foreground transition-colors bg-transparent">3</Button>
-          <span className="px-1 text-muted-foreground text-sm tracking-widest">...</span>
-          <Button variant="outline" size="sm" className="size-8 rounded-lg text-muted-foreground font-semibold border-transparent hover:bg-muted/50 p-0 hover:text-foreground transition-colors bg-transparent">124</Button>
-          <Button variant="outline" size="sm" className="h-8 rounded-lg border border-border text-foreground shadow-sm px-3 text-xs hover:bg-muted/50 transition-colors bg-card font-medium">
-            Next
-          </Button>
-        </div>
-      </div>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }

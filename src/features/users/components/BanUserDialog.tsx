@@ -1,3 +1,63 @@
-export function BanUserDialog() {
-  return <div />;
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import type { User } from "@/types/user.types";
+
+type SuspendUserDialogProps = {
+  user: User | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: (userId: string) => Promise<void>;
+  loading: boolean;
+  errorMessage: string | null;
+};
+
+export function BanUserDialog({
+  user,
+  open,
+  onOpenChange,
+  onConfirm,
+  loading,
+  errorMessage,
+}: SuspendUserDialogProps) {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Suspend User</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to suspend{" "}
+            <span className="font-semibold text-foreground">
+              {user?.displayName || user?.email}
+            </span>
+            ? They will not be able to log in or access services.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        {errorMessage && (
+          <div
+            role="alert"
+            className="px-4 py-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive"
+          >
+            {errorMessage}
+          </div>
+        )}
+        <div className="flex gap-3 justify-end">
+          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => user && onConfirm(user.id)}
+            disabled={loading}
+            className="bg-destructive hover:bg-destructive/90"
+          >
+            {loading ? "Suspending..." : "Suspend"}
+          </AlertDialogAction>
+        </div>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }

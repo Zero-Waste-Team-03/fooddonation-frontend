@@ -1,0 +1,74 @@
+query AdminGetUserStats {
+  adminGetUserStats {
+    activeAccounts
+    activeAccountsIncrease
+    reportedIssues
+    reportedIssuesIncrease
+    totalUsers
+    totalUsersIncrease
+  }
+}
+
+query AdminGetUsers($page: Int = 1, $limit: Int = 10, $search: String, $role: String, $status: String) {
+  adminGetUsers(page: $page, limit: $limit, search: $search, role: $role, status: $status) {
+    hasNextPage
+    hasPreviousPage
+    items {
+      id
+      displayName
+      email
+      role
+      status
+      reputationScore
+      isMailVerified
+      avatarAttachmentId
+      createdAt
+      updatedAt
+      location {
+        id
+        city
+        country
+        neighborhood
+      }
+    }
+    limit
+    page
+    totalCount
+  }
+}
+
+mutation SuspendUser($userId: String!) {
+  suspendUser(userId: $userId) {
+    id
+    status
+    displayName
+    email
+  }
+}
+
+mutation ActivateUser($userId: String!) {
+  activateUser(userId: $userId) {
+    id
+    status
+    displayName
+    email
+  }
+}
+
+mutation SendFcmNotification($input: SendNotificationInput!) {
+  sendFcmNotification(input: $input) {
+    message
+    success
+  }
+}
+
+mutation AdminCreateAccount($input: AdminCreateAccountInput!) {
+  adminCreateAccount(input: $input) {
+    id
+    displayName
+    email
+    role
+    status
+    createdAt
+  }
+}

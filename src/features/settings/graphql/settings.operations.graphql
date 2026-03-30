@@ -1,0 +1,31 @@
+mutation UpdateProfile($updateProfileInput: UpdateProfileInput!) {
+  updateProfile(updateProfileInput: $updateProfileInput) {
+    id
+    displayName
+    email
+    avatarAttachmentId
+    description
+    updatedAt
+    location {
+      id
+      city
+      country
+      latitude
+      longitude
+      neighborhood
+    }
+    settings {
+      id
+      appearance
+      isNewDonationsAlertsEnabled
+      isSystemReports
+      isUrgentAlertsEnabled
+    }
+  }
+}
+
+mutation ChangePassword($changePasswordInput: ChangePasswordInput!) {
+  changePassword(changePasswordInput: $changePasswordInput) {
+    message
+  }
+}

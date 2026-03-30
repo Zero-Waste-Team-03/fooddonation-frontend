@@ -32,7 +32,7 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-colors",
                   tab === "admin" 
-                    ? "bg-white text-emerald-800 shadow-sm"
+                    ? "bg-card text-primary shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -44,7 +44,7 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-colors",
                   tab === "org" 
-                    ? "bg-white text-emerald-800 shadow-sm"
+                    ? "bg-card text-primary shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -84,16 +84,16 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
                   className={cn(
                     "flex flex-col gap-1.5 p-5 rounded-xl text-left transition-colors border",
                     role === "super"
-                      ? "bg-emerald-50/50 border-emerald-100 text-emerald-900"
+                      ? "bg-accent border-border text-foreground"
                       : "bg-muted/40 border-transparent text-muted-foreground hover:bg-muted/60"
                   )}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className={cn("font-bold text-sm", role === "super" ? "text-emerald-800" : "text-foreground")}>
+                    <span className={cn("font-bold text-sm", role === "super" ? "text-primary" : "text-foreground")}>
                       Super Admin
                     </span>
                     {role === "super" && (
-                      <div className="flex size-5 rounded-full items-center justify-center bg-emerald-800 text-white">
+                      <div className="flex size-5 rounded-full items-center justify-center bg-primary text-primary-foreground">
                         <ShieldCheck className="size-3" />
                       </div>
                     )}
@@ -110,19 +110,19 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
                   className={cn(
                     "flex flex-col gap-1.5 p-5 rounded-xl text-left transition-colors border",
                     role === "moderator"
-                      ? "bg-emerald-50/50 border-emerald-100 text-emerald-900"
+                      ? "bg-accent border-border text-foreground"
                       : "bg-muted/40 border-transparent text-muted-foreground hover:bg-muted/60"
                   )}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className={cn("font-bold text-sm", role === "moderator" ? "text-emerald-800" : "text-foreground")}>
+                    <span className={cn("font-bold text-sm", role === "moderator" ? "text-primary" : "text-foreground")}>
                       Moderator
                     </span>
                     {role !== "moderator" && (
                       <Gavel className="size-5" />
                     )}
                     {role === "moderator" && (
-                      <div className="flex size-5 rounded-full items-center justify-center bg-emerald-800 text-white">
+                      <div className="flex size-5 rounded-full items-center justify-center bg-primary text-primary-foreground">
                         <Gavel className="size-3" />
                       </div>
                     )}
@@ -177,17 +177,17 @@ export function NewUserDialog({ children }: { children: React.ReactNode }) {
           {/* Footer */}
           <div className="flex items-center justify-between px-10 py-6 mt-4">
             <div className="flex items-center gap-2">
-              <span className="size-1.5 rounded-full bg-orange-600"></span>
+              <span className="size-1.5 rounded-full bg-warning"></span>
               <span className="text-[13px] font-medium text-muted-foreground">Pending background verification</span>
             </div>
             
             <div className="flex items-center gap-3">
               <DialogTrigger asChild>
-                <Button variant="ghost" className="font-bold text-emerald-800 hover:bg-emerald-50 hover:text-emerald-900 px-6 rounded-xl">
+                <Button variant="ghost" className="font-bold text-primary hover:bg-accent hover:text-primary px-6 rounded-xl">
                   Cancel
                 </Button>
               </DialogTrigger>
-              <Button className="font-bold text-white bg-[#1e6047] hover:bg-[#164a36] px-6 rounded-xl h-11">
+              <Button className="font-bold text-primary-foreground bg-primary hover:bg-primary/90 px-6 rounded-xl h-11">
                 Create Account
               </Button>
             </div>
