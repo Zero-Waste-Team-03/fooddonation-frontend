@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { useChangePassword } from "../hooks/useChangePassword";
 import type { ChangePasswordFormValues } from "@/types/user.types";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const changePasswordSchema = z
   .object({
@@ -173,12 +173,10 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
                   name="logoutFromOtherDevices"
                   render={({ field }) => (
                     <FormItem className="flex items-center justify-between rounded-md border border-border p-3">
-                      <FormLabel className="text-sm font-medium text-foreground">
+                      <FormLabel className="text-sm font-medium text-foreground w-max flex items-center gap-2 cursor-pointer" htmlFor="logoutFromOtherDevices">
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} id="logoutFromOtherDevices" />
                         Log out from all other devices
                       </FormLabel>
-                      <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
                     </FormItem>
                   )}
                 />
