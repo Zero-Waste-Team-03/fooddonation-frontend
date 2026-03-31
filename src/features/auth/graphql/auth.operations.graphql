@@ -16,7 +16,18 @@ query CurrentUser {
     id
     displayName
     email
-    avatarAttachmentId
+    avatar {
+      createdAt
+      fileName
+      fileSize
+      fileType
+      id
+      jobId
+      updatedAt
+      uploadStatus
+      uploadedById
+      url
+    }
     description
     reputationScore
     role

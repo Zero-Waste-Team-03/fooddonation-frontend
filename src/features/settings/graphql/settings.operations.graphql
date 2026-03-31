@@ -3,7 +3,18 @@ mutation UpdateProfile($updateProfileInput: UpdateProfileInput!) {
     id
     displayName
     email
-    avatarAttachmentId
+    avatar {
+      createdAt
+      fileName
+      fileSize
+      fileType
+      id
+      jobId
+      updatedAt
+      uploadStatus
+      uploadedById
+      url
+    }
     description
     updatedAt
     location {

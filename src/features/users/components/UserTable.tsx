@@ -49,12 +49,20 @@ function getRoleBadgeVariant(role: string) {
   }
 }
 
+function isKnownRole(role: string): role is (typeof ROLES)[number] {
+  return (ROLES as readonly string[]).includes(role);
+}
+
 function formatRoleLabel(role: string) {
-  return roleLabels[ROLES[ROLES.indexOf(role as any)]] ?? role;
+  return isKnownRole(role) ? roleLabels[role] : role;
+}
+
+function isKnownStatus(status: string): status is (typeof STATUSES)[number] {
+  return (STATUSES as readonly string[]).includes(status);
 }
 
 function formatStatusLabel(status: string) {
-  return statusLabels[STATUSES[STATUSES.indexOf(status as any)]] ?? status;
+  return isKnownStatus(status) ? statusLabels[status] : status;
 }
 
 function getStatusBadgeVariant(status: string) {
@@ -184,9 +192,9 @@ export function UserTable({
                 <TableCell className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="h-11 w-11 shrink-0 rounded-full bg-muted border border-border/50 shadow-sm flex items-center justify-center overflow-hidden">
-                      {user.avatarAttachmentId ? (
+                      {user.avatar?.url ? (
                         <img
-                          src={`/api/attachments/${user.avatarAttachmentId}`}
+                          src={user.avatar.url}
                           alt={user.displayName ?? user.email}
                           width={44}
                           height={44}

@@ -21,7 +21,18 @@ query AdminGetUsers($page: Int = 1, $limit: Int = 10, $search: String, $role: St
       status
       reputationScore
       isMailVerified
-      avatarAttachmentId
+      avatar {
+        createdAt
+        fileName
+        fileSize
+        fileType
+        id
+        jobId
+        updatedAt
+        uploadStatus
+        uploadedById
+        url
+      }
       createdAt
       updatedAt
       location {

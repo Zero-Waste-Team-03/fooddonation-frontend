@@ -6,6 +6,7 @@ import type {
 } from "@/gql/graphql";
 
 export type { UserStats, PaginatedUsers, SendNotificationInput };
+export type { Attachment } from "./attachment.types";
 
 export type User = GqlUser;
 

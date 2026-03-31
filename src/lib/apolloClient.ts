@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, createHttpLink, from } from "@apollo/client";
+import { ApolloClient, ApolloLink, InMemoryCache, createHttpLink, from } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { CombinedGraphQLErrors, ServerError } from "@apollo/client/errors";
@@ -15,6 +15,18 @@ function isErrorWithMessage(error: unknown): error is { message: string } {
     typeof (error as { message: unknown }).message === "string"
   );
 }
+
+const debugLink = new ApolloLink((operation, forward) => {
+  if (operation.operationName === "UpdateProfile") {
+    const context = operation.getContext();
+    console.group("[DEBUG] UpdateProfile request");
+    console.log("variables:", JSON.stringify(operation.variables, null, 2));
+    console.log("headers:", context.headers);
+    console.log("token in storage:", localStorage.getItem("access_token"));
+    console.groupEnd();
+  }
+  return forward(operation);
+});
 
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_API_GRAPHQL_URL,
@@ -67,7 +79,7 @@ const errorLink = onError(({ error, operation }) => {
 });
 
 export const apolloClient = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: from([debugLink, errorLink, authLink, httpLink]),
   cache: new InMemoryCache(),
   devtools: {
     enabled: import.meta.env.DEV,
