@@ -1,4 +1,4 @@
-mutation UpdateProfile($updateProfileInput: UpdateProfileInput!) {
+mutation UpdateProfileInfo($updateProfileInput: UpdateProfileInput!) {
   updateProfile(updateProfileInput: $updateProfileInput) {
     id
     displayName
@@ -17,6 +17,12 @@ mutation UpdateProfile($updateProfileInput: UpdateProfileInput!) {
     }
     description
     updatedAt
+  }
+}
+
+mutation UpdateLocation($updateProfileInput: UpdateProfileInput!) {
+  updateProfile(updateProfileInput: $updateProfileInput) {
+    id
     location {
       id
       city
@@ -25,6 +31,13 @@ mutation UpdateProfile($updateProfileInput: UpdateProfileInput!) {
       longitude
       neighborhood
     }
+    updatedAt
+  }
+}
+
+mutation UpdateSettings($updateProfileInput: UpdateProfileInput!) {
+  updateProfile(updateProfileInput: $updateProfileInput) {
+    id
     settings {
       id
       appearance
@@ -32,6 +45,7 @@ mutation UpdateProfile($updateProfileInput: UpdateProfileInput!) {
       isSystemReports
       isUrgentAlertsEnabled
     }
+    updatedAt
   }
 }
 

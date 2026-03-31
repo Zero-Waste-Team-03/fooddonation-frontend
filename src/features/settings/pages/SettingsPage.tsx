@@ -15,7 +15,9 @@ import { changePasswordDialogOpenAtom, themeAtom, type Theme } from "@/store";
 import { AvatarUpload } from "../components/AvatarUpload";
 import { ChangePasswordDialog } from "../components/ChangePasswordDialog";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { useUpdateProfile } from "../hooks/useUpdateProfile";
+import { useUpdateProfileInfo } from "../hooks/useUpdateProfileInfo";
+import { useUpdateLocation } from "../hooks/useUpdateLocation";
+import { useUpdateSettings } from "../hooks/useUpdateSettings";
 import type { UpdateProfileFormValues } from "@/types/user.types";
 
 const appearanceValues = ["DARK", "LIGHT", "SYSTEM"] as const;
@@ -73,7 +75,9 @@ export function SettingsPage() {
   const [theme, setTheme] = useAtom(themeAtom);
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useAtom(changePasswordDialogOpenAtom);
   const { user, loading: userLoading } = useCurrentUser();
-  const { handleUpdate, loading: updateLoading, errorMessage, success, clearState } = useUpdateProfile();
+  const { handleUpdate: handleUpdateProfile, loading: profileLoading, errorMessage: profileErrorMessage, success: profileSuccess, clearState: clearProfileState } = useUpdateProfileInfo();
+  const { handleUpdate: handleUpdateLocation, loading: locationLoading, errorMessage: locationErrorMessage, success: locationSuccess, clearState: clearLocationState } = useUpdateLocation();
+  const { handleUpdate: handleUpdateSettings, loading: settingsLoading, errorMessage: settingsErrorMessage, success: settingsSuccess, clearState: clearSettingsState } = useUpdateSettings();
 
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -121,13 +125,28 @@ export function SettingsPage() {
     });
   }, [user, theme, profileForm, locationForm, preferencesForm]);
 
-  const buildPayload = (
-    profileValues: ProfileValues,
-    locationValues: LocationValues,
-    preferencesValues: PreferencesValues
-  ): UpdateProfileFormValues => ({
+  const buildProfilePayload = (profileValues: ProfileValues): UpdateProfileFormValues => ({
     displayName: profileValues.displayName,
     email: profileValues.email,
+    description: user?.description ?? "",
+    location: {
+      city: user?.location?.city ?? undefined,
+      country: user?.location?.country ?? undefined,
+      neighborhood: user?.location?.neighborhood ?? undefined,
+      latitude: user?.location?.latitude ?? undefined,
+      longitude: user?.location?.longitude ?? undefined,
+    },
+    settings: {
+      appearance: (user?.settings?.appearance as "DARK" | "LIGHT" | "SYSTEM") ?? "SYSTEM",
+      isNewDonationsAlertsEnabled: user?.settings?.isNewDonationsAlertsEnabled ?? false,
+      isSystemReports: user?.settings?.isSystemReports ?? false,
+      isUrgentAlertsEnabled: user?.settings?.isUrgentAlertsEnabled ?? false,
+    },
+  });
+
+  const buildLocationPayload = (locationValues: LocationValues): UpdateProfileFormValues => ({
+    displayName: user?.displayName ?? "",
+    email: user?.email ?? "",
     description: user?.description ?? "",
     location: {
       city: locationValues.city || undefined,
@@ -135,6 +154,25 @@ export function SettingsPage() {
       neighborhood: locationValues.neighborhood || undefined,
       latitude: locationValues.latitude ? Number(locationValues.latitude) : undefined,
       longitude: locationValues.longitude ? Number(locationValues.longitude) : undefined,
+    },
+    settings: {
+      appearance: (user?.settings?.appearance as "DARK" | "LIGHT" | "SYSTEM") ?? "SYSTEM",
+      isNewDonationsAlertsEnabled: user?.settings?.isNewDonationsAlertsEnabled ?? false,
+      isSystemReports: user?.settings?.isSystemReports ?? false,
+      isUrgentAlertsEnabled: user?.settings?.isUrgentAlertsEnabled ?? false,
+    },
+  });
+
+  const buildPreferencesPayload = (preferencesValues: PreferencesValues): UpdateProfileFormValues => ({
+    displayName: user?.displayName ?? "",
+    email: user?.email ?? "",
+    description: user?.description ?? "",
+    location: {
+      city: user?.location?.city ?? undefined,
+      country: user?.location?.country ?? undefined,
+      neighborhood: user?.location?.neighborhood ?? undefined,
+      latitude: user?.location?.latitude ?? undefined,
+      longitude: user?.location?.longitude ?? undefined,
     },
     settings: {
       appearance: toAppearanceTheme(preferencesValues.appearance),
@@ -145,18 +183,18 @@ export function SettingsPage() {
   });
 
   const handleProfileSubmit = profileForm.handleSubmit(async (values) => {
-    clearState();
-    await handleUpdate(buildPayload(values, locationForm.getValues(), preferencesForm.getValues()));
+    clearProfileState();
+    await handleUpdateProfile(buildProfilePayload(values));
   });
 
   const handleLocationSubmit = locationForm.handleSubmit(async (values) => {
-    clearState();
-    await handleUpdate(buildPayload(profileForm.getValues(), values, preferencesForm.getValues()));
+    clearLocationState();
+    await handleUpdateLocation(buildLocationPayload(values));
   });
 
   const handlePreferencesSubmit = preferencesForm.handleSubmit(async (values) => {
-    clearState();
-    await handleUpdate(buildPayload(profileForm.getValues(), locationForm.getValues(), values));
+    clearSettingsState();
+    await handleUpdateSettings(buildPreferencesPayload(values));
   });
 
   return (
@@ -207,13 +245,13 @@ export function SettingsPage() {
                     )}
                   />
                 </div>
-                {errorMessage ? <p role="alert" className="text-sm text-destructive">{errorMessage}</p> : null}
-                {success ? <p className="text-sm text-success">Profile updated successfully.</p> : null}
+                {profileErrorMessage ? <p role="alert" className="text-sm text-destructive">{profileErrorMessage}</p> : null}
+                {profileSuccess ? <p className="text-sm text-success">Profile updated successfully.</p> : null}
                 <div className="flex justify-end">
                   <Button
                     type="submit"
                     className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
-                    disabled={updateLoading || userLoading}
+                    disabled={profileLoading || userLoading || !profileForm.formState.isDirty}
                   >
                     Save Profile
                   </Button>
@@ -299,13 +337,13 @@ export function SettingsPage() {
                     )}
                   />
                 </div>
-                {errorMessage ? <p role="alert" className="text-sm text-destructive">{errorMessage}</p> : null}
-                {success ? <p className="text-sm text-success">Location updated successfully.</p> : null}
+                {locationErrorMessage ? <p role="alert" className="text-sm text-destructive">{locationErrorMessage}</p> : null}
+                {locationSuccess ? <p className="text-sm text-success">Location updated successfully.</p> : null}
                 <div className="flex justify-end">
                   <Button
                     type="submit"
                     className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
-                    disabled={updateLoading || userLoading}
+                    disabled={locationLoading || userLoading || !locationForm.formState.isDirty}
                   >
                     Save Location
                   </Button>
@@ -390,13 +428,13 @@ export function SettingsPage() {
                     )}
                   />
                 </div>
-                {errorMessage ? <p role="alert" className="text-sm text-destructive">{errorMessage}</p> : null}
-                {success ? <p className="text-sm text-success">Preferences updated successfully.</p> : null}
+                {settingsErrorMessage ? <p role="alert" className="text-sm text-destructive">{settingsErrorMessage}</p> : null}
+                {settingsSuccess ? <p className="text-sm text-success">Preferences updated successfully.</p> : null}
                 <div className="flex justify-end">
                   <Button
                     type="submit"
                     className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
-                    disabled={updateLoading || userLoading}
+                    disabled={settingsLoading || userLoading || !preferencesForm.formState.isDirty}
                   >
                     Save Preferences
                   </Button>

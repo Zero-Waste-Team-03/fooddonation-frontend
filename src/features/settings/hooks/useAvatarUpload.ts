@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { uploadFile } from "@/lib/uploadFile";
-import { useUpdateProfileMutation, CurrentUserDocument } from "@/gql/graphql";
+import { useUpdateProfileInfoMutation, CurrentUserDocument } from "@/gql/graphql";
 
 export type AvatarUploadState =
   | "idle"
@@ -13,7 +13,7 @@ export function useAvatarUpload() {
   const [state, setState] = useState<AvatarUploadState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [updateProfile] = useUpdateProfileMutation({
+  const [updateProfileInfo] = useUpdateProfileInfoMutation({
     refetchQueries: [CurrentUserDocument],
   });
 
@@ -26,7 +26,7 @@ export function useAvatarUpload() {
 
       setState("updating");
 
-      const result = await updateProfile({
+      const result = await updateProfileInfo({
         variables: {
           updateProfileInput: {
             avatarAttachmentId: attachmentId,
