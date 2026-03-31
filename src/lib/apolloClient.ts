@@ -3,7 +3,7 @@ import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { CombinedGraphQLErrors, ServerError } from "@apollo/client/errors";
 import { jotaiStore, router } from "@/main";
-import { accessTokenAtom, authUserAtom, refreshTokenAtom } from "@/store/atoms/auth.atoms";
+import { accessTokenAtom, authUserAtom, authValidationStatusAtom, refreshTokenAtom } from "@/store/atoms/auth.atoms";
 
 const AUTH_OPERATION_NAMES = new Set(["Login", "ForgotPassword", "ResetPassword"]);
 
@@ -49,6 +49,7 @@ const errorLink = onError(({ error, operation }) => {
         jotaiStore.set(accessTokenAtom, null);
         jotaiStore.set(authUserAtom, null);
         jotaiStore.set(refreshTokenAtom, null);
+        jotaiStore.set(authValidationStatusAtom, "invalid");
         void router.navigate({ to: "/login", search: { redirect: "/" } });
         return;
       }

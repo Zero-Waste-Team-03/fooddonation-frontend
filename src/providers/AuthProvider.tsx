@@ -3,7 +3,7 @@ import { useAtomValue } from "jotai";
 import {
   accessTokenAtom,
   authUserAtom,
-  isAuthenticatedAtom,
+  authValidationStatusAtom,
   refreshTokenAtom,
 } from "@/store/atoms/auth.atoms";
 import type { AuthUser } from "@/types/auth.types";
@@ -18,7 +18,9 @@ export interface AuthContext {
 const AuthCtx = createContext<AuthContext | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+  const token = useAtomValue(accessTokenAtom);
+  const validationStatus = useAtomValue(authValidationStatusAtom);
+  const isAuthenticated = !!token && validationStatus === "valid";
 
   const login = (newToken: string, newUser: AuthUser, newRefreshToken?: string | null) => {
     if (newUser.role !== "Administrator") {
@@ -31,12 +33,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       jotaiStore.set(refreshTokenAtom, null);
     }
+    jotaiStore.set(authValidationStatusAtom, "valid");
   };
 
   const logout = () => {
     jotaiStore.set(accessTokenAtom, null);
     jotaiStore.set(authUserAtom, null);
     jotaiStore.set(refreshTokenAtom, null);
+    jotaiStore.set(authValidationStatusAtom, "invalid");
     void router.navigate({ to: "/login", search: { redirect: "/dashboard" } });
   };
 

@@ -17,6 +17,10 @@ export const authUserAtom = atomWithStorage<AuthUser | null>(
   null
 );
 
+export type AuthValidationStatus = "idle" | "validating" | "valid" | "invalid";
+
+export const authValidationStatusAtom = atom<AuthValidationStatus>("idle");
+
 export const isAuthenticatedAtom = atom<boolean>(
-  (get) => get(accessTokenAtom) !== null
+  (get) => get(authValidationStatusAtom) === "valid"
 );
