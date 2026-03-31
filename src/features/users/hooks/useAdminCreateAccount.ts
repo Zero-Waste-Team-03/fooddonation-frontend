@@ -3,13 +3,14 @@ import {
   AdminGetUserStatsDocument,
   AdminGetUsersDocument,
   useAdminCreateAccountMutation,
+  type UserRole,
 } from "@/gql/graphql";
 import { parseUserActionError, type UserActionErrorMessage } from "../utils/parseUserActionError";
 
 export type AdminCreateAccountFormValues = {
   displayName: string;
   email: string;
-  role: string;
+  role: UserRole;
 };
 
 export function useAdminCreateAccount() {

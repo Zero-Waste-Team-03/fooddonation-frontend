@@ -1,5 +1,6 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { useAtomValue } from "jotai";
+import { UserRole } from "@/gql/graphql";
 import {
   accessTokenAtom,
   authUserAtom,
@@ -23,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = !!token && validationStatus === "valid";
 
   const login = (newToken: string, newUser: AuthUser, newRefreshToken?: string | null) => {
-    if (newUser.role !== "Administrator") {
+    if (newUser.role !== UserRole.Administrator) {
       throw new Error("Unauthorized: User does not have the required role");
     }
     jotaiStore.set(accessTokenAtom, newToken);

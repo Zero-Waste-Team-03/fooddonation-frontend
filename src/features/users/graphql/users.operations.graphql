@@ -9,7 +9,7 @@ query AdminGetUserStats {
   }
 }
 
-query AdminGetUsers($page: Int = 1, $limit: Int = 10, $search: String, $role: String, $status: String) {
+query AdminGetUsers($page: Int = 1, $limit: Int = 10, $search: String, $role: UserRole, $status: String) {
   adminGetUsers(page: $page, limit: $limit, search: $search, role: $role, status: $status) {
     hasNextPage
     hasPreviousPage

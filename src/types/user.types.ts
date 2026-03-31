@@ -3,16 +3,17 @@ import type {
   UserStats,
   PaginatedUsers,
   SendNotificationInput,
+  UserRole,
 } from "@/gql/graphql";
 
-export type { UserStats, PaginatedUsers, SendNotificationInput };
+export type { UserStats, PaginatedUsers, SendNotificationInput, UserRole };
 export type { Attachment } from "./attachment.types";
 
 export type User = GqlUser;
 
 export type UserFilters = {
   search: string;
-  role: string | null;
+  role: UserRole | null;
   status: string | null;
 };
 

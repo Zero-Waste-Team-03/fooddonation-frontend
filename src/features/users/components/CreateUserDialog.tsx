@@ -3,6 +3,7 @@ import { Loader2, MailCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { UserRole } from "@/gql/graphql";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -27,7 +28,7 @@ type CreateUserDialogProps = {
 const defaultValues: CreateAccountFormValues = {
   displayName: "",
   email: "",
-  role: "User",
+  role: UserRole.Administrator,
 };
 
 export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) {

@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { UserRole } from "@/gql/graphql";
 import type { UserFilters } from "@/types/user.types";
 
 type UserFiltersProps = {
@@ -18,15 +19,21 @@ type UserFiltersProps = {
   filteredCount: number;
 };
 
-export const ROLES = ["Administrator", "Organizations", "Stores", "User", "Local Authority"] as const;
+export const ROLES = [
+  UserRole.Administrator,
+  UserRole.Organization,
+  UserRole.Store,
+  UserRole.User,
+  UserRole.LocalAuthority,
+] as const;
 export const STATUSES = ["Active", "Suspended", "Banned", "Deactivated"] as const;
 
-export const roleLabels: Record<(typeof ROLES)[number], string> = {
-  Administrator: "Administrator",
-  Organizations: "Organization",
-  Stores: "Stores",
-  User: "Standard user",
-  "Local Authority": "Local Authority",
+export const roleLabels: Record<UserRole, string> = {
+  [UserRole.Administrator]: "Administrator",
+  [UserRole.Organization]: "Organization",
+  [UserRole.Store]: "Stores",
+  [UserRole.User]: "Standard user",
+  [UserRole.LocalAuthority]: "Local Authority",
 };
 
 export const statusLabels: Record<(typeof STATUSES)[number], string> = {
@@ -76,7 +83,7 @@ export function UserFilters({
           onValueChange={(value) =>
             onFiltersChange({
               ...filters,
-              role: value === "all" ? null : value,
+              role: value === "all" ? null : (value as UserRole),
             })
           }
         >

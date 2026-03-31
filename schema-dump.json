@@ -1,0 +1,87 @@
+{
+  "Attachment": [
+    {
+      "name": "createdAt",
+      "type": "DateTime",
+      "nonNull": true
+    },
+    {
+      "name": "fileName",
+      "type": "String",
+      "nonNull": true
+    },
+    {
+      "name": "fileSize",
+      "type": "Float",
+      "nonNull": true
+    },
+    {
+      "name": "fileType",
+      "type": "String",
+      "nonNull": true
+    },
+    {
+      "name": "id",
+      "type": "String",
+      "nonNull": true
+    },
+    {
+      "name": "jobId",
+      "type": "String",
+      "nonNull": false
+    },
+    {
+      "name": "updatedAt",
+      "type": "DateTime",
+      "nonNull": true
+    },
+    {
+      "name": "uploadStatus",
+      "type": "UploadStatusValues",
+      "nonNull": false
+    },
+    {
+      "name": "uploadedById",
+      "type": "String",
+      "nonNull": true
+    },
+    {
+      "name": "url",
+      "type": "String",
+      "nonNull": false
+    }
+  ],
+  "User": {
+    "avatar": true,
+    "avatarNonNull": true,
+    "avatarAttachmentId": true
+  },
+  "UpdateProfileInput": [
+    {
+      "name": "avatarAttachmentId",
+      "type": "String",
+      "nonNull": false
+    },
+    {
+      "name": "displayName",
+      "type": "String",
+      "nonNull": false
+    },
+    {
+      "name": "email",
+      "type": "String",
+      "nonNull": false
+    },
+    {
+      "name": "location",
+      "type": "LocationInput",
+      "nonNull": false
+    },
+    {
+      "name": "settings",
+      "type": "UserSettingsInput",
+      "nonNull": false
+    }
+  ],
+  "Uses": []
+}

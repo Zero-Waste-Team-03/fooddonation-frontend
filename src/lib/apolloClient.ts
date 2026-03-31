@@ -33,11 +33,13 @@ const httpLink = createHttpLink({
 });
 
 const authLink = setContext((_, { headers }) => {
-  const token = jotaiStore.get(accessTokenAtom);
+  const token =
+    jotaiStore.get(accessTokenAtom) ??
+    localStorage.getItem("access_token");
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : "",
+      ...(token ? { authorization: `Bearer ${token.trim()}` } : {}),
     },
   };
 });

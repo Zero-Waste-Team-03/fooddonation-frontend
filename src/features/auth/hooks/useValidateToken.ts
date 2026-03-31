@@ -16,7 +16,7 @@ export function useValidateToken() {
 
   useEffect(() => {
     let mounted = true;
-    const token = jotaiStore.get(accessTokenAtom);
+    const token = localStorage.getItem("access_token");
 
     if (!token) {
       if (mounted) {
@@ -39,9 +39,13 @@ export function useValidateToken() {
           jotaiStore.set(accessTokenAtom, null);
           jotaiStore.set(authUserAtom, null);
           jotaiStore.set(refreshTokenAtom, null);
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("auth_user");
+          localStorage.removeItem("refresh_token");
           return;
         }
         const { id, email, role, displayName } = data.currentUser;
+        jotaiStore.set(accessTokenAtom, token);
         jotaiStore.set(authUserAtom, { id, email, role, displayName });
         jotaiStore.set(authValidationStatusAtom, "valid");
       })
@@ -53,6 +57,9 @@ export function useValidateToken() {
         jotaiStore.set(accessTokenAtom, null);
         jotaiStore.set(authUserAtom, null);
         jotaiStore.set(refreshTokenAtom, null);
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("auth_user");
+        localStorage.removeItem("refresh_token");
       });
 
     return () => {

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { changePasswordDialogOpenAtom, themeAtom, type Theme } from "@/store";
+import { AvatarUpload } from "../components/AvatarUpload";
 import { ChangePasswordDialog } from "../components/ChangePasswordDialog";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
@@ -169,6 +170,13 @@ export function SettingsPage() {
             <CardTitle>Profile Information</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="mb-6 flex justify-center">
+              <AvatarUpload
+                currentAvatarUrl={user?.avatar?.url ?? null}
+                displayName={user?.displayName ?? null}
+                email={user?.email ?? ""}
+              />
+            </div>
             <Form {...profileForm}>
               <form onSubmit={handleProfileSubmit} className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">

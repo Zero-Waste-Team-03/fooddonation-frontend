@@ -7,9 +7,11 @@ export const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config) => {
-  const token = jotaiStore.get(accessTokenAtom);
+  const token =
+    jotaiStore.get(accessTokenAtom) ??
+    localStorage.getItem("access_token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token.trim()}`;
   }
   return config;
 });
