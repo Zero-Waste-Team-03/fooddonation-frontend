@@ -22,7 +22,7 @@ export function useAvatarUpload() {
     setErrorMessage(null);
 
     try {
-      const attachmentId = await uploadFile(file);
+      const attachmentId = await uploadFile(file, "USER_PROFILE");
 
       setState("updating");
 

@@ -9,7 +9,9 @@ export type UploadFileResponse = {
   };
 };
 
-export async function uploadFile(file: File): Promise<string> {
+export type UploadTime = "USER_PROFILE" | "POST" | "OTHER";
+
+export async function uploadFile(file: File, uploadType: UploadTime): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -19,6 +21,9 @@ export async function uploadFile(file: File): Promise<string> {
     {
       headers: {
         "Content-Type": "multipart/form-data",
+      },
+      params: {
+        uploadType,
       },
     }
   );
