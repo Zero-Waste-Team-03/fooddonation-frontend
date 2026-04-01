@@ -37,6 +37,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useCurrentUser } from "@/features/settings/hooks/useCurrentUser";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
 type OverviewKpi = {
   id: string;
@@ -193,6 +195,13 @@ function ActivityHeatmapCard() {
 
 export function OverviewPage() {
   const { user } = useCurrentUser();
+  const periods = ["7d", "30d", "12m"] as const;
+  const periodLabels: Record<typeof periods[number], string> = {
+    "7d": "Last 7 Days",
+    "30d": "Last 30 Days",
+    "12m": "Last 12 Months",
+  };
+  const [selectedPeriod, setSelectedPeriod] = useState<typeof periods[number]>("12m");
   return (
     <PageWrapper
       title="Dashboard Overview"
@@ -223,17 +232,18 @@ export function OverviewPage() {
                 </CardDescription>
               </div>
               <div className="relative shrink-0">
-                <select
-                  aria-label="Time range"
-                  className="h-9 appearance-none rounded-md border border-border bg-background py-1.5 pr-8 pl-3 text-sm text-foreground shadow-card"
-                  defaultValue="12m"
-                >
-                  <option value="12m">Last 12 Months</option>
-                </select>
-                <ChevronDown
-                  className="pointer-events-none absolute top-1/2 right-2 size-4 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden
-                />
+                <Select value={selectedPeriod} onValueChange={(value) => setSelectedPeriod(value as typeof periods[number])}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {periods.map((role) => (
+                      <SelectItem key={role} value={role}>
+                        {periodLabels[role]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
