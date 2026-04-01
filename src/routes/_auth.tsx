@@ -4,7 +4,7 @@ import { authValidationStatusAtom, isAuthenticatedAtom } from "@/store";
 
 export const Route = createFileRoute("/_auth")({
   validateSearch: (search) => ({
-    redirect: (search.redirect as string) || "/",
+    redirect: (search.redirect as string) || "/dashboard",
   }),
   beforeLoad: ({ search }) => {
     const validationStatus = jotaiStore.get(authValidationStatusAtom);
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_auth")({
     }
 
     if (jotaiStore.get(isAuthenticatedAtom)) {
-      throw redirect({ href: search.redirect });
+      throw redirect({ to: search.redirect });
     }
   },
   component: AuthLayout,
