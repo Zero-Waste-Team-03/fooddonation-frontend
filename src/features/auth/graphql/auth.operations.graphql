@@ -23,7 +23,6 @@ query CurrentUser {
       fileType
       id
       jobId
-      updatedAt
       uploadStatus
       uploadedById
       url

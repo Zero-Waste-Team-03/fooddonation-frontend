@@ -33,4 +33,10 @@ source = source.replace(
 source = source.replace(/^\s*\/\/\s*@ts-ignore.*\r?\n/gm, "");
 source = source.replace(/^\s*\/\/\s*@ts-expect-error.*\r?\n/gm, "");
 
+// Remove updatedAt field from Attachment type
+source = source.replace(
+  /(\s+\/\*\* Date the attachment was last updated \*\/\r?\n\s+updatedAt: Scalars\['DateTime'\]\['output'\];?\r?\n)/g,
+  ""
+);
+
 writeFileSync(graphqlFilePath, source, "utf8");

@@ -28,7 +28,6 @@ query AdminGetUsers($page: Int = 1, $limit: Int = 10, $search: String, $role: Us
         fileType
         id
         jobId
-        updatedAt
         uploadStatus
         uploadedById
         url

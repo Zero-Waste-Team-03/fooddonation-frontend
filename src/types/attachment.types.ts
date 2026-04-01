@@ -7,7 +7,6 @@ export type Attachment = {
   fileType: string;
   id: string;
   jobId?: string | null;
-  updatedAt: string;
   uploadStatus?: AttachmentUploadStatus | null;
   uploadedById: string;
   url?: string | null;
