@@ -77,10 +77,18 @@ export function Header() {
             </p>
           </div>
           <div
-            className="flex size-10 shrink-0 items-center justify-center rounded-full border border-sidebar-rail-border bg-muted text-xs font-bold text-muted-foreground"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full border border-sidebar-rail-border bg-muted text-xs font-bold text-muted-foreground overflow-hidden"
             aria-hidden
           >
-            {authUser ? profileInitials(authUser.displayName, email) : "—"}
+            {authUser?.avatar?.url ? (
+              <img
+                src={authUser.avatar.url}
+                alt={displayName ?? email}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              profileInitials(authUser?.displayName, email)
+            )}
           </div>
         </div>
       </div>

@@ -13,8 +13,8 @@ export function useCurrentUser() {
     if (!data?.currentUser) {
       return;
     }
-    const { id, email, role, displayName } = data.currentUser;
-    setAuthUser({ id, email, role, displayName });
+    const { id, email, role, displayName, avatar } = data.currentUser;
+    setAuthUser({ id, email, role, displayName, avatar });
   }, [data, setAuthUser]);
 
   return {
