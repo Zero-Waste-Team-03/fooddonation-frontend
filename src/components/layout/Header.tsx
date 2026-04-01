@@ -4,6 +4,8 @@ import { Bell, Monitor, Moon, PanelLeft, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { authUserAtom, sidebarCollapsedAtom, themeAtom } from "@/store";
+import { roleLabels, ROLES } from "@/features/users/components/UserFilters";
+import { UserRole } from "@/types/user.types";
 
 function profileInitials(displayName: string | null | undefined, email: string) {
   if (displayName?.trim()) {
@@ -24,7 +26,7 @@ export function Header() {
   const email = authUser?.email ?? "";
   const role = authUser?.role?.trim() ?? "";
   const title = displayName || email || "Account";
-  const subtitle = displayName ? role || email : role;
+  const subtitle = displayName ? roleLabels[role as UserRole] || email : roleLabels[role as UserRole];
 
   return (
     <header className="flex h-header w-full shrink-0 items-center justify-between gap-8 border-b border-border bg-header-surface px-8 backdrop-blur-md">
