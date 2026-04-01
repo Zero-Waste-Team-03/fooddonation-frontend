@@ -64,8 +64,6 @@ type ReverseLocationIqResponse = {
   };
 };
 
-const toAppearanceTheme = (v: string): "DARK" | "LIGHT" | "SYSTEM" => v.toUpperCase() as "DARK" | "LIGHT" | "SYSTEM";
-
 const formatLastChangedDate = (value?: string | null) => {
   if (!value) {
     return "Never changed";
