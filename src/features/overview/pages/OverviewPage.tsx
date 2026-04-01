@@ -148,17 +148,17 @@ function priorityLabel(p: UrgentActionRow["priority"]): string {
 
 function ActivityHeatmapCard() {
   return (
-    <Card className="flex min-h-[320px] flex-col overflow-hidden shadow-card">
+    <Card className="flex min-h-full flex-col overflow-hidden shadow-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-page-title">Activity Heatmap</CardTitle>
         <CardDescription>Geographic hotspots by density</CardDescription>
       </CardHeader>
-      <CardContent className="relative flex min-h-[240px] flex-1 flex-col p-0">
-        <div className="relative min-h-[240px] flex-1 overflow-hidden rounded-b-md">
+      <CardContent className="relative flex min-h-full flex-1 flex-col p-0">
+        <div className="relative min-h-full flex-1 overflow-hidden rounded-b-md">
           <Map
             center={[2.3522, 48.8566]}
             zoom={11}
-            className="absolute inset-0 min-h-[240px]"
+            className="absolute inset-0 min-h-full"
           >
             <MapControls />
             <MapMarker longitude={2.3522} latitude={48.8566}>
