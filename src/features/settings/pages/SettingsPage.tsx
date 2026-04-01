@@ -32,7 +32,7 @@ const appearanceLabels: Record<(typeof appearanceValues)[number], string> = {
 
 const profileSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
 });
 
 const locationSchema = z.object({
@@ -166,19 +166,22 @@ export function SettingsPage() {
     });
   }, [user, theme, profileForm, locationForm, preferencesForm]);
 
-  const currentCoordinates = useMemo<Coordinates>(() => {
-    const latitude = Number(locationForm.watch("latitude"));
-    const longitude = Number(locationForm.watch("longitude"));
+  const latitude = locationForm.watch("latitude");
+  const longitude = locationForm.watch("longitude");
 
-    if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
-      return { latitude, longitude };
+  const currentCoordinates = useMemo<Coordinates>(() => {
+    const lat = latitude ? Number(latitude) : NaN;
+    const lon = longitude ? Number(longitude) : NaN;
+
+    if (Number.isFinite(lat) && Number.isFinite(lon)) {
+      return { latitude: lat, longitude: lon };
     }
 
     return {
       latitude: user?.location?.latitude ?? 48.8566,
       longitude: user?.location?.longitude ?? 2.3522,
     };
-  }, [locationForm, user?.location?.latitude, user?.location?.longitude]);
+  }, [latitude, longitude, user?.location?.latitude, user?.location?.longitude]);
 
   const reverseGeocode = async (coords: Coordinates) => {
     const locationIqKey = import.meta.env.VITE_LOCATIONIQ_KEY;
@@ -473,13 +476,12 @@ export function SettingsPage() {
                   <div className="space-y-2">
                     <div className="relative h-[340px] overflow-hidden rounded-xl border border-border">
                       <Map
-                        key={`${currentCoordinates.latitude}-${currentCoordinates.longitude}`}
                         center={[
                           currentCoordinates.longitude,
                           currentCoordinates.latitude,
                         ]}
                         zoom={12}
-                        className="h-full w-full min-h-full"
+                        className="absolute inset-0 min-h-[340px]"
                         loading={isResolvingLocation}
                       >
                         <MapClickHandler onPick={handlePickLocation} />

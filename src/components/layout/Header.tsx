@@ -4,7 +4,7 @@ import { Bell, Monitor, Moon, PanelLeft, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { authUserAtom, sidebarCollapsedAtom, themeAtom } from "@/store";
-import { roleLabels, ROLES } from "@/features/users/components/UserFilters";
+import { roleLabels } from "@/features/users/components/UserFilters";
 import { UserRole } from "@/types/user.types";
 
 function profileInitials(displayName: string | null | undefined, email: string) {
