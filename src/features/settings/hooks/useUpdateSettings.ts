@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppearanceTheme, CurrentUserDocument, useUpdateSettingsMutation } from "@/gql/graphql";
+import { CurrentUserDocument, useUpdateSettingsMutation } from "@/gql/graphql";
 import { parseUserActionError, type UserActionErrorMessage } from "@/features/users/utils/parseUserActionError";
 import type { UpdateProfileFormValues } from "@/types/user.types";
 
@@ -20,7 +20,7 @@ export function useUpdateSettings() {
       variables: {
         updateProfileInput: {
           settings: {
-            appearance: AppearanceTheme[values.settings.appearance as keyof typeof AppearanceTheme],
+            appearance: null,
             isNewDonationsAlertsEnabled: values.settings.isNewDonationsAlertsEnabled,
             isSystemReports: values.settings.isSystemReports,
             isUrgentAlertsEnabled: values.settings.isUrgentAlertsEnabled,
