@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { useCurrentUserLazyQuery } from "@/gql/graphql";
-import { jotaiStore } from "@/main";
+import { jotaiStore } from "@/lib/store";
+import { authStorage } from "@/lib/authStorage";
 import {
   accessTokenAtom,
   authUserAtom,
   authValidationStatusAtom,
-  refreshTokenAtom,
 } from "@/store";
+import { refreshTokens } from "@/lib/tokenRefreshService";
 
 export function useValidateToken() {
   const [validateToken] = useCurrentUserLazyQuery({
@@ -16,12 +17,11 @@ export function useValidateToken() {
 
   useEffect(() => {
     let mounted = true;
-    const token = localStorage.getItem("access_token");
+    const accessToken = authStorage.getAccessToken();
+    const refreshToken = authStorage.getRefreshToken();
 
-    if (!token) {
-      if (mounted) {
-        jotaiStore.set(authValidationStatusAtom, "invalid");
-      }
+    if (!accessToken && !refreshToken) {
+      if (mounted) jotaiStore.set(authValidationStatusAtom, "invalid");
       return () => {
         mounted = false;
       };
@@ -29,38 +29,48 @@ export function useValidateToken() {
 
     jotaiStore.set(authValidationStatusAtom, "validating");
 
-    validateToken()
-      .then(({ data, error }) => {
-        if (!mounted) {
-          return;
+    const run = async () => {
+      if (accessToken) {
+        try {
+          const { data } = await validateToken();
+          if (!mounted) return;
+          if (data?.currentUser) {
+            authStorage.setAuthUser(data.currentUser);
+            jotaiStore.set(accessTokenAtom, accessToken);
+            jotaiStore.set(authUserAtom, data.currentUser);
+            jotaiStore.set(authValidationStatusAtom, "valid");
+            return;
+          }
+        } catch {
+          if (!mounted) return;
         }
-        if (error || !data?.currentUser) {
-          jotaiStore.set(authValidationStatusAtom, "invalid");
-          jotaiStore.set(accessTokenAtom, null);
-          jotaiStore.set(authUserAtom, null);
-          jotaiStore.set(refreshTokenAtom, null);
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("auth_user");
-          localStorage.removeItem("refresh_token");
-          return;
+      }
+
+      if (refreshToken) {
+        const result = await refreshTokens();
+        if (!mounted) return;
+        if (result.success) {
+          try {
+            const { data } = await validateToken();
+            if (!mounted) return;
+            if (data?.currentUser) {
+              jotaiStore.set(authValidationStatusAtom, "valid");
+              return;
+            }
+          } catch {
+            if (!mounted) return;
+          }
         }
-        const { id, email, role, displayName } = data.currentUser;
-        jotaiStore.set(accessTokenAtom, token);
-        jotaiStore.set(authUserAtom, { id, email, role, displayName });
-        jotaiStore.set(authValidationStatusAtom, "valid");
-      })
-      .catch(() => {
-        if (!mounted) {
-          return;
-        }
-        jotaiStore.set(authValidationStatusAtom, "invalid");
-        jotaiStore.set(accessTokenAtom, null);
-        jotaiStore.set(authUserAtom, null);
-        jotaiStore.set(refreshTokenAtom, null);
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("auth_user");
-        localStorage.removeItem("refresh_token");
-      });
+      }
+
+      if (!mounted) return;
+      authStorage.clear();
+      jotaiStore.set(accessTokenAtom, null);
+      jotaiStore.set(authUserAtom, null);
+      jotaiStore.set(authValidationStatusAtom, "invalid");
+    };
+
+    void run();
 
     return () => {
       mounted = false;

@@ -2,5 +2,17 @@ mutation RefreshTokens {
   refreshTokens {
     accessToken
     refreshToken
+    user {
+      id
+      email
+      displayName
+      role
+      status
+      isMailVerified
+      avatar {
+        id
+        url
+      }
+    }
   }
 }

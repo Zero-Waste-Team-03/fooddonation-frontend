@@ -1,6 +1,17 @@
-import type { User } from "@/gql/graphql";
+import type { UserRole } from "@/gql/graphql";
 
-export type AuthUser = Pick<User, "id" | "email" | "role" | "displayName" | "avatar">;
+export type AuthUserAvatar = {
+  id: string;
+  url?: string | null;
+} | null;
+
+export type AuthUser = {
+  id: string;
+  email: string;
+  role: UserRole;
+  displayName?: string | null;
+  avatar?: AuthUserAvatar;
+};
 
 export type AuthTokenPayload = {
   sub: string;

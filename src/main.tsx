@@ -1,13 +1,14 @@
 import { StrictMode } from "react";
 import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { createRouter, RouterProvider } from "@tanstack/react-router";
-import { Provider as JotaiProvider, createStore, useAtomValue } from "jotai";
-import { routeTree } from "./routeTree.gen";
+import { RouterProvider } from "@tanstack/react-router";
+import { Provider as JotaiProvider, useAtomValue } from "jotai";
 import { AuthProvider, useAuthContext } from "@/providers/AuthProvider";
 import { ApolloProvider } from "@/providers/ApolloProvider";
 import { TokenValidator } from "@/providers/TokenValidator";
 import { themeAtom } from "@/store/atoms/ui.atoms";
+import { jotaiStore } from "@/lib/store";
+import { router } from "@/lib/router";
 import "@fontsource-variable/inter";
 import "@fontsource/plus-jakarta-sans/400.css";
 import "@fontsource/plus-jakarta-sans/500.css";
@@ -16,21 +17,6 @@ import "@fontsource/plus-jakarta-sans/700.css";
 import "@fontsource/plus-jakarta-sans/800.css";
 import "@/index.css";
 import "maplibre-gl/dist/maplibre-gl.css";
-
-export const router = createRouter({
-  routeTree,
-  context: {
-    auth: undefined!,
-  },
-});
-
-export const jotaiStore = createStore();
-
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
 
 function InnerApp() {
   const auth = useAuthContext();

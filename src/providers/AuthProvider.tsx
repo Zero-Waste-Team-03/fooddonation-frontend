@@ -1,52 +1,49 @@
-import { createContext, useContext, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  type ReactNode,
+} from "react";
 import { useAtomValue } from "jotai";
-import { UserRole } from "@/gql/graphql";
+import type { AuthUser } from "@/types/auth.types";
+import { authStorage } from "@/lib/authStorage";
+import { jotaiStore } from "@/lib/store";
 import {
   accessTokenAtom,
   authUserAtom,
   authValidationStatusAtom,
+  isAuthenticatedAtom,
   refreshTokenAtom,
-} from "@/store/atoms/auth.atoms";
-import type { AuthUser } from "@/types/auth.types";
-import { jotaiStore, router } from "@/main";
+} from "@/store";
+import { clearAuthAndRedirect } from "@/lib/tokenRefreshService";
 
 export interface AuthContext {
   isAuthenticated: boolean;
-  login: (token: string, user: AuthUser, refreshToken?: string | null) => void;
+  user: AuthUser | null;
+  login: (accessToken: string, refreshToken: string, user: AuthUser) => void;
   logout: () => void;
 }
 
 const AuthCtx = createContext<AuthContext | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const token = useAtomValue(accessTokenAtom);
-  const validationStatus = useAtomValue(authValidationStatusAtom);
-  const isAuthenticated = !!token && validationStatus === "valid";
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+  const user = useAtomValue(authUserAtom);
 
-  const login = (newToken: string, newUser: AuthUser, newRefreshToken?: string | null) => {
-    if (newUser.role !== UserRole.Administrator) {
-      throw new Error("Unauthorized: User does not have the required role");
-    }
-    jotaiStore.set(accessTokenAtom, newToken);
+  const login = (accessToken: string, refreshToken: string, newUser: AuthUser) => {
+    authStorage.setTokens(accessToken, refreshToken);
+    authStorage.setAuthUser(newUser);
+    jotaiStore.set(accessTokenAtom, accessToken);
+    jotaiStore.set(refreshTokenAtom, refreshToken);
     jotaiStore.set(authUserAtom, newUser);
-    if (newRefreshToken) {
-      jotaiStore.set(refreshTokenAtom, newRefreshToken);
-    } else {
-      jotaiStore.set(refreshTokenAtom, null);
-    }
     jotaiStore.set(authValidationStatusAtom, "valid");
   };
 
   const logout = () => {
-    jotaiStore.set(accessTokenAtom, null);
-    jotaiStore.set(authUserAtom, null);
-    jotaiStore.set(refreshTokenAtom, null);
-    jotaiStore.set(authValidationStatusAtom, "invalid");
-    void router.navigate({ to: "/login", search: { redirect: "/dashboard" } });
+    clearAuthAndRedirect();
   };
 
   return (
-    <AuthCtx.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthCtx.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
     </AuthCtx.Provider>
   );

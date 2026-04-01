@@ -1,17 +1,17 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
-import { jotaiStore } from "@/main";
-import { authValidationStatusAtom } from "@/store";
+import { jotaiStore } from "@/lib/store";
+import { authValidationStatusAtom, isAuthenticatedAtom } from "@/store";
 
 export const Route = createFileRoute("/_protected")({
-  beforeLoad: ({ context, location }) => {
+  beforeLoad: ({ location }) => {
     const validationStatus = jotaiStore.get(authValidationStatusAtom);
 
     if (validationStatus === "idle" || validationStatus === "validating") {
       return;
     }
 
-    if (!context.auth.isAuthenticated) {
+    if (!jotaiStore.get(isAuthenticatedAtom)) {
       throw redirect({
         to: "/login",
         search: { redirect: location.href },

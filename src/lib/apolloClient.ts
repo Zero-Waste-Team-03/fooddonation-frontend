@@ -1,41 +1,44 @@
-import { ApolloClient, ApolloLink, InMemoryCache, createHttpLink, from } from "@apollo/client";
+import {
+  ApolloClient,
+  type FetchResult,
+  InMemoryCache,
+  Observable,
+  createHttpLink,
+  from,
+} from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
-import { CombinedGraphQLErrors, ServerError } from "@apollo/client/errors";
-import { jotaiStore, router } from "@/main";
-import { accessTokenAtom, authUserAtom, authValidationStatusAtom, refreshTokenAtom } from "@/store/atoms/auth.atoms";
+import type { GraphQLError } from "graphql";
+import { authStorage } from "@/lib/authStorage";
+import { refreshTokens, clearAuthAndRedirect } from "@/lib/tokenRefreshService";
 
-const AUTH_OPERATION_NAMES = new Set(["Login", "ForgotPassword", "ResetPassword"]);
+const AUTH_BYPASS_OPERATIONS = new Set([
+  "Login",
+  "ForgotPassword",
+  "ResetPassword",
+  "RefreshTokens",
+]);
 
-function isErrorWithMessage(error: unknown): error is { message: string } {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { message: unknown }).message === "string"
-  );
+function getContextFlag(
+  operation: unknown,
+  key: string
+): boolean {
+  const op = operation as { getContext?: () => Record<string, unknown> };
+  const ctx = op.getContext?.();
+  return Boolean(ctx && ctx[key]);
 }
-
-const debugLink = new ApolloLink((operation, forward) => {
-  if (operation.operationName === "UpdateProfile") {
-    const context = operation.getContext();
-    console.group("[DEBUG] UpdateProfile request");
-    console.log("variables:", JSON.stringify(operation.variables, null, 2));
-    console.log("headers:", context.headers);
-    console.log("token in storage:", localStorage.getItem("access_token"));
-    console.groupEnd();
-  }
-  return forward(operation);
-});
 
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_API_GRAPHQL_URL,
 });
 
-const authLink = setContext((_, { headers }) => {
-  const token =
-    jotaiStore.get(accessTokenAtom) ??
-    localStorage.getItem("access_token");
+const authLink = setContext((operation, { headers }) => {
+  if (getContextFlag(operation, "skipAuthLink")) {
+    return { headers };
+  }
+
+  const token = authStorage.getAccessToken();
+
   return {
     headers: {
       ...headers,
@@ -44,46 +47,61 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-const errorLink = onError(({ error, operation }) => {
-  const graphQLErrors = CombinedGraphQLErrors.is(error) ? error.errors : undefined;
-  const networkError = ServerError.is(error) ? error : undefined;
-  const operationName = operation.operationName ?? "";
-  const isAuthOperation = AUTH_OPERATION_NAMES.has(operationName);
+const errorLink = onError((errorResponse) => {
+  const { graphQLErrors, networkError, operation, forward } = errorResponse as {
+    graphQLErrors?: readonly GraphQLError[];
+    networkError?: unknown;
+    operation: { operationName?: string; setContext: (fn: unknown) => void };
+    forward: (op: unknown) => Observable<FetchResult<Record<string, unknown>>>;
+  };
 
-  if (graphQLErrors) {
-    for (const err of graphQLErrors) {
-      if (isAuthOperation) {
+  const isAuthBypass = AUTH_BYPASS_OPERATIONS.has(operation.operationName ?? "");
+  if (isAuthBypass) return;
+
+  const graphQlSays401 =
+    graphQLErrors?.some((e: GraphQLError) => {
+      const code = e.extensions?.code;
+      return code === "UNAUTHENTICATED" || code === "401";
+    }) ?? false;
+
+  const networkSays401 = (() => {
+    if (!networkError || typeof networkError !== "object") return false;
+    if (!("statusCode" in networkError)) return false;
+    const statusCode = (networkError as { statusCode?: unknown }).statusCode;
+    return statusCode === 401;
+  })();
+
+  if (!graphQlSays401 && !networkSays401) return;
+
+  return new Observable<FetchResult<Record<string, unknown>>>((observer) => {
+    refreshTokens().then((result) => {
+      if (!result.success) {
+        clearAuthAndRedirect();
+        observer.error(new Error("Session expired. Please log in again."));
         return;
       }
 
-      if (
-        err.extensions?.code === "UNAUTHENTICATED" ||
-        err.extensions?.code === "FORBIDDEN"
-      ) {
-        jotaiStore.set(accessTokenAtom, null);
-        jotaiStore.set(authUserAtom, null);
-        jotaiStore.set(refreshTokenAtom, null);
-        jotaiStore.set(authValidationStatusAtom, "invalid");
-        void router.navigate({ to: "/login", search: { redirect: "/" } });
-        return;
-      }
-    }
-  }
+      const newToken = authStorage.getAccessToken();
 
-  if (networkError) {
-    console.error(`[Network Error] ${networkError.message}`);
-    return;
-  }
+      operation.setContext(
+        (prev: { headers?: Record<string, unknown> } | undefined) => {
+          const prevHeaders = prev?.headers ?? {};
+          return {
+            headers: {
+              ...prevHeaders,
+              ...(newToken ? { authorization: `Bearer ${newToken.trim()}` } : {}),
+            },
+          };
+        }
+      );
 
-  if (!graphQLErrors && isErrorWithMessage(error)) {
-    console.error(`[Network Error] ${error.message}`);
-  }
+      forward(operation).subscribe(observer);
+    });
+  });
 });
 
 export const apolloClient = new ApolloClient({
-  link: from([debugLink, errorLink, authLink, httpLink]),
+  link: from([errorLink, authLink, httpLink]),
   cache: new InMemoryCache(),
-  devtools: {
-    enabled: import.meta.env.DEV,
-  },
+  devtools: { enabled: import.meta.env.DEV },
 });

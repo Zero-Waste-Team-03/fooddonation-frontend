@@ -23,7 +23,7 @@ export function useLogin(redirect = "/dashboard") {
 
       const result = data.login;
 
-      login(result.accessToken, result.user, result.refreshToken);
+      login(result.accessToken, result.refreshToken, result.user);
 
       await navigate({ to: redirect });
     } catch (error) {
