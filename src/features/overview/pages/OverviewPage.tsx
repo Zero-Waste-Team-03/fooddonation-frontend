@@ -36,6 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useCurrentUser } from "@/features/settings/hooks/useCurrentUser";
 
 type OverviewKpi = {
   id: string;
@@ -191,10 +192,11 @@ function ActivityHeatmapCard() {
 }
 
 export function OverviewPage() {
+  const { user } = useCurrentUser();
   return (
     <PageWrapper
       title="Dashboard Overview"
-      description="Welcome back, Sarah. Here's what's happening today at Gasp'Zero."
+      description={"Welcome back, " + (user?.displayName ?? "User") + ". Here's what's happening today at Gasp'Zero."}
     >
       <div className="flex flex-col gap-8">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
