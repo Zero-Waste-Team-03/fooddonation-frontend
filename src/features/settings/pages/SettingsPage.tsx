@@ -11,9 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Map, MapMarker, MarkerContent, useMap } from "@/components/ui/map";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { changePasswordDialogOpenAtom, themeAtom, type Theme } from "@/store";
+import { changePasswordDialogOpenAtom } from "@/store";
 import { AvatarUpload } from "../components/AvatarUpload";
 import { ChangePasswordDialog } from "../components/ChangePasswordDialog";
 import { useCurrentUser } from "../hooks/useCurrentUser";
@@ -21,14 +20,6 @@ import { useUpdateProfileInfo } from "../hooks/useUpdateProfileInfo";
 import { useUpdateLocation } from "../hooks/useUpdateLocation";
 import { useUpdateSettings } from "../hooks/useUpdateSettings";
 import type { UpdateProfileFormValues } from "@/types/user.types";
-
-const appearanceValues = ["DARK", "LIGHT", "SYSTEM"] as const;
-
-const appearanceLabels: Record<(typeof appearanceValues)[number], string> = {
-  DARK: "Dark",
-  LIGHT: "Light",
-  SYSTEM: "System default",
-};
 
 const profileSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters"),
@@ -50,7 +41,6 @@ const locationSchema = z.object({
 });
 
 const preferencesSchema = z.object({
-  appearance: z.enum(appearanceValues),
   isNewDonationsAlertsEnabled: z.boolean(),
   isSystemReports: z.boolean(),
   isUrgentAlertsEnabled: z.boolean(),
@@ -74,7 +64,6 @@ type ReverseLocationIqResponse = {
   };
 };
 
-const toThemeAtom = (v: string): Theme => v.toLowerCase() as Theme;
 const toAppearanceTheme = (v: string): "DARK" | "LIGHT" | "SYSTEM" => v.toUpperCase() as "DARK" | "LIGHT" | "SYSTEM";
 
 const formatLastChangedDate = (value?: string | null) => {
@@ -110,7 +99,6 @@ function MapClickHandler({ onPick }: { onPick: (coords: Coordinates) => void }) 
 }
 
 export function SettingsPage() {
-  const [theme, setTheme] = useAtom(themeAtom);
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useAtom(changePasswordDialogOpenAtom);
   const { user, loading: userLoading } = useCurrentUser();
   const { handleUpdate: handleUpdateProfile, loading: profileLoading, errorMessage: profileErrorMessage, success: profileSuccess, clearState: clearProfileState } = useUpdateProfileInfo();
@@ -133,7 +121,6 @@ export function SettingsPage() {
   const preferencesForm = useForm<PreferencesValues>({
     resolver: zodResolver(preferencesSchema),
     defaultValues: {
-      appearance: toAppearanceTheme(theme),
       isNewDonationsAlertsEnabled: false,
       isSystemReports: false,
       isUrgentAlertsEnabled: false,
@@ -159,12 +146,11 @@ export function SettingsPage() {
     });
 
     preferencesForm.reset({
-      appearance: user.settings?.appearance ?? toAppearanceTheme(theme),
       isNewDonationsAlertsEnabled: user.settings?.isNewDonationsAlertsEnabled ?? false,
       isSystemReports: user.settings?.isSystemReports ?? false,
       isUrgentAlertsEnabled: user.settings?.isUrgentAlertsEnabled ?? false,
     });
-  }, [user, theme, profileForm, locationForm, preferencesForm]);
+  }, [user, profileForm, locationForm, preferencesForm]);
 
   const latitude = locationForm.watch("latitude");
   const longitude = locationForm.watch("longitude");
@@ -270,7 +256,6 @@ export function SettingsPage() {
       longitude: user?.location?.longitude ?? undefined,
     },
     settings: {
-      appearance: (user?.settings?.appearance as "DARK" | "LIGHT" | "SYSTEM") ?? "SYSTEM",
       isNewDonationsAlertsEnabled: user?.settings?.isNewDonationsAlertsEnabled ?? false,
       isSystemReports: user?.settings?.isSystemReports ?? false,
       isUrgentAlertsEnabled: user?.settings?.isUrgentAlertsEnabled ?? false,
@@ -289,7 +274,6 @@ export function SettingsPage() {
       longitude: locationValues.longitude ? Number(locationValues.longitude) : undefined,
     },
     settings: {
-      appearance: (user?.settings?.appearance as "DARK" | "LIGHT" | "SYSTEM") ?? "SYSTEM",
       isNewDonationsAlertsEnabled: user?.settings?.isNewDonationsAlertsEnabled ?? false,
       isSystemReports: user?.settings?.isSystemReports ?? false,
       isUrgentAlertsEnabled: user?.settings?.isUrgentAlertsEnabled ?? false,
@@ -308,7 +292,6 @@ export function SettingsPage() {
       longitude: user?.location?.longitude ?? undefined,
     },
     settings: {
-      appearance: toAppearanceTheme(preferencesValues.appearance),
       isNewDonationsAlertsEnabled: preferencesValues.isNewDonationsAlertsEnabled,
       isSystemReports: preferencesValues.isSystemReports,
       isUrgentAlertsEnabled: preferencesValues.isUrgentAlertsEnabled,
@@ -534,41 +517,11 @@ export function SettingsPage() {
 
         <Card className="rounded-xl">
           <CardHeader>
-            <CardTitle>Preferences</CardTitle>
+            <CardTitle>Notifications Preferences</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...preferencesForm}>
               <form onSubmit={handlePreferencesSubmit} className="space-y-4">
-                <FormField
-                  control={preferencesForm.control}
-                  name="appearance"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center gap-4">
-                      <FormLabel>Appearance</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={(value) => {
-                            field.onChange(toAppearanceTheme(value));
-                            setTheme(toThemeAtom(value));
-                          }}
-                        >
-                          <SelectTrigger className="h-11 max-w-sm">
-                            <SelectValue placeholder="Select appearance" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {appearanceValues.map((value) => (
-                              <SelectItem key={value} value={value}>
-                                {appearanceLabels[value]}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <div className="space-y-3">
                   <FormField
                     control={preferencesForm.control}

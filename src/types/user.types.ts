@@ -31,7 +31,6 @@ export type UpdateProfileFormValues = {
     neighborhood?: string;
   };
   settings: {
-    appearance: "DARK" | "LIGHT" | "SYSTEM";
     isNewDonationsAlertsEnabled: boolean;
     isSystemReports: boolean;
     isUrgentAlertsEnabled: boolean;
