@@ -464,7 +464,7 @@ export function SettingsPage() {
                           currentCoordinates.latitude,
                         ]}
                         zoom={12}
-                        className="absolute inset-0 min-h-[340px]"
+                        className="absolute inset-0 min-h-full"
                         loading={isResolvingLocation}
                       >
                         <MapClickHandler onPick={handlePickLocation} />
