@@ -1,18 +1,37 @@
-export type DonationStatus =
-  | "AVAILABLE"
-  | "PENDING"
-  | "RESERVED"
-  | "COLLECTED"
-  | "CANCELLED"
-  | "EXPIRED";
+import type {
+  CreateDonationInput,
+  DonationStatistics,
+  DonationStatusValues,
+  DonationUrgencyValues,
+  DonationsQuery,
+} from "@/gql/graphql";
 
-export type Donation = {
-  id: string;
+export type Donation = NonNullable<
+  NonNullable<DonationsQuery["donations"]["items"]>[number]
+>;
+
+export type { CreateDonationInput, DonationStatistics };
+export type { DonationStatusValues, DonationUrgencyValues };
+
+export type DonationStatus = DonationStatusValues;
+
+export type DonationFilters = {
+  search: string;
+  status: DonationStatusValues | null;
+  urgency: DonationUrgencyValues | null;
+  categoryId: string | null;
+};
+
+export type CreateDonationFormValues = {
   title: string;
-  category: string;
-  status: DonationStatus;
-  donorId: string;
-  beneficiaryId: string | null;
-  expiresAt: string;
-  createdAt: string;
+  description: string;
+  categoryId: string;
+  mainAttachmentId: string;
+  quantity: string;
+  expiryDate: string;
+  urgency?: DonationUrgencyValues;
+  safetyChecklistCompleted?: boolean;
+  listingExpiresAt?: string;
+  locationId?: string;
+  specification?: string;
 };

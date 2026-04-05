@@ -5,7 +5,7 @@ import globals from "globals";
 
 export default tseslint.config(
   {
-    ignores: ["dist/**"],
+    ignores: ["dist/**", "src/gql/**"],
   },
   {
     languageOptions: {

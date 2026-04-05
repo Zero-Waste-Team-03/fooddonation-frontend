@@ -1,0 +1,57 @@
+query DonationStatistics {
+  donationStatistics {
+    flaggedItems
+    pendingApprovals
+    totalActiveDonations
+  }
+}
+
+query Donations($filter: DonationsFilterInput, $pagination: PaginationInput) {
+  donations(filter: $filter, pagination: $pagination) {
+    hasNextPage
+    hasPreviousPage
+    limit
+    page
+    totalCount
+    items {
+      id
+      title
+      description
+      status
+      urgency
+      quantity
+      categoryId
+      locationId
+      mainAttachmentId
+      attachmentIds
+      safetyChecklistCompleted
+      specification
+      createdAt
+      updatedAt
+      expiryDate
+      listingExpiresAt
+      publishedAt
+      userId
+      user {
+        id
+        displayName
+        email
+      }
+    }
+  }
+}
+
+mutation CreateDonation($input: CreateDonationInput!) {
+  createDonation(input: $input) {
+    id
+    title
+    status
+    createdAt
+  }
+}
+
+mutation DeleteDonation($id: ID!) {
+  deleteDonation(id: $id) {
+    message
+  }
+}
