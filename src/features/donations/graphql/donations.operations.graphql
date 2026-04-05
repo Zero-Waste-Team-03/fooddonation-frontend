@@ -6,6 +6,21 @@ query DonationStatistics {
   }
 }
 
+query DonationFilterCategories($pagination: PaginationInput) {
+  categories(pagination: $pagination) {
+    hasNextPage
+    hasPreviousPage
+    limit
+    page
+    totalCount
+    items {
+      id
+      name
+      sensitivity
+    }
+  }
+}
+
 query Donations($filter: DonationsFilterInput, $pagination: PaginationInput) {
   donations(filter: $filter, pagination: $pagination) {
     hasNextPage
@@ -20,7 +35,11 @@ query Donations($filter: DonationsFilterInput, $pagination: PaginationInput) {
       status
       urgency
       quantity
-      categoryId
+      category {
+        id
+        name
+        sensitivity
+      }
       locationId
       mainAttachmentId
       attachmentIds

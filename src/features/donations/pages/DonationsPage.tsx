@@ -51,7 +51,15 @@ export function DonationsPage() {
       const title = d.title.toLowerCase();
       const id = d.id.toLowerCase();
       const desc = d.description.toLowerCase();
-      return title.includes(q) || id.includes(q) || desc.includes(q);
+      const categoryName = d.category?.name.toLowerCase() ?? "";
+      const categoryId = d.category?.id.toLowerCase() ?? "";
+      return (
+        title.includes(q) ||
+        id.includes(q) ||
+        desc.includes(q) ||
+        categoryName.includes(q) ||
+        categoryId.includes(q)
+      );
     });
   }, [donations, filters.search]);
 
@@ -66,7 +74,7 @@ export function DonationsPage() {
         newFilters.search === filters.search &&
         newFilters.status === filters.status &&
         newFilters.urgency === filters.urgency &&
-        newFilters.categoryId === filters.categoryId
+        newFilters.category === filters.category
       ) {
         return;
       }
@@ -75,7 +83,7 @@ export function DonationsPage() {
       setPage(1);
     },
     [
-      filters.categoryId,
+      filters.category,
       filters.search,
       filters.status,
       filters.urgency,

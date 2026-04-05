@@ -15,12 +15,12 @@ export function useDonations() {
   const filter =
     filters.status != null ||
     filters.urgency != null ||
-    (filters.categoryId != null && filters.categoryId.trim() !== "")
+    (filters.category != null && filters.category.trim() !== "")
       ? {
           ...(filters.status != null ? { status: filters.status } : {}),
           ...(filters.urgency != null ? { urgency: filters.urgency } : {}),
-          ...(filters.categoryId != null && filters.categoryId.trim() !== ""
-            ? { categoryId: filters.categoryId.trim() }
+          ...(filters.category != null && filters.category.trim() !== ""
+            ? { categoryId: filters.category.trim() }
             : {}),
         }
       : undefined;

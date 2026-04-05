@@ -19,13 +19,13 @@ export type DonationFilters = {
   search: string;
   status: DonationStatusValues | null;
   urgency: DonationUrgencyValues | null;
-  categoryId: string | null;
+  category: string | null;
 };
 
 export type CreateDonationFormValues = {
   title: string;
   description: string;
-  categoryId: string;
+  category: string;
   mainAttachmentId: string;
   quantity: string;
   expiryDate: string;

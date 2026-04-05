@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DonationStatusValues, DonationUrgencyValues } from "@/gql/graphql";
 import type { DonationFilters } from "@/types/donation.types";
+import { useDonationFilterCategories } from "../hooks/useDonationFilterCategories";
 
 type DonationFiltersProps = {
   filters: DonationFilters;
@@ -64,6 +65,7 @@ export function DonationFilters({
   totalCount,
   filteredCount,
 }: DonationFiltersProps) {
+  const { categories } = useDonationFilterCategories();
   const [searchInput, setSearchInput] = useState(filters.search);
 
   useEffect(() => {
@@ -84,7 +86,7 @@ export function DonationFilters({
     filters.search,
     filters.status,
     filters.urgency,
-    filters.categoryId,
+    filters.category,
     onFiltersChange,
   ]);
 
@@ -92,7 +94,7 @@ export function DonationFilters({
     filters.search !== "" ||
     filters.status !== null ||
     filters.urgency !== null ||
-    (filters.categoryId != null && filters.categoryId.trim() !== "");
+    (filters.category != null && filters.category.trim() !== "");
 
   return (
     <div className="flex flex-col gap-4 mb-6">
@@ -151,17 +153,27 @@ export function DonationFilters({
           </SelectContent>
         </Select>
 
-        <Input
-          placeholder="Category ID (optional)"
-          className="h-10 text-sm w-full sm:max-w-xs"
-          value={filters.categoryId ?? ""}
-          onChange={(e) =>
+        <Select
+          value={filters.category ?? "all"}
+          onValueChange={(value) =>
             onFiltersChange({
               ...filters,
-              categoryId: e.target.value.trim() === "" ? null : e.target.value,
+              category: value === "all" ? null : value,
             })
           }
-        />
+        >
+          <SelectTrigger className="w-full sm:w-48 h-10">
+            <SelectValue placeholder="All categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {categories.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         {hasActiveFilters && (
           <Button
@@ -172,7 +184,7 @@ export function DonationFilters({
                 search: "",
                 status: null,
                 urgency: null,
-                categoryId: null,
+                category: null,
               })
             }
             className="w-full sm:w-auto"

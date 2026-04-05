@@ -135,9 +135,9 @@ export function DonationTable({
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
               Category
             </TableHead>
-            <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
+            {/* <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
               Location
-            </TableHead>
+            </TableHead> */}
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
               Created
             </TableHead>
@@ -171,9 +171,6 @@ export function DonationTable({
                     <span className="font-bold text-foreground text-sm line-clamp-2">
                       {donation.title}
                     </span>
-                    <span className="text-xs text-muted-foreground font-mono tracking-wide">
-                      {donation.id}
-                    </span>
                   </div>
                 </TableCell>
                 <TableCell className="py-4">
@@ -196,12 +193,20 @@ export function DonationTable({
                     {donationUrgencyLabels[donation.urgency]}
                   </Badge>
                 </TableCell>
-                <TableCell className="py-4 font-mono text-xs text-muted-foreground">
-                  {donation.categoryId}
+                <TableCell className="py-4">
+                  {donation.category ? (
+                    <div className="flex flex-col gap-0.5 max-w-[180px]">
+                      <span className="text-sm font-medium text-foreground line-clamp-2">
+                        {donation.category.name}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">—</span>
+                  )}
                 </TableCell>
-                <TableCell className="py-4 font-mono text-xs text-muted-foreground">
+                {/* <TableCell className="py-4 font-mono text-xs text-muted-foreground">
                   {donation.locationId ?? "—"}
-                </TableCell>
+                </TableCell> */}
                 <TableCell className="py-4 text-sm text-muted-foreground">
                   {formatDate(donation.createdAt)}
                 </TableCell>

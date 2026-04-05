@@ -31,12 +31,13 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useDonationActions } from "../hooks/useDonationActions";
+import { useDonationFilterCategories } from "../hooks/useDonationFilterCategories";
 import { DONATION_URGENCIES, donationUrgencyLabels } from "./DonationFilters";
 
 const createDonationFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  categoryId: z.string().min(1, "Category ID is required"),
+  category: z.string().min(1, "Category is required"),
   mainAttachmentId: z.string().min(1, "Main attachment ID is required"),
   quantity: z
     .string()
@@ -76,7 +77,7 @@ type CreateDonationDialogProps = {
 const defaultValues: CreateDonationFormValues = {
   title: "",
   description: "",
-  categoryId: "",
+  category: "",
   mainAttachmentId: "",
   quantity: "1",
   expiryDate: "",
@@ -91,7 +92,7 @@ function buildCreateDonationInput(values: CreateDonationFormValues): CreateDonat
   const input: CreateDonationInput = {
     title: values.title,
     description: values.description,
-    categoryId: values.categoryId,
+    categoryId: values.category,
     mainAttachmentId: values.mainAttachmentId,
     quantity: parseInt(values.quantity, 10),
     expiryDate: new Date(values.expiryDate).toISOString(),
@@ -117,6 +118,7 @@ function buildCreateDonationInput(values: CreateDonationFormValues): CreateDonat
 export function CreateDonationDialog({ open, onOpenChange }: CreateDonationDialogProps) {
   const [createdTitle, setCreatedTitle] = useState("");
   const { handleCreate, loading, errorMessage, clearError } = useDonationActions();
+  const { categories } = useDonationFilterCategories();
   const [success, setSuccess] = useState(false);
 
   const form = useForm<CreateDonationFormValues>({
@@ -215,13 +217,27 @@ export function CreateDonationDialog({ open, onOpenChange }: CreateDonationDialo
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="categoryId"
+                    name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Category ID</FormLabel>
-                        <FormControl>
-                          <Input placeholder="UUID" className="h-11 font-mono text-sm" {...field} />
-                        </FormControl>
+                        <FormLabel>Category</FormLabel>
+                        <Select
+                          value={field.value.length > 0 ? field.value : undefined}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-11">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories.map((c) => (
+                              <SelectItem key={c.id} value={c.id}>
+                                {c.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
