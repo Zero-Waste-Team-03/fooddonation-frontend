@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 export type PageWrapperProps = {
   title: string;
+  titleSuffix?: ReactNode;
   description?: string;
   actions?: ReactNode;
   children: ReactNode;
@@ -9,6 +10,7 @@ export type PageWrapperProps = {
 
 export function PageWrapper({
   title,
+  titleSuffix,
   description,
   actions,
   children,
@@ -17,9 +19,12 @@ export function PageWrapper({
     <div className="flex flex-col gap-8 overflow-hidden">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="font-display text-2xl font-bold leading-[1.33] text-page-title">
-            {title}
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="font-display text-2xl font-bold leading-[1.33] text-page-title">
+              {title}
+            </h1>
+            {titleSuffix ?? null}
+          </div>
           {description ? (
             <p className="max-w-2xl text-sm leading-normal text-muted-foreground">
               {description}
