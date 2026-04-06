@@ -17,10 +17,10 @@ source = source.replace(
   ""
 );
 
-// Remove all SuspenseQuery function implementations
-// This pattern matches: export function name(...) { ... }
+// Remove all SuspenseQuery function implementations (robust across formatting)
+// Matches: export function useXxxSuspenseQuery(...) { ... }
 source = source.replace(
-  /export function use[A-Za-z0-9_]*SuspenseQuery\([^)]*\)\s*\{[^}]*\n\s*\}/g,
+  /export function use[A-Za-z0-9_]*SuspenseQuery\([\s\S]*?\)\s*\{[\s\S]*?\n\s*\}\n/g,
   ""
 );
 

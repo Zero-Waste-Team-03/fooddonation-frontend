@@ -6,6 +6,53 @@ query DonationStatistics {
   }
 }
 
+query DonationDetail($id: ID!) {
+  donation(id: $id) {
+    id
+    title
+    description
+    status
+    urgency
+    quantity
+    category {
+      id
+      name
+      sensitivity
+    }
+    categoryId
+    location {
+      id
+      city
+      country
+      neighborhood
+      latitude
+      longitude
+    }
+    locationId
+    mainAttachment {
+      id
+      url
+      fileName
+      fileType
+    }
+    mainAttachmentId
+    attachmentIds
+    safetyChecklistCompleted
+    specification
+    createdAt
+    updatedAt
+    expiryDate
+    listingExpiresAt
+    publishedAt
+    userId
+    user {
+      id
+      displayName
+      email
+    }
+  }
+}
+
 query DonationFilterCategories($pagination: PaginationInput) {
   categories(pagination: $pagination) {
     hasNextPage
@@ -40,7 +87,16 @@ query Donations($filter: DonationsFilterInput, $pagination: PaginationInput) {
         name
         sensitivity
       }
-      locationId
+      location {
+        id
+        city
+        country
+        neighborhood
+      }
+      mainAttachment {
+        id
+        url
+      }
       mainAttachmentId
       attachmentIds
       safetyChecklistCompleted

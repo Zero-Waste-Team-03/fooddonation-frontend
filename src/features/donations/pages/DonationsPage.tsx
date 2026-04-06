@@ -49,16 +49,12 @@ export function DonationsPage() {
     }
     return donations.filter((d) => {
       const title = d.title.toLowerCase();
-      const id = d.id.toLowerCase();
       const desc = d.description.toLowerCase();
       const categoryName = d.category?.name.toLowerCase() ?? "";
-      const categoryId = d.category?.id.toLowerCase() ?? "";
       return (
         title.includes(q) ||
-        id.includes(q) ||
         desc.includes(q) ||
-        categoryName.includes(q) ||
-        categoryId.includes(q)
+        categoryName.includes(q)
       );
     });
   }, [donations, filters.search]);

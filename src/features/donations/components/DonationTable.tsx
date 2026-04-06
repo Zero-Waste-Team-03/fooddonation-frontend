@@ -66,6 +66,14 @@ function formatDate(dateString: string) {
   }).format(date);
 }
 
+function formatLocation(donation: Donation): string {
+  const city = donation.location?.city ?? "";
+  const country = donation.location?.country ?? "";
+  const neighborhood = donation.location?.neighborhood ?? "";
+  const parts = [neighborhood, city, country].filter((p) => p.trim().length > 0);
+  return parts.length ? parts.join(", ") : "—";
+}
+
 function TableRowSkeleton() {
   return (
     <TableRow>
@@ -135,9 +143,9 @@ export function DonationTable({
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
               Category
             </TableHead>
-            {/* <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
+            <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
               Location
-            </TableHead> */}
+            </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
               Created
             </TableHead>
@@ -167,10 +175,31 @@ export function DonationTable({
                 className="hover:bg-muted/30 border-b border-border/50"
               >
                 <TableCell className="px-6 py-4">
-                  <div className="flex flex-col gap-0.5 max-w-[220px]">
-                    <span className="font-bold text-foreground text-sm line-clamp-2">
-                      {donation.title}
-                    </span>
+                  <div className="flex items-center gap-3 max-w-[260px]">
+                    <div className="h-11 w-11 shrink-0 rounded-full bg-muted border border-border/50 shadow-sm flex items-center justify-center overflow-hidden">
+                      {donation.mainAttachment?.url ? (
+                        <img
+                          src={donation.mainAttachment.url}
+                          alt={donation.title}
+                          width={44}
+                          height={44}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="text-xs font-bold text-muted-foreground">
+                          {donation.title.slice(0, 2).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="font-bold text-foreground text-sm line-clamp-2">
+                        {donation.title}
+                      </span>
+                      <span className="text-xs text-muted-foreground tracking-wide line-clamp-1">
+                        {donation.description}
+                      </span>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell className="py-4">
@@ -204,9 +233,9 @@ export function DonationTable({
                     <span className="text-sm text-muted-foreground">—</span>
                   )}
                 </TableCell>
-                {/* <TableCell className="py-4 font-mono text-xs text-muted-foreground">
-                  {donation.locationId ?? "—"}
-                </TableCell> */}
+                <TableCell className="py-4 text-sm text-muted-foreground">
+                  {formatLocation(donation)}
+                </TableCell>
                 <TableCell className="py-4 text-sm text-muted-foreground">
                   {formatDate(donation.createdAt)}
                 </TableCell>
