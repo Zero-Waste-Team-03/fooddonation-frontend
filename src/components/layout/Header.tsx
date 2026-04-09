@@ -57,7 +57,7 @@ export function Header() {
   }, [notificationsOpen]);
 
   return (
-    <header className="flex h-header w-full shrink-0 items-center justify-between gap-8 border-b border-border bg-header-surface px-8 backdrop-blur-md">
+    <header className="flex h-header w-full shrink-0 items-center justify-between gap-8 border-b border-border bg-header-surface px-8 backdrop-blur-md z-1000">
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <Button
           type="button"
