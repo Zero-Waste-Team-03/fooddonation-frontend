@@ -32,7 +32,7 @@ import { useCategoryActions } from "../hooks/useCategoryActions";
 
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  sensitivity: z.nativeEnum(CategorySensitivityValues).optional(),
+  sensitivity: z.enum(CategorySensitivityValues),
 });
 
 type CreateCategoryFormValues = z.infer<typeof createCategoryFormSchema>;
@@ -44,16 +44,14 @@ type CreateCategoryDialogProps = {
 
 const defaultValues: CreateCategoryFormValues = {
   name: "",
-  sensitivity: undefined,
+  sensitivity: CategorySensitivityValues.Low,
 };
 
 function buildCreateCategoryInput(values: CreateCategoryFormValues): CreateCategoryInput {
   const input: CreateCategoryInput = {
     name: values.name.trim(),
+    sensitivity: values.sensitivity,
   };
-  if (values.sensitivity) {
-    input.sensitivity = values.sensitivity;
-  }
   return input;
 }
 
@@ -146,11 +144,11 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
                   name="sensitivity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sensitivity (optional)</FormLabel>
+                      <FormLabel>Sensitivity</FormLabel>
                       <Select
-                        value={field.value ?? "none"}
+                        value={field.value ?? CategorySensitivityValues.Low}
                         onValueChange={(value) =>
-                          field.onChange(value === "none" ? undefined : value)
+                          field.onChange(value as CategorySensitivityValues)
                         }
                       >
                         <FormControl>
@@ -158,8 +156,7 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
                             <SelectValue placeholder="Select sensitivity" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
+                        <SelectContent className="z-[2100]">
                           <SelectItem value={CategorySensitivityValues.Low}>Low</SelectItem>
                           <SelectItem value={CategorySensitivityValues.Medium}>Medium</SelectItem>
                           <SelectItem value={CategorySensitivityValues.High}>High</SelectItem>
