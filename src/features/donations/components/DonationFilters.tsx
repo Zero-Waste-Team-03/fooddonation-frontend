@@ -10,14 +10,14 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { DonationStatusValues, DonationUrgencyValues } from "@/gql/graphql";
-import type { DonationFilters } from "@/types/donation.types";
-import { useDonationFilterCategories } from "../hooks/useDonationFilterCategories";
+import type { Category, DonationFilters } from "@/types/donation.types";
 
 type DonationFiltersProps = {
   filters: DonationFilters;
   onFiltersChange: (filters: DonationFilters) => void;
   totalCount: number;
   filteredCount: number;
+  categories: Category[];
 };
 
 export const DONATION_STATUSES = [
@@ -64,8 +64,8 @@ export function DonationFilters({
   onFiltersChange,
   totalCount,
   filteredCount,
+  categories,
 }: DonationFiltersProps) {
-  const { categories } = useDonationFilterCategories();
   const [searchInput, setSearchInput] = useState(filters.search);
 
   useEffect(() => {

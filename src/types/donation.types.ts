@@ -9,6 +9,7 @@ import type {
 export type Donation = NonNullable<
   NonNullable<DonationsQuery["donations"]["items"]>[number]
 >;
+export type Category = NonNullable<Donation["category"]>;
 
 export type { CreateDonationInput, DonationStatistics };
 export type { DonationStatusValues, DonationUrgencyValues };

@@ -18,6 +18,8 @@ query DonationDetail($id: ID!) {
       id
       name
       sensitivity
+      createdAt
+      updatedAt
     }
     categoryId
     location {
@@ -90,6 +92,8 @@ query Donations($filter: DonationsFilterInput, $pagination: PaginationInput) {
         id
         name
         sensitivity
+        createdAt
+        updatedAt
       }
       location {
         id
@@ -117,6 +121,19 @@ query Donations($filter: DonationsFilterInput, $pagination: PaginationInput) {
         email
       }
     }
+  }
+}
+
+query DonationsMap($input: DonationsMapInput!) {
+  donationsMap(input: $input) {
+    id
+    title
+    latitude
+    longitude
+    categoryId
+    mainAttachmentId
+    urgency
+    markerColor
   }
 }
 

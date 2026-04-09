@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useDonationActions } from "../hooks/useDonationActions";
-import { useDonationFilterCategories } from "../hooks/useDonationFilterCategories";
+import { useCategories } from "../hooks/useCategories";
 import { DONATION_URGENCIES, donationUrgencyLabels } from "./DonationFilters";
 
 const createDonationFormSchema = z.object({
@@ -118,7 +118,7 @@ function buildCreateDonationInput(values: CreateDonationFormValues): CreateDonat
 export function CreateDonationDialog({ open, onOpenChange }: CreateDonationDialogProps) {
   const [createdTitle, setCreatedTitle] = useState("");
   const { handleCreate, loading, errorMessage, clearError } = useDonationActions();
-  const { categories } = useDonationFilterCategories();
+  const { categories } = useCategories();
   const [success, setSuccess] = useState(false);
 
   const form = useForm<CreateDonationFormValues>({
