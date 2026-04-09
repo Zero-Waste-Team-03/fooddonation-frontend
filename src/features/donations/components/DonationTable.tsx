@@ -224,10 +224,10 @@ export function DonationTable({
                 </TableCell>
                 <TableCell className="py-4">
                   {donation.category ? (
-                    <div className="flex flex-col gap-0.5 max-w-[180px]">
-                      <span className="text-sm font-medium text-foreground line-clamp-2">
+                    <div className="max-w-[180px]">
+                      <Badge variant="secondary" className="max-w-full truncate">
                         {donation.category.name}
-                      </span>
+                      </Badge>
                     </div>
                   ) : (
                     <span className="text-sm text-muted-foreground">—</span>

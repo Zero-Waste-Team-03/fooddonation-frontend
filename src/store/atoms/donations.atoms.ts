@@ -13,6 +13,9 @@ export const selectedDonationIdAtom = atom<string | null>(null);
 export const createDonationDialogOpenAtom = atom<boolean>(false);
 
 export const deleteDonationDialogOpenAtom = atom<boolean>(false);
+export const createCategoryDialogOpenAtom = atom<boolean>(false);
+export const deleteCategoryDialogOpenAtom = atom<boolean>(false);
+export const selectedCategoryIdAtom = atom<string | null>(null);
 
 export const donationsPageAtom = atom<number>(1);
 

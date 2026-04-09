@@ -1,0 +1,25 @@
+query Notifications($pagination: PaginationQueryInput) {
+  notifications(pagination: $pagination) {
+    id
+    title
+    body
+    type
+    isRead
+    receiverId
+    meta
+    createdAt
+    updatedAt
+  }
+}
+
+mutation MarkNotificationsAsRead($input: UpdateReadNotificationsInput!) {
+  markNotificationsAsRead(input: $input) {
+    message
+  }
+}
+
+mutation DeleteNotification($id: ID!) {
+  deleteNotification(id: $id) {
+    message
+  }
+}

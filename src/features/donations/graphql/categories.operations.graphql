@@ -1,0 +1,32 @@
+query Categories($pagination: PaginationInput) {
+  categories(pagination: $pagination) {
+    hasNextPage
+    hasPreviousPage
+    limit
+    page
+    totalCount
+    items {
+      id
+      name
+      sensitivity
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+mutation CreateCategory($input: CreateCategoryInput!) {
+  createCategory(input: $input) {
+    id
+    name
+    sensitivity
+    createdAt
+    updatedAt
+  }
+}
+
+mutation DeleteCategory($id: ID!) {
+  deleteCategory(id: $id) {
+    message
+  }
+}
