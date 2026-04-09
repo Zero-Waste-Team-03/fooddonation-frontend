@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LocateFixed, RefreshCcw } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -6,14 +6,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Map, MapControls, MapMarker, MarkerContent, MarkerTooltip } from "@/components/ui/map";
 import type { DonationsMapQuery } from "@/gql/graphql";
 import type { MapViewport } from "@/components/ui/map";
+import type { Donation } from "@/types/donation.types";
 
 type HeatmapMarker = NonNullable<DonationsMapQuery["donationsMap"]>[number];
 
 type DonationsHeatmapMapProps = {
   markers: HeatmapMarker[];
+  donations: Donation[];
   loading: boolean;
   onRefetch?: (coords: { latitude: number; longitude: number }) => void;
   onLocateRequest?: (coords: { latitude: number; longitude: number }) => void;
+};
+
+type HoverPopupState = {
+  donationId: string;
+  x: number;
+  y: number;
 };
 
 function colorByMarker(markerColor: HeatmapMarker["markerColor"]): string {
@@ -31,8 +39,17 @@ function centerFromMarkers(markers: HeatmapMarker[]): [number, number] {
   return [longitude, latitude];
 }
 
+function toDisplayText(value: string): string {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export function DonationsHeatmapMap({
   markers,
+  donations,
   loading,
   onRefetch,
   onLocateRequest,
@@ -54,6 +71,27 @@ export function DonationsHeatmapMap({
   }, [markersCenter]);
 
   const currentCenter = viewport.center ?? markersCenter;
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [hoverPopup, setHoverPopup] = useState<HoverPopupState | null>(null);
+  const hoveredDonationId = hoverPopup?.donationId ?? null;
+  const hoveredDonation = useMemo(
+    () => donations.find((donation) => donation.id === hoveredDonationId) ?? null,
+    [donations, hoveredDonationId]
+  );
+
+  const clearHideTimer = () => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  };
+
+  const scheduleHidePopup = () => {
+    clearHideTimer();
+    hideTimerRef.current = setTimeout(() => {
+      setHoverPopup(null);
+    }, 220);
+  };
 
   const handleRefetch = () => {
     onRefetch?.({
@@ -108,12 +146,12 @@ export function DonationsHeatmapMap({
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-0 m-2 rounded-md overflow-hidden">
-        <div className="relative h-[460px] overflow-hidden rounded-b-2xl">
+      <CardContent className="p-0 m-2 rounded-md ">
+        <div className="relative h-[460px]  rounded-b-2xl">
           <Map
             viewport={viewport}
             onViewportChange={setViewport}
-            className="absolute inset-0 min-h-full"
+            className="absolute inset-0 min-h-full rounded-md"
             loading={loading}
           >
             <MapControls />
@@ -122,6 +160,20 @@ export function DonationsHeatmapMap({
                 key={marker.id}
                 longitude={marker.longitude}
                 latitude={marker.latitude}
+                onMouseEnter={(event) => {
+                  clearHideTimer();
+                  const mapContainer = (event.currentTarget as HTMLElement).closest(".maplibregl-map");
+                  if (!mapContainer) {
+                    return;
+                  }
+                  const rect = mapContainer.getBoundingClientRect();
+                  setHoverPopup({
+                    donationId: marker.id,
+                    x: event.clientX - rect.left + 12,
+                    y: event.clientY - rect.top - 12,
+                  });
+                }}
+                onMouseLeave={scheduleHidePopup}
                 onClick={() =>
                   navigate({
                     to: "/donations/$donationId",
@@ -140,6 +192,62 @@ export function DonationsHeatmapMap({
               </MapMarker>
             ))}
           </Map>
+          {hoveredDonation && hoverPopup ? (
+            <div
+              className="absolute z-30 w-[280px] rounded-xl border bg-card shadow-dropdown overflow-hidden"
+              style={{
+                left: hoverPopup.x,
+                top: hoverPopup.y,
+                transform: "translate(0, -100%)",
+              }}
+              onMouseEnter={clearHideTimer}
+              onMouseLeave={scheduleHidePopup}
+            >
+              <div className="h-[120px] bg-muted">
+                {hoveredDonation.mainAttachment?.url ? (
+                  <img
+                    src={hoveredDonation.mainAttachment.url}
+                    alt={hoveredDonation.title}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
+                    No image
+                  </div>
+                )}
+              </div>
+              <div className="p-3 space-y-2">
+                <p className="text-sm font-semibold text-foreground line-clamp-2">{hoveredDonation.title}</p>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>
+                    Sensitivity:{" "}
+                    {hoveredDonation.category?.sensitivity
+                      ? toDisplayText(hoveredDonation.category.sensitivity)
+                      : "Unknown"}
+                  </span>
+                  <span>•</span>
+                  <span>Status: {toDisplayText(hoveredDonation.status)}</span>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Category: {hoveredDonation.category?.name ?? "Uncategorized"}
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-8 w-full"
+                  onClick={() =>
+                    navigate({
+                      to: "/donations/$donationId",
+                      params: { donationId: hoveredDonation.id },
+                    })
+                  }
+                >
+                  View details
+                </Button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </CardContent>
     </Card>

@@ -200,6 +200,7 @@ export function DonationsPage() {
               <TabsContent value="map">
                 <DonationsHeatmapMap
                   markers={heatmapData}
+                  donations={donations}
                   loading={heatmapLoading}
                   onRefetch={({ latitude, longitude }) => {
                     void refetchHeatmap({
