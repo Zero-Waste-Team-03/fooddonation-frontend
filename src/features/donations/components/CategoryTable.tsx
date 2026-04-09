@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Category } from "@/types/donation.types";
+import { CategorySensitivityValues } from "@/gql/graphql";
 
 type CategoryTableProps = {
   categories: Category[];
@@ -83,6 +84,17 @@ export function CategoryTable({ categories, loading, onDelete }: CategoryTablePr
     if (value === "HIGH") return "destructive" as const;
     if (value === "MEDIUM") return "warning" as const;
     return "success" as const;
+  };
+
+  const getSensitivityLabel = (value: CategorySensitivityValues) => {
+    switch (value) {
+      case CategorySensitivityValues.High:
+        return "High";
+      case CategorySensitivityValues.Medium:
+        return "Medium";
+      case CategorySensitivityValues.Low:
+        return "Low";
+    }
   };
 
   return (
@@ -166,7 +178,7 @@ export function CategoryTable({ categories, loading, onDelete }: CategoryTablePr
                   </TableCell>
                   <TableCell className="py-4">
                     <Badge variant={getSensitivityVariant(category.sensitivity)}>
-                      {category.sensitivity}
+                      {getSensitivityLabel(category.sensitivity)}
                     </Badge>
                   </TableCell>
                   <TableCell className="py-4 text-sm text-muted-foreground">
