@@ -67,20 +67,11 @@ export function Sidebar() {
         ))}
       </nav>
       <div className="mt-auto border-t border-sidebar-section-border p-4">
-        <div className={cn("rounded-xl bg-accent p-4", collapsed && "hidden")}>
-          <p className="text-xs font-semibold text-primary">Impact Goal</p>
-          <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-progress-track">
-            <div className="h-full w-[72%] rounded-full bg-primary" />
-          </div>
-          <p className="mt-2 text-[10px] leading-normal text-muted-foreground">
-            7.2 tons / 10 tons goal
-          </p>
-        </div>
         <button
           type="button"
           onClick={logout}
           className={cn(
-            "mt-3 flex w-full items-center gap-3 rounded-md py-2.5 pr-3 pl-3 text-sm font-medium text-sidebar-text transition-colors hover:bg-accent hover:text-accent-foreground",
+            "flex w-full items-center gap-3 rounded-md py-2.5 pr-3 pl-3 text-sm font-medium text-sidebar-text transition-colors hover:bg-accent hover:text-accent-foreground",
             collapsed && "w-10 justify-center px-0"
           )}
           aria-label="Logout"
