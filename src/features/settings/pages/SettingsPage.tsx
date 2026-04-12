@@ -1,16 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtom } from "jotai";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { LocateFixed } from "lucide-react";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Map, MapMarker, MarkerContent, useMap } from "@/components/ui/map";
+import { LocationMapPicker } from "@/components/map/LocationMapPicker";
 import { Switch } from "@/components/ui/switch";
 import { changePasswordDialogOpenAtom } from "@/store";
 import { AvatarUpload } from "../components/AvatarUpload";
@@ -49,7 +48,6 @@ const preferencesSchema = z.object({
 type ProfileValues = z.infer<typeof profileSchema>;
 type LocationValues = z.infer<typeof locationSchema>;
 type PreferencesValues = z.infer<typeof preferencesSchema>;
-type Coordinates = { latitude: number; longitude: number };
 
 type ReverseLocationIqResponse = {
   address?: {
@@ -74,28 +72,6 @@ const formatLastChangedDate = (value?: string | null) => {
   }).format(new Date(value));
 };
 
-function MapClickHandler({ onPick }: { onPick: (coords: Coordinates) => void }) {
-  const { map, isLoaded } = useMap();
-
-  useEffect(() => {
-    if (!map || !isLoaded) {
-      return;
-    }
-
-    const handleClick = (event: { lngLat: { lng: number; lat: number } }) => {
-      onPick({ latitude: event.lngLat.lat, longitude: event.lngLat.lng });
-    };
-
-    map.on("click", handleClick);
-
-    return () => {
-      map.off("click", handleClick);
-    };
-  }, [map, isLoaded, onPick]);
-
-  return null;
-}
-
 export function SettingsPage() {
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useAtom(changePasswordDialogOpenAtom);
   const { user, loading: userLoading } = useCurrentUser();
@@ -104,7 +80,7 @@ export function SettingsPage() {
   const { handleUpdate: handleUpdateSettings, loading: settingsLoading, errorMessage: settingsErrorMessage, success: settingsSuccess, clearState: clearSettingsState } = useUpdateSettings();
   const [mapErrorMessage, setMapErrorMessage] = useState<string | null>(null);
   const [isResolvingLocation, setIsResolvingLocation] = useState(false);
-  const [isLocatingFromDevice, setIsLocatingFromDevice] = useState(false);
+  const reverseRequestRef = useRef(0);
 
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -150,97 +126,68 @@ export function SettingsPage() {
     });
   }, [user, profileForm, locationForm, preferencesForm]);
 
-  const latitude = locationForm.watch("latitude");
-  const longitude = locationForm.watch("longitude");
-
-  const currentCoordinates = useMemo<Coordinates>(() => {
-    const lat = latitude ? Number(latitude) : NaN;
-    const lon = longitude ? Number(longitude) : NaN;
-
-    if (Number.isFinite(lat) && Number.isFinite(lon)) {
-      return { latitude: lat, longitude: lon };
-    }
-
-    return {
-      latitude: user?.location?.latitude ?? 48.8566,
-      longitude: user?.location?.longitude ?? 2.3522,
-    };
-  }, [latitude, longitude, user?.location?.latitude, user?.location?.longitude]);
-
-  const reverseGeocode = async (coords: Coordinates) => {
+  const reverseGeocode = async (latitude: number, longitude: number) => {
     const locationIqKey = import.meta.env.VITE_LOCATIONIQ_KEY;
     if (!locationIqKey) {
       setMapErrorMessage("LocationIQ key is missing.");
       return;
     }
 
+    reverseRequestRef.current += 1;
+    const requestId = reverseRequestRef.current;
+
     setMapErrorMessage(null);
     setIsResolvingLocation(true);
+
     try {
       const url = new URL("https://us1.locationiq.com/v1/reverse");
       url.searchParams.set("key", locationIqKey);
-      url.searchParams.set("lat", String(coords.latitude));
-      url.searchParams.set("lon", String(coords.longitude));
+      url.searchParams.set("lat", String(latitude));
+      url.searchParams.set("lon", String(longitude));
       url.searchParams.set("format", "json");
 
       const response = await fetch(url.toString());
       if (!response.ok) {
-        throw new Error("Failed to resolve location");
+        throw new Error("Failed to reverse geocode");
       }
 
       const data = (await response.json()) as ReverseLocationIqResponse;
+      if (requestId !== reverseRequestRef.current) {
+        return;
+      }
+
       const address = data.address ?? {};
-
-      const city =
-        address.city ?? address.town ?? address.village ?? address.county ?? "";
+      const city = address.city ?? address.town ?? address.village ?? address.county ?? "";
       const country = address.country ?? "";
-      const neighborhood =
-        address.neighbourhood ?? address.suburb ?? address.quarter ?? "";
+      const neighborhood = address.neighbourhood ?? address.suburb ?? address.quarter ?? "";
 
-      locationForm.setValue("latitude", String(coords.latitude), {
-        shouldDirty: true,
-      });
-      locationForm.setValue("longitude", String(coords.longitude), {
-        shouldDirty: true,
-      });
       locationForm.setValue("city", city, { shouldDirty: true });
       locationForm.setValue("country", country, { shouldDirty: true });
       locationForm.setValue("neighborhood", neighborhood, { shouldDirty: true });
     } catch {
+      if (requestId !== reverseRequestRef.current) {
+        return;
+      }
       setMapErrorMessage("Could not reverse geocode this location.");
     } finally {
-      setIsResolvingLocation(false);
+      if (requestId === reverseRequestRef.current) {
+        setIsResolvingLocation(false);
+      }
     }
   };
 
-  const handlePickLocation = async (coords: Coordinates) => {
-    await reverseGeocode(coords);
-  };
+  const watchedLatitude = locationForm.watch("latitude");
+  const watchedLongitude = locationForm.watch("longitude");
 
-  const handleLocateFromDevice = async () => {
-    if (!("geolocation" in navigator)) {
-      setMapErrorMessage("Geolocation is not supported by this browser.");
-      return;
-    }
+  const pickerLatitude =
+    watchedLatitude && !Number.isNaN(Number(watchedLatitude))
+      ? Number(watchedLatitude)
+      : (user?.location?.latitude ?? null);
 
-    setMapErrorMessage(null);
-    setIsLocatingFromDevice(true);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const coords = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-        void reverseGeocode(coords);
-        setIsLocatingFromDevice(false);
-      },
-      () => {
-        setMapErrorMessage("Unable to retrieve your current location.");
-        setIsLocatingFromDevice(false);
-      },
-    );
-  };
+  const pickerLongitude =
+    watchedLongitude && !Number.isNaN(Number(watchedLongitude))
+      ? Number(watchedLongitude)
+      : (user?.location?.longitude ?? null);
 
   const buildProfilePayload = (profileValues: ProfileValues): UpdateProfileFormValues => ({
     displayName: profileValues.displayName,
@@ -425,75 +372,27 @@ export function SettingsPage() {
                         )}
                       />
                     </div>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
-                      <FormField
-                        control={locationForm.control}
-                        name="latitude"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Latitude</FormLabel>
-                            <FormControl>
-                              <Input type="number" step="any" className="h-11" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={locationForm.control}
-                        name="longitude"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Longitude</FormLabel>
-                            <FormControl>
-                              <Input type="number" step="any" className="h-11" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
                   </div>
                   <div className="space-y-2">
-                    <div className="relative h-[340px] overflow-hidden rounded-xl border border-border">
-                      <Map
-                        center={[
-                          currentCoordinates.longitude,
-                          currentCoordinates.latitude,
-                        ]}
-                        zoom={12}
-                        className="absolute inset-0 min-h-full"
-                        loading={isResolvingLocation}
-                      >
-                        <MapClickHandler onPick={handlePickLocation} />
-                        <MapMarker
-                          longitude={currentCoordinates.longitude}
-                          latitude={currentCoordinates.latitude}
-                          draggable
-                          onDragEnd={(lngLat) =>
-                            void handlePickLocation({
-                              latitude: lngLat.lat,
-                              longitude: lngLat.lng,
-                            })
-                          }
-                        >
-                          <MarkerContent />
-                        </MapMarker>
-                      </Map>
-                      <Button
-                        type="button"
-                        size="icon"
-                        className="absolute top-3 right-3 z-20 h-9 w-9 rounded-full shadow-card"
-                        onClick={() => void handleLocateFromDevice()}
-                        disabled={isLocatingFromDevice || isResolvingLocation}
-                        aria-label="Use current device location"
-                      >
-                        <LocateFixed className="h-4 w-4" aria-hidden />
-                      </Button>
-                    </div>
+                    <LocationMapPicker
+                      latitude={pickerLatitude}
+                      longitude={pickerLongitude}
+                      onChange={(lat, lng) => {
+                        locationForm.setValue("latitude", String(lat), {
+                          shouldDirty: true,
+                        });
+                        locationForm.setValue("longitude", String(lng), {
+                          shouldDirty: true,
+                        });
+                        void reverseGeocode(lat, lng);
+                      }}
+                    />
                     <p className="text-xs text-muted-foreground">
-                      Click the map, drag the marker, or use the location button.
+                      Click the map, drag the marker, or use your current location to auto-fill city and neighborhood.
                     </p>
+                    {isResolvingLocation ? (
+                      <p className="text-xs text-muted-foreground">Resolving location details...</p>
+                    ) : null}
                   </div>
                 </div>
                 {mapErrorMessage ? <p role="alert" className="text-sm text-destructive">{mapErrorMessage}</p> : null}

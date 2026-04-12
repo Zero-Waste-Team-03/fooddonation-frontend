@@ -280,7 +280,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   );
 
   return (
-    <div className={cn("relative h-full w-full min-h-px", className)}>
+    <div className={cn("relative h-full w-full min-h-full", className)}>
       <div
         ref={containerRef}
         className="absolute inset-0 min-h-[inherit] rounded-[inherit]"
