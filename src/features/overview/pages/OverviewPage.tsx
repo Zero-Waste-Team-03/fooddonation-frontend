@@ -7,9 +7,9 @@ import {
   Users,
 } from "lucide-react";
 import {
-  Area,
-  AreaChart,
   CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -20,7 +20,8 @@ import { PageWrapper } from "@/components/layout/PageWrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatMetricCard } from "@/components/ui/stat-metric-card";
+import { StatMetricCard, StatMetricCardSkeleton } from "@/components/ui/stat-metric-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -31,10 +32,13 @@ import {
 } from "@/components/ui/table";
 import { useCurrentUser } from "@/features/settings/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StatMetricCardSkeleton } from "@/components/ui/stat-metric-card";
 import { useMemo, useState } from "react";
 import { DonationsHeatmapMap } from "../components/DonationsHeatmapMap";
 import { useAdminDashboardStats } from "../hooks/useAdminDashboardStats";
+import {
+  useOverviewGrowthStats,
+  type OverviewGrowthPeriod,
+} from "../hooks/useOverviewGrowthStats";
 
 type OverviewKpi = {
   id: string;
@@ -43,21 +47,6 @@ type OverviewKpi = {
   deltaLabel: string;
   icon: LucideIcon;
 };
-
-const DONATION_GROWTH_MONTHLY: { month: string; donations: number }[] = [
-  { month: "JAN", donations: 8200 },
-  { month: "FEB", donations: 7800 },
-  { month: "MAR", donations: 9100 },
-  { month: "APR", donations: 10200 },
-  { month: "MAY", donations: 9800 },
-  { month: "JUN", donations: 11100 },
-  { month: "JUL", donations: 10500 },
-  { month: "AUG", donations: 11800 },
-  { month: "SEP", donations: 12400 },
-  { month: "OCT", donations: 12100 },
-  { month: "NOV", donations: 13200 },
-  { month: "DEC", donations: 12800 },
-];
 
 type UrgentActionRow = {
   id: string;
@@ -124,16 +113,41 @@ function formatDelta(value: number): string {
   return `${sign}${value.toFixed(1)}%`;
 }
 
+function formatChartTick(value: string, period: OverviewGrowthPeriod): string {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  if (period === "12m") {
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      year: "2-digit",
+    }).format(parsed);
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+  }).format(parsed);
+}
+
 export function OverviewPage() {
   const { user } = useCurrentUser();
   const { stats: dashboardStats, loading: dashboardStatsLoading } = useAdminDashboardStats();
-  const periods = ["7d", "30d", "12m"] as const;
+  const periods: OverviewGrowthPeriod[] = ["7d", "30d", "12m"];
   const periodLabels: Record<typeof periods[number], string> = {
     "7d": "Last 7 Days",
     "30d": "Last 30 Days",
     "12m": "Last 12 Months",
   };
-  const [selectedPeriod, setSelectedPeriod] = useState<typeof periods[number]>("12m");
+  const [selectedPeriod, setSelectedPeriod] = useState<OverviewGrowthPeriod>("12m");
+  const { data: growthStats, loading: growthLoading } = useOverviewGrowthStats(selectedPeriod);
+
+  const growthChartData = useMemo(
+    () => growthStats.map((point) => ({ period: point.period, growth: point.donationsCount })),
+    [growthStats]
+  );
 
   const overviewKpis = useMemo<OverviewKpi[]>(() => {
     return [
@@ -205,7 +219,7 @@ export function OverviewPage() {
                 </CardDescription>
               </div>
               <div className="relative shrink-0">
-                <Select value={selectedPeriod} onValueChange={(value) => setSelectedPeriod(value as typeof periods[number])}>
+                <Select value={selectedPeriod} onValueChange={(value) => setSelectedPeriod(value as OverviewGrowthPeriod)}>
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder="Select period" />
                   </SelectTrigger>
@@ -221,74 +235,64 @@ export function OverviewPage() {
             </CardHeader>
             <CardContent className="pt-0">
               <div className="h-[280px] w-full min-w-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={DONATION_GROWTH_MONTHLY}
-                    margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="overviewDonationFill"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="var(--color-primary)"
-                          stopOpacity={0.35}
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="var(--color-primary)"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      stroke="var(--color-border)"
-                      vertical={false}
-                      strokeDasharray="4 4"
-                    />
-                    <XAxis
-                      dataKey="month"
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{
-                        fill: "var(--color-muted-foreground)",
-                        fontSize: 12,
-                      }}
-                    />
-                    <YAxis
-                      domain={[0, 15000]}
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{
-                        fill: "var(--color-muted-foreground)",
-                        fontSize: 12,
-                      }}
-                      tickFormatter={(v: number) =>
-                        v >= 1000 ? `${v / 1000}k` : `${v}`
-                      }
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: "var(--radius-md)",
-                        border: "1px solid var(--color-border)",
-                        backgroundColor: "var(--color-card)",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="donations"
-                      name="Donations"
-                      stroke="var(--color-primary)"
-                      fill="url(#overviewDonationFill)"
-                      strokeWidth={2}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {growthLoading ? (
+                  <Skeleton className="h-full w-full rounded-lg" />
+                ) : growthChartData.length === 0 ? (
+                  <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
+                    No growth data available
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={growthChartData}
+                      margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid
+                        stroke="var(--color-border)"
+                        vertical={false}
+                        strokeDasharray="4 4"
+                      />
+                      <XAxis
+                        dataKey="period"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{
+                          fill: "var(--color-muted-foreground)",
+                          fontSize: 12,
+                        }}
+                        tickFormatter={(value) => formatChartTick(String(value), selectedPeriod)}
+                      />
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{
+                          fill: "var(--color-muted-foreground)",
+                          fontSize: 12,
+                        }}
+                        tickFormatter={(v: number) =>
+                          v >= 1000 ? `${(v / 1000).toFixed(1)}k` : `${v}`
+                        }
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: "var(--radius-md)",
+                          border: "1px solid var(--color-border)",
+                          backgroundColor: "var(--color-card)",
+                        }}
+                        labelFormatter={(label) => formatChartTick(String(label), selectedPeriod)}
+                        formatter={(value) => [formatNumber(Number(value)), "Growth"]}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="growth"
+                        name="Growth"
+                        stroke="var(--color-primary)"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </CardContent>
           </Card>
