@@ -26,7 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Category } from "@/types/donation.types";
-import { CategorySensitivityValues } from "@/gql/graphql";
+import { CategorySensitivity } from "@/gql/graphql";
 
 type CategoryTableProps = {
   categories: Category[];
@@ -86,13 +86,13 @@ export function CategoryTable({ categories, loading, onDelete }: CategoryTablePr
     return "success" as const;
   };
 
-  const getSensitivityLabel = (value: CategorySensitivityValues) => {
+  const getSensitivityLabel = (value: CategorySensitivity) => {
     switch (value) {
-      case CategorySensitivityValues.High:
+      case CategorySensitivity.High:
         return "High";
-      case CategorySensitivityValues.Medium:
+      case CategorySensitivity.Medium:
         return "Medium";
-      case CategorySensitivityValues.Low:
+      case CategorySensitivity.Low:
         return "Low";
     }
   };
