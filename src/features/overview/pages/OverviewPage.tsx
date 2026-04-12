@@ -31,8 +31,10 @@ import {
 } from "@/components/ui/table";
 import { useCurrentUser } from "@/features/settings/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { StatMetricCardSkeleton } from "@/components/ui/stat-metric-card";
+import { useMemo, useState } from "react";
 import { DonationsHeatmapMap } from "../components/DonationsHeatmapMap";
+import { useAdminDashboardStats } from "../hooks/useAdminDashboardStats";
 
 type OverviewKpi = {
   id: string;
@@ -41,37 +43,6 @@ type OverviewKpi = {
   deltaLabel: string;
   icon: LucideIcon;
 };
-
-const OVERVIEW_KPIS: OverviewKpi[] = [
-  {
-    id: "donations",
-    label: "Total Donations",
-    value: "12,450",
-    deltaLabel: "+12.5%",
-    icon: Heart,
-  },
-  {
-    id: "users",
-    label: "Active Users",
-    value: "8,200",
-    deltaLabel: "+5.2%",
-    icon: Users,
-  },
-  {
-    id: "food",
-    label: "Food Saved (KG)",
-    value: "4,500 KG",
-    deltaLabel: "+18.3%",
-    icon: Leaf,
-  },
-  {
-    id: "co2",
-    label: "CO2 Saved",
-    value: "9.2 TONS",
-    deltaLabel: "+15.0%",
-    icon: Cloud,
-  },
-];
 
 const DONATION_GROWTH_MONTHLY: { month: string; donations: number }[] = [
   { month: "JAN", donations: 8200 },
@@ -142,8 +113,20 @@ function priorityLabel(p: UrgentActionRow["priority"]): string {
   return "Low";
 }
 
+function formatNumber(value: number): string {
+  return Number.isInteger(value)
+    ? value.toLocaleString()
+    : value.toLocaleString(undefined, { maximumFractionDigits: 1 });
+}
+
+function formatDelta(value: number): string {
+  const sign = value >= 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}%`;
+}
+
 export function OverviewPage() {
   const { user } = useCurrentUser();
+  const { stats: dashboardStats, loading: dashboardStatsLoading } = useAdminDashboardStats();
   const periods = ["7d", "30d", "12m"] as const;
   const periodLabels: Record<typeof periods[number], string> = {
     "7d": "Last 7 Days",
@@ -151,6 +134,40 @@ export function OverviewPage() {
     "12m": "Last 12 Months",
   };
   const [selectedPeriod, setSelectedPeriod] = useState<typeof periods[number]>("12m");
+
+  const overviewKpis = useMemo<OverviewKpi[]>(() => {
+    return [
+      {
+        id: "donations",
+        label: "Total Donations",
+        value: formatNumber(dashboardStats?.totalDonations ?? 0),
+        deltaLabel: formatDelta(dashboardStats?.totalDonationsIncrease ?? 0),
+        icon: Heart,
+      },
+      {
+        id: "users",
+        label: "Active Users",
+        value: formatNumber(dashboardStats?.activeUsers ?? 0),
+        deltaLabel: formatDelta(dashboardStats?.activeUsersIncrease ?? 0),
+        icon: Users,
+      },
+      {
+        id: "food",
+        label: "Food Saved (KG)",
+        value: `${formatNumber(dashboardStats?.foodSavedKg ?? 0)} KG`,
+        deltaLabel: formatDelta(dashboardStats?.foodSavedKgIncrease ?? 0),
+        icon: Leaf,
+      },
+      {
+        id: "co2",
+        label: "CO2 Saved",
+        value: `${formatNumber(dashboardStats?.co2SavedKg ?? 0)} KG`,
+        deltaLabel: formatDelta(dashboardStats?.co2SavedKgIncrease ?? 0),
+        icon: Cloud,
+      },
+    ];
+  }, [dashboardStats]);
+
   return (
     <PageWrapper
       title="Dashboard Overview"
@@ -158,17 +175,17 @@ export function OverviewPage() {
     >
       <div className="flex flex-col gap-8">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {OVERVIEW_KPIS.map((card) => {
-            return (
-            <StatMetricCard
-              key={card.id}
-              label={card.label}
-              value={card.value}
-              deltaLabel={card.deltaLabel}
-              icon={card.icon}
-            />
-            );
-          })}
+          {dashboardStatsLoading
+            ? Array.from({ length: 4 }).map((_, i) => <StatMetricCardSkeleton key={i} />)
+            : overviewKpis.map((card) => (
+                <StatMetricCard
+                  key={card.id}
+                  label={card.label}
+                  value={card.value}
+                  deltaLabel={card.deltaLabel}
+                  icon={card.icon}
+                />
+              ))}
         </div>
 
         <div className="rounded-lg border border-border bg-card p-4 md:p-6">

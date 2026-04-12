@@ -1,3 +1,16 @@
+query AdminDashboardStats($input: AdminDashboardStatsInput) {
+  adminDashboardStats(input: $input) {
+    activeUsers
+    activeUsersIncrease
+    co2SavedKg
+    co2SavedKgIncrease
+    foodSavedKg
+    foodSavedKgIncrease
+    totalDonations
+    totalDonationsIncrease
+  }
+}
+
 query DonationsHeatmap($input: DonationsHeatmapInput!) {
   donationsHeatmap(input: $input) {
     maxScore
