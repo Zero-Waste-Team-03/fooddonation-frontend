@@ -1,0 +1,67 @@
+query AdminReportStats($input: ReportStatsInput!) {
+  adminReportStats(input: $input) {
+    totalReports
+    totalReportsIncrease
+    openReports
+    openReportsIncrease
+    chart {
+      period
+      reportsCount
+    }
+  }
+}
+
+query AdminGrowthStats($input: StatsGrowthInput!) {
+  adminGrowthStats(input: $input) {
+    points {
+      period
+      donationsCount
+      usersCount
+    }
+  }
+}
+
+query AdminReports(
+  $page: Int = 1
+  $limit: Int = 10
+  $status: ReportStatus
+  $targetId: String
+  $targetType: ReportTargetType
+) {
+  adminReports(
+    page: $page
+    limit: $limit
+    status: $status
+    targetId: $targetId
+    targetType: $targetType
+  ) {
+    hasNextPage
+    hasPreviousPage
+    items {
+      id
+      reason
+      status
+      targetType
+      targetId
+      reporterId
+      description
+      createdAt
+      reviewedAt
+      reviewedById
+      updatedAt
+    }
+    limit
+    page
+    totalCount
+  }
+}
+
+mutation AdminReviewReport($input: ReviewReportInput!) {
+  adminReviewReport(input: $input) {
+    id
+    status
+    reviewedAt
+    reviewedById
+    updatedAt
+  }
+}
