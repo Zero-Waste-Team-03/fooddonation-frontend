@@ -1,0 +1,20 @@
+query DonationsHeatmap($input: DonationsHeatmapInput!) {
+  donationsHeatmap(input: $input) {
+    maxScore
+    totalCells
+    cells {
+      lat
+      lng
+      score
+      rawScore
+      donationCount
+      activeCount
+      completedCount
+      reservationCount
+      userCount
+      city
+      neighborhood
+      topCategory
+    }
+  }
+}

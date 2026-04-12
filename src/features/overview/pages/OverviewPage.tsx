@@ -22,12 +22,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatMetricCard } from "@/components/ui/stat-metric-card";
 import {
-  Map,
-  MapControls,
-  MapMarker,
-  MarkerContent,
-} from "@/components/ui/map";
-import {
   Table,
   TableBody,
   TableCell,
@@ -38,6 +32,7 @@ import {
 import { useCurrentUser } from "@/features/settings/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { DonationsHeatmapMap } from "../components/DonationsHeatmapMap";
 
 type OverviewKpi = {
   id: string;
@@ -147,51 +142,6 @@ function priorityLabel(p: UrgentActionRow["priority"]): string {
   return "Low";
 }
 
-function ActivityHeatmapCard() {
-  return (
-    <Card className="flex min-h-full flex-col overflow-hidden shadow-card">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-page-title">Activity Heatmap</CardTitle>
-        <CardDescription>Geographic hotspots by density</CardDescription>
-      </CardHeader>
-      <CardContent className="relative flex min-h-full flex-1 flex-col p-0">
-        <div className="relative min-h-full flex-1 overflow-hidden rounded-b-md">
-          <Map
-            center={[2.3522, 48.8566]}
-            zoom={11}
-            className="absolute inset-0 min-h-full"
-          >
-            <MapControls />
-            <MapMarker longitude={2.3522} latitude={48.8566}>
-              <MarkerContent />
-            </MapMarker>
-          </Map>
-          <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary/15"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute top-[18%] left-[42%] h-28 w-28 rounded-full bg-primary/35 blur-2xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute right-[28%] bottom-[26%] h-20 w-20 rounded-full bg-primary/25 blur-xl"
-            aria-hidden
-          />
-          <div className="pointer-events-none absolute inset-x-4 bottom-4">
-            <div className="rounded-lg border border-border bg-card/95 px-3 py-2.5 text-sm shadow-dropdown backdrop-blur-sm">
-              <p className="font-medium text-card-foreground">
-                <span className="mr-2 inline-block size-2 rounded-full bg-primary" />
-                High Density | Central District (420 donations)
-              </p>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export function OverviewPage() {
   const { user } = useCurrentUser();
   const periods = ["7d", "30d", "12m"] as const;
@@ -221,8 +171,15 @@ export function OverviewPage() {
           })}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="border-border shadow-card lg:col-span-2">
+        <div className="rounded-lg border border-border bg-card p-4 md:p-6">
+          <h2 className="mb-4 text-base font-semibold text-foreground">
+            Donation activity map
+          </h2>
+          <DonationsHeatmapMap />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-1">
+          <Card className="border-border shadow-card">
             <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex flex-col gap-1">
                 <CardTitle className="text-page-title">Donation Growth</CardTitle>
@@ -318,9 +275,6 @@ export function OverviewPage() {
               </div>
             </CardContent>
           </Card>
-          <div className="lg:col-span-1">
-            <ActivityHeatmapCard />
-          </div>
         </div>
 
         <Card className="border-border shadow-card">

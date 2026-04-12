@@ -3,7 +3,7 @@ import { Loader2, PackageCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CategorySensitivityValues, type CreateCategoryInput } from "@/gql/graphql";
+import { CategorySensitivity, type CreateCategoryInput } from "@/gql/graphql";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,7 +32,7 @@ import { useCategoryActions } from "../hooks/useCategoryActions";
 
 const createCategoryFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  sensitivity: z.enum(CategorySensitivityValues),
+  sensitivity: z.nativeEnum(CategorySensitivity),
 });
 
 type CreateCategoryFormValues = z.infer<typeof createCategoryFormSchema>;
@@ -44,7 +44,7 @@ type CreateCategoryDialogProps = {
 
 const defaultValues: CreateCategoryFormValues = {
   name: "",
-  sensitivity: CategorySensitivityValues.Low,
+  sensitivity: CategorySensitivity.Low,
 };
 
 function buildCreateCategoryInput(values: CreateCategoryFormValues): CreateCategoryInput {
@@ -146,9 +146,9 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
                     <FormItem>
                       <FormLabel>Sensitivity</FormLabel>
                       <Select
-                        value={field.value ?? CategorySensitivityValues.Low}
+                        value={field.value ?? CategorySensitivity.Low}
                         onValueChange={(value) =>
-                          field.onChange(value as CategorySensitivityValues)
+                          field.onChange(value as CategorySensitivity)
                         }
                       >
                         <FormControl>
@@ -157,9 +157,9 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="z-[2100]">
-                          <SelectItem value={CategorySensitivityValues.Low}>Low</SelectItem>
-                          <SelectItem value={CategorySensitivityValues.Medium}>Medium</SelectItem>
-                          <SelectItem value={CategorySensitivityValues.High}>High</SelectItem>
+                          <SelectItem value={CategorySensitivity.Low}>Low</SelectItem>
+                          <SelectItem value={CategorySensitivity.Medium}>Medium</SelectItem>
+                          <SelectItem value={CategorySensitivity.High}>High</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
