@@ -11,7 +11,7 @@ export function useNotifications() {
     fetchPolicy: "cache-and-network",
   });
 
-  const notifications = (data?.notifications ?? []).filter((item) => {
+  const notifications = (data?.getNotifications?.items ?? []).filter((item) => {
     const search = filters.search.trim().toLowerCase();
     const matchesSearch =
       search.length === 0 ||

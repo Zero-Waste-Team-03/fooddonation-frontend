@@ -2,14 +2,10 @@ import type { ComponentType, ReactNode } from "react";
 import {
   CalendarDays,
   CalendarX2,
-  CheckCircle2,
-  Clock,
-  Globe,
   Hash,
   LocateFixed,
   MapPin,
   Paperclip,
-  PenLine,
   ShieldAlert,
   ShieldCheck,
   Tag,
@@ -22,8 +18,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Map, MapMarker, MarkerContent, useMap } from "@/components/ui/map";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDonationDetailQuery } from "@/gql/graphql";
-import { DonationStatusValues, DonationUrgencyValues } from "@/gql/graphql";
+import { DonationUrgencyValues } from "@/gql/graphql";
 import { cn } from "@/lib/utils";
+import { DonationStatusTimeline } from "../components/DonationStatusTimeline";
 import { donationUrgencyLabels } from "../components/DonationFilters";
 
 export type DonationDetailPageProps = {
@@ -51,116 +48,6 @@ function formatDate(dateString: string) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(dateString));
-}
-
-type StepState = "completed" | "active" | "destructive" | "idle";
-
-const TIMELINE_STEPS = [
-  { key: "draft", label: "Draft", icon: PenLine },
-  { key: "published", label: "Published", icon: Globe },
-  { key: "handoff", label: "Reserved / Expired", icon: Clock },
-  { key: "completed", label: "Completed", icon: CheckCircle2 },
-] as const;
-
-type TimelineStepKey = (typeof TIMELINE_STEPS)[number]["key"];
-
-function getActiveStepIndex(status: DonationStatusValues): number {
-  switch (status) {
-    case DonationStatusValues.Draft:
-      return 0;
-    case DonationStatusValues.Published:
-      return 1;
-    case DonationStatusValues.Reserved:
-    case DonationStatusValues.Expired:
-      return 2;
-    case DonationStatusValues.Completed:
-      return 3;
-    default:
-      return 0;
-  }
-}
-
-function getStepState(stepIndex: number, status: DonationStatusValues): StepState {
-  const activeIndex = getActiveStepIndex(status);
-  if (stepIndex < activeIndex) return "completed";
-  if (stepIndex === activeIndex) {
-    if (status === DonationStatusValues.Expired) return "destructive";
-    if (status === DonationStatusValues.Completed) return "completed";
-    return "active";
-  }
-  return "idle";
-}
-
-function getHandoffLabel(status: DonationStatusValues): string {
-  if (status === DonationStatusValues.Reserved) return "Reserved";
-  if (status === DonationStatusValues.Expired) return "Expired";
-  return "Reserved / Expired";
-}
-
-function getStepLabel(key: TimelineStepKey, status: DonationStatusValues): string {
-  if (key === "handoff") return getHandoffLabel(status);
-  return TIMELINE_STEPS.find((s) => s.key === key)?.label ?? key;
-}
-
-function DonationStatusTimeline({ status }: { status: DonationStatusValues }) {
-  return (
-    <div className="flex items-start">
-      {TIMELINE_STEPS.map((step, index) => {
-        const isLast = index === TIMELINE_STEPS.length - 1;
-        const stepState = getStepState(index, status);
-        const connectorShouldBeActive = stepState === "completed";
-        const label = getStepLabel(step.key, status);
-
-        const StepIcon = step.icon;
-        const iconColorClass = cn(
-          stepState === "completed" && "text-primary",
-          stepState === "active" && "text-primary",
-          stepState === "destructive" && "text-destructive",
-          stepState === "idle" && "text-muted-foreground/30"
-        );
-
-        return (
-          <div key={step.key} className={cn("flex items-start", !isLast && "flex-1 min-w-0")}>
-            <div className="flex flex-col items-center gap-3 shrink-0">
-              <StepIcon
-                className={cn("h-8 w-8 mb-2 transition-colors", iconColorClass)}
-                aria-hidden
-              />
-              <div
-                className={cn(
-                  "h-3 w-3 rounded-full border-2 transition-all",
-                  stepState === "completed" && "border-primary bg-primary",
-                  stepState === "active" && "border-primary bg-background ring-4 ring-primary/20",
-                  stepState === "destructive" &&
-                    "border-destructive bg-destructive ring-4 ring-destructive/20",
-                  stepState === "idle" && "border-border bg-muted"
-                )}
-              />
-              <span
-                className={cn(
-                  "max-w-[72px] text-center text-[12px] font-medium leading-tight",
-                  stepState === "completed" && "text-primary",
-                  stepState === "active" && "text-primary",
-                  stepState === "destructive" && "text-destructive",
-                  stepState === "idle" && "text-muted-foreground/40"
-                )}
-              >
-                {label}
-              </span>
-            </div>
-            {!isLast && (
-              <div
-                className={cn(
-                  "mt-[58px] h-px flex-1 mx-2",
-                  connectorShouldBeActive ? "bg-primary" : "bg-border"
-                )}
-              />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
 }
 
 function MapLocateButton({
@@ -214,7 +101,7 @@ function DetailRow({
 }
 
 export function DonationDetailPage({ donationId }: DonationDetailPageProps) {
-  const { data, loading } = useDonationDetailQuery({
+  const { data, loading, refetch } = useDonationDetailQuery({
     variables: { id: donationId },
     fetchPolicy: "cache-and-network",
   });
@@ -302,7 +189,7 @@ export function DonationDetailPage({ donationId }: DonationDetailPageProps) {
         <div className="flex flex-col -mt-2 pb-8 gap-6">
           <Card className="rounded-2xl">
             <CardContent className="px-6 py-5">
-              <DonationStatusTimeline status={donation.status} />
+              <DonationStatusTimeline donation={donation} refetch={() => void refetch()} />
             </CardContent>
           </Card>
 

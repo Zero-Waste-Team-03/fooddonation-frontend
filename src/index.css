@@ -174,4 +174,24 @@
   .maplibregl-popup-tip {
     display: none !important;
   }
+
+  @keyframes countdown-tick {
+    from {
+      stroke-dashoffset: var(--ring-offset-from);
+    }
+    to {
+      stroke-dashoffset: var(--ring-offset-to);
+    }
+  }
+
+  .countdown-ring-stroke {
+    transition: stroke-dashoffset 0.9s linear, stroke 0.5s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .countdown-ring-stroke {
+      animation: none !important;
+      transition: stroke-dashoffset 0.1s linear;
+    }
+  }
 }
