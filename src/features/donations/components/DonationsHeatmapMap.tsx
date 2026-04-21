@@ -1,21 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { LocateFixed, RefreshCcw } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Loader2, LocateFixed } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Map, MapControls, MapMarker, MarkerContent, MarkerTooltip } from "@/components/ui/map";
+import { Map, MapControls, MapMarker, MarkerContent, MarkerTooltip, useMap } from "@/components/ui/map";
 import type { DonationsMapQuery } from "@/gql/graphql";
 import type { MapViewport } from "@/components/ui/map";
 import type { Donation } from "@/types/donation.types";
 
 type HeatmapMarker = NonNullable<DonationsMapQuery["donationsMap"]>[number];
 
+type HeatmapQueryInput = {
+  latitude: number;
+  longitude: number;
+  radius: number;
+};
+
 type DonationsHeatmapMapProps = {
   markers: HeatmapMarker[];
   donations: Donation[];
   loading: boolean;
-  onRefetch?: (coords: { latitude: number; longitude: number }) => void;
-  onLocateRequest?: (coords: { latitude: number; longitude: number }) => void;
+  onRefetch?: (coords: HeatmapQueryInput) => void;
 };
 
 type HoverPopupState = {
@@ -23,6 +28,8 @@ type HoverPopupState = {
   x: number;
   y: number;
 };
+
+const MOVE_END_DEBOUNCE_MS = 300;
 
 function colorByMarker(markerColor: HeatmapMarker["markerColor"]): string {
   if (markerColor === "RED") return "var(--color-destructive)";
@@ -47,12 +54,84 @@ function toDisplayText(value: string): string {
     .join(" ");
 }
 
+function computeRadiusKm(
+  latitude: number,
+  zoom: number,
+  width: number,
+  height: number,
+): number {
+  const safeWidth = Math.max(width, 1);
+  const safeHeight = Math.max(height, 1);
+  const halfDiagonalPx = Math.sqrt(safeWidth ** 2 + safeHeight ** 2) / 2;
+  const metersPerPixel =
+    (156543.03392 * Math.cos((latitude * Math.PI) / 180)) / 2 ** zoom;
+  const radiusKm = (halfDiagonalPx * metersPerPixel) / 1000;
+
+  return Math.min(250, Math.max(1, Number(radiusKm.toFixed(2))));
+}
+
+function HeatmapRefetchListener({
+  onRefetch,
+}: {
+  onRefetch?: (coords: HeatmapQueryInput) => void;
+}) {
+  const { map, isLoaded } = useMap();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onRefetchRef = useRef(onRefetch);
+  onRefetchRef.current = onRefetch;
+
+  const triggerRefetch = useCallback(() => {
+    if (!map || !onRefetchRef.current) {
+      return;
+    }
+
+    const center = map.getCenter();
+    const container = map.getContainer();
+    onRefetchRef.current({
+      latitude: center.lat,
+      longitude: center.lng,
+      radius: computeRadiusKm(
+        center.lat,
+        map.getZoom(),
+        container.clientWidth,
+        container.clientHeight,
+      ),
+    });
+  }, [map]);
+
+  useEffect(() => {
+    if (!map || !isLoaded) {
+      return;
+    }
+
+    const handleMoveEnd = () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+
+      timerRef.current = setTimeout(() => {
+        triggerRefetch();
+      }, MOVE_END_DEBOUNCE_MS);
+    };
+
+    map.on("moveend", handleMoveEnd);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      map.off("moveend", handleMoveEnd);
+    };
+  }, [map, isLoaded, triggerRefetch]);
+
+  return null;
+}
+
 export function DonationsHeatmapMap({
   markers,
   donations,
   loading,
   onRefetch,
-  onLocateRequest,
 }: DonationsHeatmapMapProps) {
   const markersCenter = useMemo(() => centerFromMarkers(markers), [markers]);
   const navigate = useNavigate();
@@ -70,7 +149,6 @@ export function DonationsHeatmapMap({
     }));
   }, [markersCenter]);
 
-  const currentCenter = viewport.center ?? markersCenter;
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [hoverPopup, setHoverPopup] = useState<HoverPopupState | null>(null);
   const hoveredDonationId = hoverPopup?.donationId ?? null;
@@ -93,12 +171,13 @@ export function DonationsHeatmapMap({
     }, 220);
   };
 
-  const handleRefetch = () => {
-    onRefetch?.({
-      latitude: currentCenter[1],
-      longitude: currentCenter[0],
-    });
-  };
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleLocate = () => {
     if (!("geolocation" in navigator)) {
@@ -110,44 +189,32 @@ export function DonationsHeatmapMap({
         center: [position.coords.longitude, position.coords.latitude],
         zoom: current.zoom != null && current.zoom > 11 ? current.zoom : 12,
       }));
-      onLocateRequest?.({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      });
     });
   };
 
   return (
     <Card className="rounded-2xl border bg-card">
-      <CardHeader className="flex-row items-center justify-between">
+      <CardHeader>
         <CardTitle className="text-base">Donations Activity Heatmap</CardTitle>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-9"
-            onClick={handleLocate}
-            disabled={loading}
-          >
-            <LocateFixed className="mr-2 h-4 w-4" />
-            My location
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-9"
-            onClick={handleRefetch}
-            disabled={loading}
-          >
-            <RefreshCcw className="mr-2 h-4 w-4" />
-            Refetch
-          </Button>
-        </div>
       </CardHeader>
       <CardContent className="p-0 m-2 rounded-md ">
         <div className="relative h-[460px]  rounded-b-2xl">
+          <div className="absolute right-3 top-3 z-30">
+            <Button
+              type="button"
+              size="icon"
+              className="h-10 w-10 rounded-full border-border bg-primary shadow-dropdown backdrop-blur-sm"
+              onClick={handleLocate}
+              disabled={loading}
+              aria-label="Use current device location"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              ) : (
+                <LocateFixed className="h-4 w-4" aria-hidden />
+              )}
+            </Button>
+          </div>
           <Map
             viewport={viewport}
             onViewportChange={setViewport}
@@ -155,6 +222,7 @@ export function DonationsHeatmapMap({
             loading={loading}
           >
             <MapControls />
+            <HeatmapRefetchListener onRefetch={onRefetch} />
             {markers.map((marker) => (
               <MapMarker
                 key={marker.id}

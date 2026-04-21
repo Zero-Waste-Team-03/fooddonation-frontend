@@ -175,6 +175,19 @@ export function DonationsPage() {
     }
   };
 
+  const handleHeatmapRefetch = useCallback(
+    ({ latitude, longitude, radius }: { latitude: number; longitude: number; radius: number }) => {
+      void refetchHeatmap({
+        input: {
+          latitude,
+          longitude,
+          radius,
+        },
+      });
+    },
+    [refetchHeatmap]
+  );
+
   return (
     <PageWrapper
       title="Donations"
@@ -202,24 +215,7 @@ export function DonationsPage() {
                   markers={heatmapData}
                   donations={donations}
                   loading={heatmapLoading}
-                  onRefetch={({ latitude, longitude }) => {
-                    void refetchHeatmap({
-                      input: {
-                        latitude,
-                        longitude,
-                        radius: 50,
-                      },
-                    });
-                  }}
-                  onLocateRequest={({ latitude, longitude }) => {
-                    void refetchHeatmap({
-                      input: {
-                        latitude,
-                        longitude,
-                        radius: 50,
-                      },
-                    });
-                  }}
+                  onRefetch={handleHeatmapRefetch}
                 />
               </TabsContent>
               <TabsContent value="list" className="space-y-6">
