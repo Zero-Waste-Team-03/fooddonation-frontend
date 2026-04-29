@@ -1,14 +1,28 @@
+import type { ApolloClient } from "@apollo/client";
 import { authStorage } from "@/lib/authStorage";
 import { jotaiStore } from "@/lib/store";
+import { router } from "@/lib/router";
 import {
   accessTokenAtom,
-  refreshTokenAtom,
   authUserAtom,
   authValidationStatusAtom,
+  refreshTokenAtom,
 } from "@/store";
-import { router } from "@/lib/router";
 import { RefreshTokensDocument } from "@/gql/graphql";
 import type { RefreshTokensMutation } from "@/gql/graphql";
+
+let apolloClient: ApolloClient | null = null;
+
+export function registerApolloClient(client: ApolloClient): void {
+  apolloClient = client;
+}
+
+function getClient(): ApolloClient {
+  if (!apolloClient) {
+    throw new Error("Apollo client not registered.");
+  }
+  return apolloClient;
+}
 
 type RefreshResult = { success: true } | { success: false };
 
@@ -22,9 +36,7 @@ async function attemptRefresh(): Promise<RefreshResult> {
   }
 
   try {
-    const { apolloClient } = await import("./apolloClient");
-
-    const result = await apolloClient.mutate<RefreshTokensMutation>({
+    const result = await getClient().mutate<RefreshTokensMutation>({
       mutation: RefreshTokensDocument,
       context: {
         skipAuthLink: true,
@@ -73,8 +85,6 @@ export function clearAuthAndRedirect(): void {
   jotaiStore.set(refreshTokenAtom, null);
   jotaiStore.set(authUserAtom, null);
   jotaiStore.set(authValidationStatusAtom, "invalid");
-
-  void import("./apolloClient").then(({ apolloClient }) => apolloClient.clearStore());
-
+  getClient().clearStore();
   void router.navigate({ to: "/login", search: { redirect: "/" } });
 }

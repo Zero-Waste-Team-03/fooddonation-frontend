@@ -1,6 +1,5 @@
 import {
   ApolloClient,
-  type FetchResult,
   InMemoryCache,
   Observable,
   createHttpLink,
@@ -8,9 +7,13 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
-import type { GraphQLError } from "graphql";
+import { CombinedGraphQLErrors } from "@apollo/client/errors";
 import { authStorage } from "@/lib/authStorage";
-import { refreshTokens, clearAuthAndRedirect } from "@/lib/tokenRefreshService";
+import {
+  clearAuthAndRedirect,
+  refreshTokens,
+  registerApolloClient,
+} from "@/lib/tokenRefreshService";
 
 const AUTH_BYPASS_OPERATIONS = new Set([
   "Login",
@@ -19,84 +22,87 @@ const AUTH_BYPASS_OPERATIONS = new Set([
   "RefreshTokens",
 ]);
 
-function getContextFlag(
-  operation: unknown,
-  key: string
-): boolean {
-  const op = operation as { getContext?: () => Record<string, unknown> };
-  const ctx = op.getContext?.();
-  return Boolean(ctx && ctx[key]);
-}
-
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_API_GRAPHQL_URL,
 });
 
-const authLink = setContext((operation, { headers }) => {
-  if (getContextFlag(operation, "skipAuthLink")) {
-    return { headers };
+const authLink = setContext((_operation, prevContext) => {
+  if (prevContext.skipAuthLink) {
+    return { headers: prevContext.headers };
   }
 
   const token = authStorage.getAccessToken();
-
   return {
     headers: {
-      ...headers,
+      ...(prevContext.headers ?? {}),
       ...(token ? { authorization: `Bearer ${token.trim()}` } : {}),
     },
   };
 });
 
-const errorLink = onError((errorResponse) => {
-  const { graphQLErrors, networkError, operation, forward } = errorResponse as {
-    graphQLErrors?: readonly GraphQLError[];
-    networkError?: unknown;
-    operation: { operationName?: string; setContext: (fn: unknown) => void };
-    forward: (op: unknown) => Observable<FetchResult<Record<string, unknown>>>;
-  };
+const errorLink = onError(({ error, operation, forward }) => {
+  if (AUTH_BYPASS_OPERATIONS.has(operation.operationName ?? "")) {
+    return;
+  }
 
-  const isAuthBypass = AUTH_BYPASS_OPERATIONS.has(operation.operationName ?? "");
-  if (isAuthBypass) return;
+  const is401 = (() => {
+    if (CombinedGraphQLErrors.is(error)) {
+      return error.errors.some(
+        (graphQLError) =>
+          graphQLError.extensions?.code === "UNAUTHENTICATED" ||
+          String(graphQLError.extensions?.code ?? "").includes("401")
+      );
+    }
 
-  const graphQlSays401 =
-    graphQLErrors?.some((e: GraphQLError) => {
-      const code = e.extensions?.code;
-      return code === "UNAUTHENTICATED" || code === "401";
-    }) ?? false;
+    if (error && typeof error === "object" && "statusCode" in error) {
+      return (error as { statusCode?: number }).statusCode === 401;
+    }
 
-  const networkSays401 = (() => {
-    if (!networkError || typeof networkError !== "object") return false;
-    if (!("statusCode" in networkError)) return false;
-    const statusCode = (networkError as { statusCode?: unknown }).statusCode;
-    return statusCode === 401;
+    return false;
   })();
 
-  if (!graphQlSays401 && !networkSays401) return;
+  if (!is401) {
+    return;
+  }
 
-  return new Observable<FetchResult<Record<string, unknown>>>((observer) => {
-    refreshTokens().then((result) => {
-      if (!result.success) {
-        clearAuthAndRedirect();
-        observer.error(new Error("Session expired. Please log in again."));
-        return;
-      }
+  return new Observable((observer) => {
+    refreshTokens()
+      .then((result) => {
+        if (!result.success) {
+          clearAuthAndRedirect();
+          observer.error(
+            new Error("Your session has expired. Please log in again.")
+          );
+          return;
+        }
 
-      const newToken = authStorage.getAccessToken();
+        const newToken = authStorage.getAccessToken();
 
-      operation.setContext(
-        (prev: { headers?: Record<string, unknown> } | undefined) => {
-          const prevHeaders = prev?.headers ?? {};
+        operation.setContext((currentContext: Record<string, unknown>) => {
+          const existingHeaders =
+            (currentContext.headers as Record<string, string> | undefined) ?? {};
           return {
             headers: {
-              ...prevHeaders,
-              ...(newToken ? { authorization: `Bearer ${newToken.trim()}` } : {}),
+              ...existingHeaders,
+              ...(newToken
+                ? { authorization: `Bearer ${newToken.trim()}` }
+                : {}),
             },
           };
-        }
-      );
+        });
 
-      forward(operation).subscribe(observer);
-    });
+        forward(operation).subscribe({
+          next: (value) => observer.next(value),
+          error: (error) => observer.error(error),
+          complete: () => observer.complete(),
+        });
+      })
+      .catch(() => {
+        clearAuthAndRedirect();
+        observer.error(
+          new Error("Your session has expired. Please log in again.")
+        );
+      });
   });
 });
 
@@ -105,3 +111,5 @@ export const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
   devtools: { enabled: import.meta.env.DEV },
 });
+
+registerApolloClient(apolloClient);
