@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { MoreHorizontal, Search, X } from "lucide-react";
+import { MoreHorizontal, Pencil, Search, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,8 @@ import {
 } from "@/components/ui/table";
 import type { Category } from "@/types/donation.types";
 import { CategorySensitivity } from "@/gql/graphql";
+import { jotaiStore } from "@/lib/store";
+import { editCategoryDialogOpenAtom, selectedCategoryForEditAtom } from "@/store";
 
 type CategoryTableProps = {
   categories: Category[];
@@ -48,6 +51,9 @@ function TableRowSkeleton() {
     <TableRow>
       <TableCell className="px-6 py-4">
         <Skeleton className="h-4 w-40 bg-muted" />
+      </TableCell>
+      <TableCell className="py-4">
+        <Skeleton className="h-4 w-16 bg-muted" />
       </TableCell>
       <TableCell className="py-4">
         <Skeleton className="h-6 w-20 bg-muted rounded-full" />
@@ -147,6 +153,9 @@ export function CategoryTable({ categories, loading, onDelete }: CategoryTablePr
               <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">
                 Name
               </TableHead>
+              <TableHead className="text-right text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
+                Score points
+              </TableHead>
               <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
                 Sensitivity
               </TableHead>
@@ -166,7 +175,7 @@ export function CategoryTable({ categories, loading, onDelete }: CategoryTablePr
               Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} />)
             ) : filteredCategories.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="p-6 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="p-6 text-center text-muted-foreground">
                   No categories found
                 </TableCell>
               </TableRow>
@@ -175,6 +184,13 @@ export function CategoryTable({ categories, loading, onDelete }: CategoryTablePr
                 <TableRow key={category.id} className="hover:bg-muted/30 border-b border-border/50">
                   <TableCell className="px-6 py-4 text-sm font-semibold text-foreground">
                     {category.name}
+                  </TableCell>
+                  <TableCell className="py-4 text-right tabular-nums">
+                    {category.reputationGain ? (
+                      category.reputationGain
+                    ) : (
+                      <span className="text-muted-foreground">0</span>
+                    )}
                   </TableCell>
                   <TableCell className="py-4">
                     <Badge variant={getSensitivityVariant(category.sensitivity)}>
@@ -201,9 +217,20 @@ export function CategoryTable({ categories, loading, onDelete }: CategoryTablePr
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
+                          onClick={() => {
+                            jotaiStore.set(selectedCategoryForEditAtom, category);
+                            jotaiStore.set(editCategoryDialogOpenAtom, true);
+                          }}
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
                           onClick={() => onDelete(category.id)}
                           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                         >
+                          <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

@@ -6,7 +6,9 @@ import {
   type CreateCategoryInput,
   useCreateCategoryMutation,
   useDeleteCategoryMutation,
+  useUpdateCategoryMutation,
 } from "@/gql/graphql";
+import type { UpdateCategoryFormValues } from "@/types/donation.types";
 import {
   parseDonationActionError,
   type DonationActionErrorMessage,
@@ -25,6 +27,11 @@ export function useCategoryActions() {
     onError: (err: unknown) => setErrorMessage(parseDonationActionError(err)),
   });
 
+  const [updateCategory, { loading: updating }] = useUpdateCategoryMutation({
+    refetchQueries: [CategoriesDocument],
+    onError: (err: unknown) => setErrorMessage(parseDonationActionError(err)),
+  });
+
   const handleCreate = async (input: CreateCategoryInput): Promise<boolean> => {
     setErrorMessage(null);
     const result = await createCategory({ variables: { input } });
@@ -37,12 +44,29 @@ export function useCategoryActions() {
     return !!result.data?.deleteCategory;
   };
 
+  const handleUpdate = async (values: UpdateCategoryFormValues): Promise<boolean> => {
+    setErrorMessage(null);
+    const result = await updateCategory({
+      variables: {
+        id: values.id,
+        input: {
+          name: values.name.trim(),
+          reputationGain: values.reputationGain,
+          sensitivity: values.sensitivity,
+        },
+      },
+    });
+    return !!result.data?.updateCategory;
+  };
+
   const clearError = () => setErrorMessage(null);
 
   return {
     handleCreate,
     handleDelete,
-    loading: creating || deleting,
+    handleUpdate,
+    loading: creating || deleting || updating,
+    updating,
     errorMessage,
     clearError,
   };

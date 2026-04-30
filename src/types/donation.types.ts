@@ -1,4 +1,6 @@
 import type {
+  CategorySensitivity,
+  CategoriesQuery,
   CreateDonationInput,
   DonationStatistics,
   DonationStatusValues,
@@ -9,7 +11,9 @@ import type {
 export type Donation = NonNullable<
   NonNullable<DonationsQuery["donations"]["items"]>[number]
 >;
-export type Category = NonNullable<Donation["category"]>;
+export type Category = NonNullable<
+  NonNullable<CategoriesQuery["categories"]["items"]>[number]
+>;
 
 export type { CreateDonationInput, DonationStatistics };
 export type { DonationStatusValues, DonationUrgencyValues };
@@ -35,4 +39,11 @@ export type CreateDonationFormValues = {
   listingExpiresAt?: string;
   locationId?: string;
   specification?: string;
+};
+
+export type UpdateCategoryFormValues = {
+  id: string;
+  name: string;
+  reputationGain: number;
+  sensitivity: CategorySensitivity;
 };

@@ -1,9 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, PackageCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CategorySensitivity, type CreateCategoryInput } from "@/gql/graphql";
+import { CategorySensitivity } from "@/gql/graphql";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,9 +28,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { Category } from "@/types/donation.types";
 import { useCategoryActions } from "../hooks/useCategoryActions";
 
-const createCategoryFormSchema = z.object({
+const editCategoryFormSchema = z.object({
+  id: z.string().min(1),
   name: z.string().min(1, "Category name is required"),
   reputationGain: z
     .number()
@@ -39,41 +41,45 @@ const createCategoryFormSchema = z.object({
   sensitivity: z.nativeEnum(CategorySensitivity),
 });
 
-type CreateCategoryFormValues = z.infer<typeof createCategoryFormSchema>;
+type EditCategoryFormValues = z.infer<typeof editCategoryFormSchema>;
 
-type CreateCategoryDialogProps = {
+type EditCategoryDialogProps = {
+  category: Category | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-const defaultValues: CreateCategoryFormValues = {
+const defaultValues: EditCategoryFormValues = {
+  id: "",
   name: "",
   reputationGain: 0,
   sensitivity: CategorySensitivity.Low,
 };
 
-function buildCreateCategoryInput(values: CreateCategoryFormValues): CreateCategoryInput {
-  const input: CreateCategoryInput = {
-    name: values.name.trim(),
-    reputationGain: values.reputationGain,
-    sensitivity: values.sensitivity,
-  };
-  return input;
-}
-
-export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialogProps) {
-  const [createdName, setCreatedName] = useState("");
+export function EditCategoryDialog({ category, open, onOpenChange }: EditCategoryDialogProps) {
+  const [updatedName, setUpdatedName] = useState("");
   const [success, setSuccess] = useState(false);
-  const { handleCreate, loading, errorMessage, clearError } = useCategoryActions();
+  const { handleUpdate, loading, errorMessage, clearError } = useCategoryActions();
 
-  const form = useForm<CreateCategoryFormValues>({
-    resolver: zodResolver(createCategoryFormSchema),
+  const form = useForm<EditCategoryFormValues>({
+    resolver: zodResolver(editCategoryFormSchema),
     defaultValues,
   });
 
+  useEffect(() => {
+    if (category) {
+      form.reset({
+        id: category.id,
+        name: category.name,
+        reputationGain: category.reputationGain ?? 0,
+        sensitivity: category.sensitivity ?? CategorySensitivity.Low,
+      });
+    }
+  }, [category, form]);
+
   const handleClose = () => {
     form.reset(defaultValues);
-    setCreatedName("");
+    setUpdatedName("");
     setSuccess(false);
     clearError();
     onOpenChange(false);
@@ -88,9 +94,9 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
   };
 
   const onSubmit = form.handleSubmit(async (values) => {
-    setCreatedName(values.name);
+    setUpdatedName(values.name);
     setSuccess(false);
-    const ok = await handleCreate(buildCreateCategoryInput(values));
+    const ok = await handleUpdate(values);
     if (ok) {
       setSuccess(true);
     }
@@ -104,7 +110,7 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
       >
         <div className="space-y-6 p-8">
           <DialogHeader className="space-y-1 text-left">
-            <DialogTitle className="text-xl font-semibold text-foreground">New category</DialogTitle>
+            <DialogTitle className="text-xl font-semibold text-foreground">Edit category</DialogTitle>
           </DialogHeader>
 
           {success ? (
@@ -116,9 +122,9 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
                 <PackageCheck className="h-6 w-6 text-success" />
               </div>
               <div>
-                <p className="font-medium text-foreground">Category created</p>
+                <p className="font-medium text-foreground">Category updated</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {createdName} has been added to donation categories.
+                  {updatedName} has been updated.
                 </p>
               </div>
               <Button
@@ -216,7 +222,7 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
                     disabled={loading}
                   >
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Create category
+                    Save changes
                   </Button>
                 </DialogFooter>
               </form>

@@ -8,6 +8,7 @@ query Categories($pagination: PaginationInput) {
     items {
       id
       name
+      reputationGain
       sensitivity
       createdAt
       updatedAt
@@ -19,6 +20,18 @@ mutation CreateCategory($input: CreateCategoryInput!) {
   createCategory(input: $input) {
     id
     name
+    reputationGain
+    sensitivity
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateCategory($id: ID!, $input: UpdateCategoryInput!) {
+  updateCategory(id: $id, input: $input) {
+    id
+    name
+    reputationGain
     sensitivity
     createdAt
     updatedAt

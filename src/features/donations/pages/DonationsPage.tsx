@@ -12,6 +12,8 @@ import {
   deleteDonationDialogOpenAtom,
   donationFiltersAtom,
   donationsPageAtom,
+  editCategoryDialogOpenAtom,
+  selectedCategoryForEditAtom,
   selectedCategoryIdAtom,
   selectedDonationIdAtom,
 } from "@/store";
@@ -20,6 +22,7 @@ import type { DonationFilters as DonationFiltersType } from "@/types/donation.ty
 import { CategoryTable } from "../components/CategoryTable";
 import { CreateCategoryDialog } from "../components/CreateCategoryDialog";
 import { DeleteCategoryDialog } from "../components/DeleteCategoryDialog";
+import { EditCategoryDialog } from "../components/EditCategoryDialog";
 import { DonationStatsBar } from "../components/DonationStatsBar";
 import { DonationFilters } from "../components/DonationFilters";
 import { DonationsHeatmapMap } from "../components/DonationsHeatmapMap";
@@ -51,6 +54,10 @@ export function DonationsPage() {
   const [deleteCategoryDialogOpen, setDeleteCategoryDialogOpen] = useAtom(
     deleteCategoryDialogOpenAtom
   );
+  const [editCategoryDialogOpen, setEditCategoryDialogOpen] = useAtom(
+    editCategoryDialogOpenAtom
+  );
+  const [categoryForEdit, setCategoryForEdit] = useAtom(selectedCategoryForEditAtom);
 
   const [filters, setFilters] = useAtom(donationFiltersAtom);
   const [, setPage] = useAtom(donationsPageAtom);
@@ -275,6 +282,15 @@ export function DonationsPage() {
       <CreateCategoryDialog
         open={createCategoryDialogOpen}
         onOpenChange={setCreateCategoryDialogOpen}
+      />
+
+      <EditCategoryDialog
+        category={categoryForEdit}
+        open={editCategoryDialogOpen}
+        onOpenChange={(open) => {
+          setEditCategoryDialogOpen(open);
+          if (!open) setCategoryForEdit(null);
+        }}
       />
 
       <DeleteCategoryDialog

@@ -1,5 +1,5 @@
 import type {
-  Report as GeneratedReport,
+  AdminReportsQuery,
   ReportStats as GeneratedReportStats,
   ReportStatus,
   ReportTargetType,
@@ -7,7 +7,9 @@ import type {
 } from "@/gql/graphql";
 
 export type { GeneratedReportStats as ReportStats };
-export type { GeneratedReport as Report };
+export type Report = NonNullable<
+  NonNullable<AdminReportsQuery["adminReports"]["items"]>[number]
+>;
 export type { GeneratedGrowthDataPoint as GrowthDataPoint };
 
 export type ReportPeriod = "LAST_MONTH" | "LAST_WEEK" | "LAST_YEAR";

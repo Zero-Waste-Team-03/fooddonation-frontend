@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import type { DonationFilters } from "@/types/donation.types";
+import type { Category, DonationFilters } from "@/types/donation.types";
 
 export const donationFiltersAtom = atom<DonationFilters>({
   search: "",
@@ -16,6 +16,8 @@ export const deleteDonationDialogOpenAtom = atom<boolean>(false);
 export const createCategoryDialogOpenAtom = atom<boolean>(false);
 export const deleteCategoryDialogOpenAtom = atom<boolean>(false);
 export const selectedCategoryIdAtom = atom<string | null>(null);
+export const editCategoryDialogOpenAtom = atom<boolean>(false);
+export const selectedCategoryForEditAtom = atom<Category | null>(null);
 
 export const donationsPageAtom = atom<number>(1);
 
