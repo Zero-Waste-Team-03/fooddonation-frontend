@@ -6,6 +6,7 @@ import {
 import { useAtomValue } from "jotai";
 import type { AuthUser } from "@/types/auth.types";
 import { authStorage } from "@/lib/authStorage";
+import { clearFcmToken } from "@/lib/fcmToken";
 import { jotaiStore } from "@/lib/store";
 import {
   accessTokenAtom,
@@ -39,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    clearFcmToken();
     clearAuthAndRedirect();
   };
 

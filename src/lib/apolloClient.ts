@@ -22,20 +22,42 @@ const AUTH_BYPASS_OPERATIONS = new Set([
   "RefreshTokens",
 ]);
 
+const FCM_OPERATIONS = new Set(["RegisterFcmToken", "SendFcmNotification"]);
+const DEVICE_ID_KEY = "device_id";
+
+const getDeviceId = (): string | null => {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const existing = localStorage.getItem(DEVICE_ID_KEY);
+    if (existing) return existing;
+
+    const created = crypto.randomUUID();
+    localStorage.setItem(DEVICE_ID_KEY, created);
+    return created;
+  } catch {
+    return null;
+  }
+};
+
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_API_GRAPHQL_URL,
 });
 
-const authLink = setContext((_operation, prevContext) => {
+const authLink = setContext((operation, prevContext) => {
   if (prevContext.skipAuthLink) {
     return { headers: prevContext.headers };
   }
 
   const token = authStorage.getAccessToken();
+  const deviceId = FCM_OPERATIONS.has(operation.operationName ?? "")
+    ? getDeviceId()
+    : null;
   return {
     headers: {
       ...(prevContext.headers ?? {}),
       ...(token ? { authorization: `Bearer ${token.trim()}` } : {}),
+      ...(deviceId ? { "x-device-id": deviceId } : {}),
     },
   };
 });

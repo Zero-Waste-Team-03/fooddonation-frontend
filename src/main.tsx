@@ -3,12 +3,14 @@ import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { Provider as JotaiProvider, useAtomValue } from "jotai";
+import { Toaster } from "sonner";
 import { AuthProvider, useAuthContext } from "@/providers/AuthProvider";
 import { ApolloProvider } from "@/providers/ApolloProvider";
 import { TokenValidator } from "@/providers/TokenValidator";
 import { themeAtom } from "@/store/atoms/ui.atoms";
 import { jotaiStore } from "@/lib/store";
 import { router } from "@/lib/router";
+import { NotificationToast } from "@/features/notifications/components/NotificationToast";
 import "@fontsource-variable/inter";
 import "@fontsource/plus-jakarta-sans/400.css";
 import "@fontsource/plus-jakarta-sans/500.css";
@@ -21,7 +23,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
 function InnerApp() {
   const auth = useAuthContext();
 
-  return <RouterProvider router={router} context={{ auth }} />;
+  return (
+    <>
+      <RouterProvider router={router} context={{ auth }} />
+      <NotificationToast />
+    </>
+  );
 }
 
 function ThemeApplier() {
@@ -53,6 +60,7 @@ createRoot(document.getElementById("root")!).render(
           <ThemeApplier />
           <TokenValidator>
             <InnerApp />
+            <Toaster position="top-right" richColors />
           </TokenValidator>
         </AuthProvider>
       </ApolloProvider>

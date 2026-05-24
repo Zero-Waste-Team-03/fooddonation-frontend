@@ -1,11 +1,13 @@
-import { useAtomValue } from "jotai";
+import { useEffect } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useNotificationsQuery } from "@/gql/graphql";
-import { notificationFiltersAtom } from "@/store";
+import { notificationFiltersAtom, unreadCountAtom } from "@/store";
 
 const PAGINATION = { page: 1, limit: 200 } as const;
 
 export function useNotifications() {
   const filters = useAtomValue(notificationFiltersAtom);
+  const setUnreadCount = useSetAtom(unreadCountAtom);
   const { data, loading, error, refetch } = useNotificationsQuery({
     variables: { pagination: PAGINATION },
     fetchPolicy: "cache-and-network",
@@ -21,6 +23,13 @@ export function useNotifications() {
     const matchesRead = filters.isRead == null || item.isRead === filters.isRead;
     return matchesSearch && matchesType && matchesRead;
   });
+
+  useEffect(() => {
+    const count = (data?.getNotifications?.items ?? []).filter(
+      (item) => !item.isRead
+    ).length;
+    setUnreadCount(count);
+  }, [data, setUnreadCount]);
 
   return {
     notifications,

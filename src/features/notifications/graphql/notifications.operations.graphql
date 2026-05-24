@@ -30,3 +30,9 @@ mutation DeleteNotification($id: ID!) {
     message
   }
 }
+
+mutation RegisterFcmToken($fcmToken: String!) {
+  registerFcmToken(fcmToken: $fcmToken) {
+    message
+  }
+}

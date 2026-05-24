@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useSetAtom } from "jotai";
 import {
   NotificationsDocument,
   useDeleteNotificationMutation,
   useMarkNotificationsAsReadMutation,
 } from "@/gql/graphql";
+import { unreadCountAtom } from "@/store";
 import {
   parseNotificationError,
   type NotificationActionErrorMessage,
@@ -11,6 +13,7 @@ import {
 
 export function useNotificationActions() {
   const [errorMessage, setErrorMessage] = useState<NotificationActionErrorMessage | null>(null);
+  const setUnreadCount = useSetAtom(unreadCountAtom);
 
   const [markReadMutation, { loading: marking }] = useMarkNotificationsAsReadMutation({
     refetchQueries: [NotificationsDocument],
@@ -24,18 +27,27 @@ export function useNotificationActions() {
   const handleMarkAsRead = async (id: string): Promise<boolean> => {
     setErrorMessage(null);
     const result = await markReadMutation({ variables: { input: { ids: [id] } } });
+    if (result.data?.markNotificationsAsRead) {
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    }
     return !!result.data?.markNotificationsAsRead;
   };
 
   const handleMarkManyAsRead = async (ids: string[]): Promise<boolean> => {
     setErrorMessage(null);
     const result = await markReadMutation({ variables: { input: { ids } } });
+    if (result.data?.markNotificationsAsRead) {
+      setUnreadCount((prev) => Math.max(0, prev - ids.length));
+    }
     return !!result.data?.markNotificationsAsRead;
   };
 
-  const handleDelete = async (id: string): Promise<boolean> => {
+  const handleDelete = async (id: string, isUnread: boolean): Promise<boolean> => {
     setErrorMessage(null);
     const result = await deleteMutation({ variables: { id } });
+    if (result.data?.deleteNotification && isUnread) {
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    }
     return !!result.data?.deleteNotification;
   };
 

@@ -1,11 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { Bell, CheckCircle2, Monitor, Moon, PanelLeft, Sun, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { authUserAtom, notificationFiltersAtom, sidebarCollapsedAtom, themeAtom } from "@/store";
+import {
+  authUserAtom,
+  notificationFiltersAtom,
+  notificationsPanelOpenAtom,
+  sidebarCollapsedAtom,
+  themeAtom,
+  unreadCountAtom,
+} from "@/store";
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { useNotificationActions } from "@/features/notifications/hooks/useNotificationActions";
 import { roleLabels } from "@/features/users/components/UserFilters";
@@ -25,8 +32,9 @@ export function Header() {
   const [, setCollapsed] = useAtom(sidebarCollapsedAtom);
   const [theme, setTheme] = useAtom(themeAtom);
   const [notificationFilters, setNotificationFilters] = useAtom(notificationFiltersAtom);
+  const [notificationsOpen, setNotificationsOpen] = useAtom(notificationsPanelOpenAtom);
   const authUser = useAtomValue(authUserAtom);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const unreadCount = useAtomValue(unreadCountAtom);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const { notifications, loading, refetch } = useNotifications();
   const { handleDelete, handleMarkAsRead, handleMarkManyAsRead, loading: actionLoading } =
@@ -37,11 +45,6 @@ export function Header() {
   const role = authUser?.role?.trim() ?? "";
   const title = displayName || email || "Account";
   const subtitle = displayName ? roleLabels[role as UserRole] || email : roleLabels[role as UserRole];
-  const unreadCount = useMemo(
-    () => notifications.filter((notification) => !notification.isRead).length,
-    [notifications]
-  );
-
   useEffect(() => {
     if (!notificationsOpen) {
       return;
@@ -186,7 +189,7 @@ export function Header() {
                             size="icon"
                             className="h-7 w-7"
                             onClick={() => {
-                              void handleDelete(notification.id).then(() => refetch());
+                              void handleDelete(notification.id, !notification.isRead).then(() => refetch());
                             }}
                             disabled={actionLoading}
                             aria-label="Delete notification"

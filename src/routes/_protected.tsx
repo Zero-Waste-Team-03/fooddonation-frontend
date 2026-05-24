@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
+import { useFcmRegistration } from "@/features/notifications/hooks/useFcmRegistration";
+import { useForegroundNotifications } from "@/features/notifications/hooks/useForegroundNotifications";
 import { jotaiStore } from "@/lib/store";
 import { authValidationStatusAtom, isAuthenticatedAtom } from "@/store";
 
@@ -22,6 +24,9 @@ export const Route = createFileRoute("/_protected")({
 });
 
 function ProtectedLayout() {
+  useFcmRegistration();
+  useForegroundNotifications();
+
   return (
     <AppShell>
       <Outlet />
