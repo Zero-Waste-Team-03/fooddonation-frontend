@@ -46,6 +46,10 @@ query DonationDetail($id: ID!) {
     expiryDate
     listingExpiresAt
     publishedAt
+    approvedAt
+    approvedById
+    rejectedAt
+    rejectionReason
     userId
     user {
       id
@@ -114,6 +118,10 @@ query Donations($filter: DonationsFilterInput, $pagination: PaginationInput) {
       expiryDate
       listingExpiresAt
       publishedAt
+      approvedAt
+      approvedById
+      rejectedAt
+      rejectionReason
       userId
       user {
         id
@@ -149,5 +157,15 @@ mutation CreateDonation($input: CreateDonationInput!) {
 mutation DeleteDonation($id: ID!) {
   deleteDonation(id: $id) {
     message
+  }
+}
+
+mutation ApproveDonation($donationId: ID!) {
+  approveDonation(donationId: $donationId) {
+    id
+    status
+    approvedAt
+    approvedById
+    updatedAt
   }
 }

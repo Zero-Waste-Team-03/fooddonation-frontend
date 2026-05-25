@@ -10,6 +10,7 @@ import {
   createDonationDialogOpenAtom,
   deleteCategoryDialogOpenAtom,
   deleteDonationDialogOpenAtom,
+  verifyDonationDialogOpenAtom,
   donationFiltersAtom,
   donationsPageAtom,
   editCategoryDialogOpenAtom,
@@ -29,6 +30,7 @@ import { DonationsHeatmapMap } from "../components/DonationsHeatmapMap";
 import { DonationTable } from "../components/DonationTable";
 import { DonationPagination } from "../components/DonationPagination";
 import { DeleteDonationDialog } from "../components/DeleteDonationDialog";
+import { VerifyDonationDialog } from "../components/VerifyDonationDialog";
 import { CreateDonationDialog } from "../components/CreateDonationDialog";
 
 import { useCategories } from "../hooks/useCategories";
@@ -47,6 +49,9 @@ export function DonationsPage() {
   );
   const [deleteDonationDialogOpen, setDeleteDonationDialogOpen] = useAtom(
     deleteDonationDialogOpenAtom
+  );
+  const [verifyDonationDialogOpen, setVerifyDonationDialogOpen] = useAtom(
+    verifyDonationDialogOpenAtom
   );
   const [createCategoryDialogOpen, setCreateCategoryDialogOpen] = useAtom(
     createCategoryDialogOpenAtom
@@ -74,7 +79,13 @@ export function DonationsPage() {
   } = useDonationsHeatmap();
   const { donations = [], pagination, loading: donationsLoading, refetch } = useDonations();
   const { categories, loading: categoriesLoading, refetch: refetchCategories } = useCategories();
-  const { handleDelete, loading: actionLoading, errorMessage, clearError } = useDonationActions();
+  const {
+    handleDelete,
+    handleApprove,
+    loading: actionLoading,
+    errorMessage,
+    clearError,
+  } = useDonationActions();
   const {
     handleDelete: handleDeleteCategory,
     loading: categoryActionLoading,
@@ -137,12 +148,25 @@ export function DonationsPage() {
     setDeleteDonationDialogOpen(true);
   };
 
+  const handleVerifyClick = (donationId: string) => {
+    setSelectedDonationId(donationId);
+    setVerifyDonationDialogOpen(true);
+  };
+
   const handleDeleteConfirm = async (donationId: string) => {
     const ok = await handleDelete(donationId);
     if (ok) {
       setDeleteDonationDialogOpen(false);
       setSelectedDonationId(null);
       await refetch();
+    }
+  };
+
+  const handleVerifyConfirm = async (donationId: string) => {
+    const ok = await handleApprove(donationId);
+    if (ok) {
+      setVerifyDonationDialogOpen(false);
+      setSelectedDonationId(null);
     }
   };
 
@@ -238,6 +262,7 @@ export function DonationsPage() {
                   loading={donationsLoading}
                   onDelete={handleDeleteClick}
                   onView={handleView}
+                  onVerify={handleVerifyClick}
                 />
                 {pagination && (
                   <DonationPagination
@@ -270,6 +295,18 @@ export function DonationsPage() {
           if (!open) clearError();
         }}
         onConfirm={handleDeleteConfirm}
+        loading={actionLoading}
+        errorMessage={errorMessage}
+      />
+
+      <VerifyDonationDialog
+        donation={selectedDonation}
+        open={verifyDonationDialogOpen}
+        onOpenChange={(open) => {
+          setVerifyDonationDialogOpen(open);
+          if (!open) clearError();
+        }}
+        onConfirm={handleVerifyConfirm}
         loading={actionLoading}
         errorMessage={errorMessage}
       />

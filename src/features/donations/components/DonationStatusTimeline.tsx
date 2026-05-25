@@ -48,9 +48,15 @@ function getLinearStepState(stepIndex: number, status: DonationStatusValues): St
     return "pending";
   }
 
+  if (status === DonationStatusValues.Rejected) {
+    if (stepIndex === 0) return "completed";
+    return "pending";
+  }
+
   const activeIndex = (() => {
     switch (status) {
       case DonationStatusValues.Draft:
+      case DonationStatusValues.PendingApproval:
         return 0;
       case DonationStatusValues.Published:
         return 1;

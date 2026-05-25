@@ -8,7 +8,7 @@ mutation RefreshTokens {
       displayName
       role
       status
-      isMailVerified
+      isVerified
       avatar {
         id
         url

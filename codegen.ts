@@ -1,7 +1,7 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
-  schema: "https://api.gaspzero.qzz.io/graphql",
+  schema: "schema.graphql",
   documents: ["src/**/*.graphql"],
   generates: {
     "src/gql/graphql.ts": {
@@ -23,9 +23,6 @@ const config: CodegenConfig = {
           JSON: "Record<string, unknown>",
         },
       },
-    },
-    "src/gql/introspection.json": {
-      plugins: ["introspection"],
     },
   },
 };

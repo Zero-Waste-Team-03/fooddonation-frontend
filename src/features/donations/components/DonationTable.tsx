@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DonationStatusValues, DonationUrgencyValues } from "@/gql/graphql";
+import { DONATION_ACTION_LABELS, canVerifyDonation } from "@/constants/donations.constants";
 import type { Donation } from "@/types/donation.types";
 import { donationStatusLabels, donationUrgencyLabels } from "./DonationFilters";
 
@@ -25,6 +26,7 @@ type DonationTableProps = {
   loading: boolean;
   onDelete: (donationId: string) => void;
   onView?: (donationId: string) => void;
+  onVerify?: (donationId: string) => void;
 };
 
 function getStatusBadgeVariant(status: DonationStatusValues) {
@@ -39,6 +41,10 @@ function getStatusBadgeVariant(status: DonationStatusValues) {
       return "destructive";
     case DonationStatusValues.Reserved:
       return "warning";
+    case DonationStatusValues.PendingApproval:
+      return "warning";
+    case DonationStatusValues.Rejected:
+      return "destructive";
     default:
       return "secondary";
   }
@@ -119,6 +125,7 @@ export function DonationTable({
   loading,
   onDelete,
   onView,
+  onVerify,
 }: DonationTableProps) {
   return (
     <div className="overflow-x-auto rounded-2xl border bg-card">
@@ -258,6 +265,11 @@ export function DonationTable({
                       {onView ? (
                         <DropdownMenuItem onClick={() => onView(donation.id)}>
                           View
+                        </DropdownMenuItem>
+                      ) : null}
+                      {onVerify && canVerifyDonation(donation.status) ? (
+                        <DropdownMenuItem onClick={() => onVerify(donation.id)}>
+                          {DONATION_ACTION_LABELS.verify}
                         </DropdownMenuItem>
                       ) : null}
                       <DropdownMenuItem

@@ -1,18 +1,17 @@
 import { useCallback, useMemo } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import { PageWrapper } from "@/components/layout/PageWrapper";
-import {
-  reportFiltersAtom,
-  reportsPageAtom,
-  selectedReportIdAtom,
-} from "@/store";
-import type { ReportFilters as ReportFiltersType } from "@/types/report.types";
+import { ReportTargetType } from "@/gql/graphql";
+import { reportFiltersAtom, reportsPageAtom } from "@/store";
+import type { Report, ReportFilters as ReportFiltersType } from "@/types/report.types";
 import { ReportFilters } from "../components/ReportFilters";
 import { ReportPagination } from "../components/ReportPagination";
 import { ReportStatsBar } from "../components/ReportStatsBar";
 import { ReportTable } from "../components/ReportTable";
 import { ReportsChartCard } from "../components/ReportsChartCard";
 import { useGrowthStats } from "../hooks/useGrowthStats";
+import { useReportActions } from "../hooks/useReportActions";
 import { useReports } from "../hooks/useReports";
 import { useReportStats } from "../hooks/useReportStats";
 
@@ -21,40 +20,40 @@ function normalize(value: string | null | undefined): string {
 }
 
 export function ReportsPage() {
+  const navigate = useNavigate();
   const { stats, loading: statsLoading } = useReportStats();
   const { data: growthData, loading: growthLoading } = useGrowthStats();
   const { reports, pagination, loading: reportsLoading } = useReports();
+  const { handleStatusChange, loading: statusUpdating } = useReportActions();
   const [filters, setFilters] = useAtom(reportFiltersAtom);
   const [, setPage] = useAtom(reportsPageAtom);
-  const [, setSelectedReportId] = useAtom(selectedReportIdAtom);
+
+  const searchActive = filters.search.trim().length > 0;
 
   const filteredReports = useMemo(() => {
     const search = filters.search.trim().toLowerCase();
+    if (!search) {
+      return reports;
+    }
 
     return reports.filter((report) => {
       const searchableFields = [
         report.id,
         report.reason,
         report.reporterId,
+        report.reporter?.displayName ?? "",
+        report.reporter?.email ?? "",
         report.targetId,
         report.targetType,
         report.status,
         report.description ?? "",
       ];
 
-      const matchSearch =
-        search === "" ||
-        searchableFields.some((field) => normalize(field).includes(search));
-
-      const matchStatus =
-        filters.status === null || report.status === filters.status;
-
-      const matchType =
-        filters.type === null || report.targetType === filters.type;
-
-      return matchSearch && matchStatus && matchType;
+      return searchableFields.some((field) => normalize(field).includes(search));
     });
-  }, [reports, filters]);
+  }, [reports, filters.search]);
+
+  const filteredCount = searchActive ? filteredReports.length : (pagination?.totalCount ?? reports.length);
 
   const handleFiltersChange = useCallback(
     (newFilters: ReportFiltersType) => {
@@ -72,10 +71,20 @@ export function ReportsPage() {
     [filters, setFilters, setPage]
   );
 
-  const handleReportAction = (reportId: string, action: string) => {
-    setSelectedReportId(reportId);
-    if (action === "view") {
+  const handleReportRowClick = (report: Report) => {
+    if (report.targetType === ReportTargetType.User) {
+      navigate({
+        to: "/users/$userId",
+        params: { userId: report.targetId },
+      });
       return;
+    }
+
+    if (report.targetType === ReportTargetType.Donation) {
+      navigate({
+        to: "/donations/$donationId",
+        params: { donationId: report.targetId },
+      });
     }
   };
 
@@ -97,16 +106,18 @@ export function ReportsPage() {
           filters={filters}
           onFiltersChange={handleFiltersChange}
           totalCount={pagination?.totalCount ?? reports.length}
-          filteredCount={filteredReports.length}
+          filteredCount={filteredCount}
         />
 
         <ReportTable
           reports={filteredReports}
           loading={reportsLoading}
-          onAction={handleReportAction}
+          statusUpdating={statusUpdating}
+          onRowClick={handleReportRowClick}
+          onStatusChange={handleStatusChange}
         />
 
-        {pagination && (
+        {pagination ? (
           <ReportPagination
             page={pagination.page}
             totalCount={pagination.totalCount}
@@ -115,7 +126,7 @@ export function ReportsPage() {
             hasPreviousPage={pagination.hasPreviousPage}
             onPageChange={setPage}
           />
-        )}
+        ) : null}
       </div>
     </PageWrapper>
   );

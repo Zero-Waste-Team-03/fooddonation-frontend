@@ -6,6 +6,7 @@ import {
   reportsPageAtom,
   reportsPageSizeAtom,
 } from "@/store";
+import { buildReportsQueryVariables } from "../utils/buildReportsQueryVariables";
 
 export function useReports() {
   const page = useAtomValue(reportsPageAtom);
@@ -15,13 +16,10 @@ export function useReports() {
 
   void period;
 
+  const variables = buildReportsQueryVariables(page, limit, filters);
+
   const { data, loading, error, refetch } = useAdminReportsQuery({
-    variables: {
-      page,
-      limit,
-      status: filters.status ?? undefined,
-      targetType: filters.type ?? undefined,
-    },
+    variables,
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
   });

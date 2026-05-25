@@ -24,7 +24,9 @@ export const DONATION_STATUSES = [
   DonationStatusValues.Completed,
   DonationStatusValues.Draft,
   DonationStatusValues.Expired,
+  DonationStatusValues.PendingApproval,
   DonationStatusValues.Published,
+  DonationStatusValues.Rejected,
   DonationStatusValues.Reserved,
 ] as const;
 
@@ -49,7 +51,11 @@ export const donationStatusLabels: Record<DonationStatusValues, string> = {
   [DonationStatusValues.Completed]: formatStatusLabel(DonationStatusValues.Completed),
   [DonationStatusValues.Draft]: formatStatusLabel(DonationStatusValues.Draft),
   [DonationStatusValues.Expired]: formatStatusLabel(DonationStatusValues.Expired),
+  [DonationStatusValues.PendingApproval]: formatStatusLabel(
+    DonationStatusValues.PendingApproval
+  ),
   [DonationStatusValues.Published]: formatStatusLabel(DonationStatusValues.Published),
+  [DonationStatusValues.Rejected]: formatStatusLabel(DonationStatusValues.Rejected),
   [DonationStatusValues.Reserved]: formatStatusLabel(DonationStatusValues.Reserved),
 };
 

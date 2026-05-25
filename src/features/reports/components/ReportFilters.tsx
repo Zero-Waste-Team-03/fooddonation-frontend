@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
-import { ReportStatus, ReportTargetType } from "@/gql/graphql";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,7 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  REPORT_FILTER_LABELS,
+  REPORT_STATUS_OPTIONS,
+  REPORT_TARGET_TYPE_OPTIONS,
+  reportStatusLabels,
+  reportTargetTypeLabels,
+} from "@/constants/reports.constants";
 import type { ReportFilters as ReportFiltersType } from "@/types/report.types";
+import { ReportStatus, ReportTargetType } from "@/gql/graphql";
 
 type ReportFiltersProps = {
   filters: ReportFiltersType;
@@ -18,27 +25,6 @@ type ReportFiltersProps = {
   totalCount: number;
   filteredCount: number;
 };
-
-const REPORT_STATUS_OPTIONS: ReportStatus[] = [
-  ReportStatus.Open,
-  ReportStatus.UnderReview,
-  ReportStatus.Resolved,
-  ReportStatus.Rejected,
-];
-
-const REPORT_TYPE_OPTIONS: ReportTargetType[] = [
-  ReportTargetType.Donation,
-  ReportTargetType.Message,
-  ReportTargetType.User,
-];
-
-function formatEnumLabel(value: string): string {
-  return value
-    .toLowerCase()
-    .split("_")
-    .map((segment) => segment[0]?.toUpperCase() + segment.slice(1))
-    .join(" ");
-}
 
 export function ReportFilters({
   filters,
@@ -69,7 +55,7 @@ export function ReportFilters({
         <div className="relative max-w-sm flex-1">
           <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by reporter or target..."
+            placeholder={REPORT_FILTER_LABELS.searchPlaceholder}
             className="h-10 pl-10 text-sm"
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
@@ -86,13 +72,13 @@ export function ReportFilters({
           }
         >
           <SelectTrigger className="h-10 w-full sm:w-44">
-            <SelectValue placeholder="Select status" />
+            <SelectValue placeholder={REPORT_FILTER_LABELS.selectStatus} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="all">{REPORT_FILTER_LABELS.allStatuses}</SelectItem>
             {REPORT_STATUS_OPTIONS.map((status) => (
               <SelectItem key={status} value={status}>
-                {formatEnumLabel(status)}
+                {reportStatusLabels[status]}
               </SelectItem>
             ))}
           </SelectContent>
@@ -108,19 +94,19 @@ export function ReportFilters({
           }
         >
           <SelectTrigger className="h-10 w-full sm:w-44">
-            <SelectValue placeholder="Select type" />
+            <SelectValue placeholder={REPORT_FILTER_LABELS.selectType} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            {REPORT_TYPE_OPTIONS.map((type) => (
+            <SelectItem value="all">{REPORT_FILTER_LABELS.allTypes}</SelectItem>
+            {REPORT_TARGET_TYPE_OPTIONS.map((type) => (
               <SelectItem key={type} value={type}>
-                {formatEnumLabel(type)}
+                {reportTargetTypeLabels[type]}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
-        {hasActiveFilters && (
+        {hasActiveFilters ? (
           <Button
             variant="outline"
             size="sm"
@@ -134,14 +120,17 @@ export function ReportFilters({
             }
           >
             <X className="mr-2 h-4 w-4" />
-            Clear
+            {REPORT_FILTER_LABELS.clear}
           </Button>
-        )}
+        ) : null}
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Showing <span className="font-semibold text-foreground">{filteredCount}</span> of{" "}
-        <span className="font-semibold text-foreground">{totalCount}</span> reports
+        {REPORT_FILTER_LABELS.showing}{" "}
+        <span className="font-semibold text-foreground">{filteredCount}</span>{" "}
+        {REPORT_FILTER_LABELS.of}{" "}
+        <span className="font-semibold text-foreground">{totalCount}</span>{" "}
+        {REPORT_FILTER_LABELS.reports}
       </p>
     </div>
   );

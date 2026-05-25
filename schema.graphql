@@ -1,0 +1,1326 @@
+type Achievement {
+  awardedAt: DateTime!
+  badge: Badge
+  badgeId: ID!
+  createdAt: DateTime!
+  id: ID!
+  userId: ID!
+}
+
+input AdminCreateAccountInput {
+  """Full display name of the new account holder"""
+  displayName: String!
+
+  """Email address for the new account (must be unique)"""
+  email: String!
+
+  """
+  Role to assign: "Administrator", "Organizations", "Stores", "User" or "Local Authority"
+  """
+  role: UserRole!
+}
+
+type AdminDashboardStats {
+  activeUsers: Int!
+  activeUsersIncrease: Float!
+  co2SavedKg: Float!
+  co2SavedKgIncrease: Float!
+  foodSavedKg: Float!
+  foodSavedKgIncrease: Float!
+  totalDonations: Int!
+  totalDonationsIncrease: Float!
+}
+
+input AdminDashboardStatsInput {
+  """
+  When true, donation metrics are limited to Published, Reserved, and Completed statuses
+  """
+  applyDonationStatusFilter: Boolean
+}
+
+"""Available UI themes for the application"""
+enum AppearanceTheme {
+  DARK
+  LIGHT
+  SYSTEM
+}
+
+input ApproveSensitiveMessageInput {
+  conversationId: ID!
+  messageId: ID!
+}
+
+type Attachment {
+  """Date the attachment was created"""
+  createdAt: DateTime!
+
+  """Original file name of the attachment"""
+  fileName: String!
+
+  """Size of the attachment in bytes"""
+  fileSize: Float!
+
+  """MIME type of the attachment"""
+  fileType: String!
+
+  """Attachment unique identifier"""
+  id: String!
+
+  """ID of the background job processing the upload"""
+  jobId: String
+
+  """Date the attachment was last updated"""
+  updatedAt: DateTime
+
+  """Current upload status of the attachment"""
+  uploadStatus: UploadStatusValues
+
+  """ID of the user who uploaded the attachment"""
+  uploadedById: String!
+
+  """URL of the attachment"""
+  url: String
+}
+
+type AuthResponse {
+  """JWT access token for authentication"""
+  accessToken: String!
+
+  """JWT refresh token for renewing access"""
+  refreshToken: String!
+
+  """Authenticated user details"""
+  user: User!
+}
+
+type Badge {
+  code: String!
+  createdAt: DateTime!
+  description: String!
+  iconAttachment: Attachment
+  iconAttachmentId: String
+  id: ID!
+  isActive: Boolean!
+  name: String!
+  sortOrder: Int!
+  updatedAt: DateTime!
+}
+
+type Category {
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+
+  """
+  The amount of reputation points a user gains when they complete a donation in this category. Defaults to 10.
+  """
+  reputationGain: Int!
+  sensitivity: CategorySensitivity!
+  updatedAt: DateTime!
+}
+
+"""Sensitivity level of a donation category"""
+enum CategorySensitivity {
+  HIGH
+  LOW
+  MEDIUM
+}
+
+input ChangePasswordInput {
+  """Current password of the user"""
+  currentPassword: String!
+
+  """
+  If the user whishes to logout from all other devics after password changes this will eventually log out all the users up to 5 mins interval 
+  """
+  logoutFromOtherDevices: Boolean = false
+
+  """New password to set for the user"""
+  newPassword: String!
+}
+
+type ChatCounterpartPreview {
+  avatarUrl: String
+  displayName: String!
+  isOnline: Boolean!
+  userId: String!
+}
+
+type ChatMessage {
+  content: String!
+  conversationId: ID!
+  createdAt: DateTime!
+  id: ID!
+  isModerated: Boolean!
+  senderId: ID!
+}
+
+type Conversation {
+  createdAt: DateTime!
+  id: ID!
+  lastMessage: String
+  reservationId: ID!
+  status: ConversationStatus!
+}
+
+input ConversationMessagesInput {
+  conversationId: ID!
+  pagination: PaginationInput
+}
+
+type ConversationPreview {
+  counterpart: ChatCounterpartPreview!
+  createdAt: DateTime!
+  id: ID!
+  lastMessage: String
+  reservationId: ID!
+  status: ConversationStatus!
+}
+
+"""The lifecycle status of a conversation"""
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  LOCKED
+}
+
+input CoordinateInput {
+  latitude: Float!
+  longitude: Float!
+}
+
+input CreateBadgeInput {
+  code: String!
+  description: String!
+  iconAttachmentId: String
+  isActive: Boolean
+  name: String!
+  sortOrder: Int
+}
+
+input CreateCategoryInput {
+  name: String!
+
+  """
+  The amount of reputation points a user gains when they complete a donation in this category. Defaults to 10.
+  """
+  reputationGain: Int
+  sensitivity: CategorySensitivity
+}
+
+input CreateDonationInput {
+  """Optional additional attachment ids returned by upload endpoint"""
+  attachmentIds: [String!]
+
+  """Category id for this donation listing"""
+  categoryId: String!
+
+  """Detailed donation description"""
+  description: String!
+
+  """Expiry date/time for this donation"""
+  expiryDate: DateTime!
+
+  """Approximate food weight in kilograms"""
+  foodWeightKg: Float!
+
+  """Optional listing expiration date/time"""
+  listingExpiresAt: DateTime
+
+  """Optional pickup location id. On update, explicit null clears location."""
+  locationId: String
+
+  """
+  Optional pickup location payload. Provide either locationId or locationInput, not both.
+  """
+  locationInput: LocationInput
+
+  """Main attachment id used as cover photo"""
+  mainAttachmentId: String!
+
+  """Available quantity in integer units"""
+  quantity: Int!
+
+  """Whether safety checklist was completed"""
+  safetyChecklistCompleted: Boolean
+
+  """Structured specification payload (e.g. packaging, allergens)"""
+  specification: JSONObject
+
+  """Donation title"""
+  title: String!
+
+  """Urgency level for the listing"""
+  urgency: DonationUrgencyValues
+}
+
+input CreateReportInput {
+  description: String
+  reason: String!
+  targetId: String!
+  targetType: ReportTargetType!
+}
+
+type DangerousDonation {
+  categoryId: ID!
+  categoryName: String!
+  categorySensitivity: CategorySensitivity!
+  donationId: ID!
+  lastReportedAt: DateTime
+  reportCount: Int!
+  riskScore: Float!
+  safetyChecklistCompleted: Boolean!
+  title: String!
+}
+
+input DateRangeInput {
+  from: DateTime!
+  to: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Donation {
+  """Date when listing was approved"""
+  approvedAt: DateTime
+
+  """Admin user id that approved the listing"""
+  approvedById: String
+
+  """Attachment ids for donation photos"""
+  attachmentIds: [String!]!
+
+  """Category details"""
+  category: Category
+
+  """Category id"""
+  categoryId: String!
+  createdAt: DateTime!
+
+  """Donation description"""
+  description: String!
+
+  """Donation expiry date"""
+  expiryDate: DateTime!
+
+  """Approximate food weight in kilograms"""
+  foodWeightKg: Float
+  id: ID!
+
+  """Whether the authenticated user liked this donation"""
+  isLikedByMe: Boolean!
+
+  """Whether the authenticated user can reserve this donation"""
+  isReservable: Boolean
+
+  """Date when listing expires for visibility"""
+  listingExpiresAt: DateTime
+
+  """Pickup location details"""
+  location: Location
+
+  """Optional pickup location id"""
+  locationId: String
+
+  """The Main attachment used as cover photo"""
+  mainAttachment: Attachment
+
+  """Main attachment id used as cover photo"""
+  mainAttachmentId: String
+
+  """Date when listing was published"""
+  publishedAt: DateTime
+
+  """Available quantity"""
+  quantity: Int!
+
+  """Date when listing was rejected"""
+  rejectedAt: DateTime
+
+  """Admin user id that rejected the listing"""
+  rejectedById: String
+
+  """Rejection reason for the listing"""
+  rejectionReason: String
+
+  """Whether safety checklist is completed"""
+  safetyChecklistCompleted: Boolean!
+
+  """Structured specification data"""
+  specification: JSON
+
+  """Donation status"""
+  status: DonationStatusValues!
+
+  """Donation title"""
+  title: String!
+  updatedAt: DateTime!
+
+  """Urgency level for this listing"""
+  urgency: DonationUrgencyValues!
+
+  """The donor of this item"""
+  user: User!
+
+  """Owner user id (donor)"""
+  userId: String!
+}
+
+input DonationBehaviorContextInput {
+  distanceBucket: String
+  origin: String
+}
+
+type DonationHeatmapCell {
+  activeCount: Int!
+  city: String
+  completedCount: Int!
+  donationCount: Int!
+  lat: Float!
+  lng: Float!
+  neighborhood: String
+  rawScore: Float!
+  reservationCount: Int!
+  score: Float!
+  topCategory: String
+  userCount: Int!
+}
+
+type DonationMapMarker {
+  categoryId: String!
+
+  """Full donation details"""
+  donation: Donation!
+  id: ID!
+  latitude: Float!
+  longitude: Float!
+
+  """Main attachment details"""
+  mainAttachment: Attachment
+
+  """Main attachment id reference"""
+  mainAttachmentId: String!
+  markerColor: MarkerColorValues!
+  title: String!
+  urgency: DonationUrgencyValues!
+}
+
+type DonationStatistics {
+  """Total number of flagged donations"""
+  flaggedItems: Int!
+
+  """Total number of donations pending approval"""
+  pendingApprovals: Int!
+
+  """Total number of active (published) donations"""
+  totalActiveDonations: Int!
+}
+
+"""Possible statuses for a donation listing"""
+enum DonationStatusValues {
+  COMPLETED
+  DRAFT
+  EXPIRED
+  PENDING_APPROVAL
+  PUBLISHED
+  REJECTED
+  RESERVED
+}
+
+"""Available urgency levels for donations"""
+enum DonationUrgencyValues {
+  HIGH
+  LOW
+  MEDIUM
+}
+
+input DonationsFilterInput {
+  categoryId: String
+  status: DonationStatusValues
+  urgency: DonationUrgencyValues
+}
+
+type DonationsHeatmap {
+  cells: [DonationHeatmapCell!]!
+  maxScore: Float!
+  totalCells: Int!
+}
+
+input DonationsHeatmapInput {
+  bounds: MapBoundsInput!
+  categories: [String!]
+  dateRange: DateRangeInput
+  gridSize: Float = 0.01
+}
+
+input DonationsMapInput {
+  """Center latitude"""
+  latitude: Float!
+
+  """Center longitude"""
+  longitude: Float!
+
+  """Radius in kilometers"""
+  radius: Float!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
+type LeaderboardEntry {
+  avatarUrl: String
+  displayName: String
+  rank: Int!
+  score: Int!
+  userId: String!
+}
+
+type Location {
+  """Location city"""
+  city: String
+
+  """Location country"""
+  country: String
+
+  """Location unique identifier"""
+  id: String!
+
+  """Location latitude"""
+  latitude: Float
+
+  """Location longitude"""
+  longitude: Float
+
+  """Location neighborhood"""
+  neighborhood: String
+}
+
+input LocationInput {
+  city: String
+  country: String
+  latitude: Float
+  longitude: Float
+  neighborhood: String
+}
+
+input LoginInput {
+  """User email address"""
+  email: String!
+
+  """User password"""
+  password: String!
+}
+
+input MapBoundsInput {
+  northEast: CoordinateInput!
+  southWest: CoordinateInput!
+}
+
+input MarkTransactionCompletedInput {
+  conversationId: ID!
+}
+
+"""Color of the map marker"""
+enum MarkerColorValues {
+  GREEN
+  ORANGE
+  RED
+}
+
+type MessageResponse {
+  """Response message"""
+  message: String!
+}
+
+type Mutation {
+  """
+  Activate a user account, enabling them from logging in or accessing services.
+  """
+  activateUser(userId: String!): User!
+
+  """
+  Create a new user, organization, or administrator account. A temporary password will be generated and sent via email.
+  """
+  adminCreateAccount(input: AdminCreateAccountInput!): User!
+
+  """Admin: review or resolve report"""
+  adminReviewReport(input: ReviewReportInput!): Report!
+
+  """Approve a donation listing (Administrator only)."""
+  approveDonation(donationId: ID!): Donation!
+
+  """Approve a sensitive message to reveal it to the approver"""
+  approveSensitiveMessage(input: ApproveSensitiveMessageInput!): ChatMessage!
+
+  """
+  Changes the user password by providing the current password and the new password, this is different from resetPassword mutation which is used when the user forgets their password and cannot provide the current password
+  """
+  changePassword(changePasswordInput: ChangePasswordInput!): MessageResponse!
+
+  """Confirm reservation (deprecated: reservations are auto-confirmed)"""
+  confirmReservation(id: ID!): Reservation! @deprecated(reason: "Reservations are confirmed automatically on creation.")
+
+  """
+  Confirm reservation completion by reservation id (both donor and beneficiary must confirm)
+  """
+  confirmReservationCompleted(reservationId: ID!): Reservation!
+
+  """Create a badge (Administrator only)"""
+  createBadge(input: CreateBadgeInput!): Badge!
+
+  """Create a new category (Administrator only)."""
+  createCategory(input: CreateCategoryInput!): Category!
+
+  """
+  Create a donation listing for the authenticated user, including required foodWeightKg
+  """
+  createDonation(input: CreateDonationInput!): Donation!
+
+  """Create a report for a user, message, or donation"""
+  createReport(input: CreateReportInput!): Report!
+
+  """Delete current user account permanently"""
+  deleteAccount: MessageResponse!
+
+  """Delete a category by its ID (Administrator only)."""
+  deleteCategory(id: ID!): MessageResponse!
+
+  """
+  Delete a donation listing owned by the authenticated user using id and owner condition
+  """
+  deleteDonation(id: ID!): MessageResponse!
+  deleteNotification(id: ID!): MessageResponse!
+
+  """Send password reset email to user"""
+  forgotPassword(email: String!): MessageResponse!
+
+  """Create or get conversation by reservation id"""
+  getOrCreateConversation(reservationId: ID!): Conversation!
+
+  """Like a donation for the authenticated user"""
+  likeDonation(donationId: ID!): MessageResponse!
+
+  """Login user and issue access and refresh tokens"""
+  login(loginInput: LoginInput!): AuthResponse!
+
+  """
+  Logout the current device by deleting its registered FCM token. Requires the x-device-id header.
+  """
+  logout: MessageResponse!
+
+  """Logout from all devices by invalidating all active sessions"""
+  logoutFromAllDevices: MessageResponse!
+  markAllNotificationsAsRead: MessageResponse!
+  markNotificationsAsRead(input: UpdateReadNotificationsInput!): MessageResponse!
+
+  """Mark transaction as completed from chat context"""
+  markTransactionCompleted(input: MarkTransactionCompletedInput!): Conversation!
+
+  """
+  Refresh access and refresh tokens using a valid refresh token, the refresh token should be sent in the Authorization header as a Bearer token
+  """
+  refreshTokens: AuthResponse!
+
+  """
+  Register a new user using a previously sent verification code, so this mutation should be called after sendVerification mutation
+  """
+  register(
+    """
+    The value of the otp obtained from the email after calling sendVerificationMail mutatuion
+    """
+    otp: String!
+    registerInput: RegisterInput!
+  ): MessageResponse!
+  registerFcmToken(fcmToken: String!): MessageResponse!
+
+  """Reject a donation listing (Administrator only)."""
+  rejectDonation(donationId: ID!, reason: String): Donation!
+
+  """Create a new reservation for a donation"""
+  reserveDonation(donationId: ID!, quantity: Int = 1): Reservation!
+
+  """Delete user account permanently"""
+  resetPassword(resetPasswordInput: ResetPasswordInput!): MessageResponse!
+  sendFcmNotification(input: SendNotificationInput!): SendNotificationResponse!
+
+  """Send message in an existing conversation"""
+  sendMessage(input: SendMessageInput!): ChatMessage!
+
+  """Send verification email for registration flow"""
+  sendVerification(email: String!): MessageResponse!
+
+  """
+  Suspend a user account, preventing them from logging in or accessing services.
+  """
+  suspendUser(userId: String!): User!
+
+  """Unlike a donation for the authenticated user"""
+  unlikeDonation(donationId: ID!): MessageResponse!
+
+  """Update a badge (Administrator only)"""
+  updateBadge(id: ID!, input: UpdateBadgeInput!): Badge!
+
+  """Update an existing category (Administrator only)."""
+  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+
+  """
+  Update a donation listing owned by the authenticated user using id and owner condition (including foodWeightKg)
+  """
+  updateDonation(id: ID!, input: UpdateDonationInput!): Donation!
+
+  """Update current user profile information"""
+  updateProfile(updateProfileInput: UpdateProfileInput!): User!
+}
+
+enum NOTIFICATION_TYPE {
+  ACCOUNT_STATUS_ALERT
+  CHAT_MESSAGE
+  MESSAGE
+  NEW_ACHIEVEMENT
+  NEW_POST
+  REPORT_ALERT
+  RESERVATION_ALERT
+  TEST
+}
+
+type Notification {
+  body: String!
+  createdAt: DateTime!
+  id: ID!
+  isRead: Boolean!
+  meta: JSON
+  receiverId: String!
+  title: String!
+  type: NOTIFICATION_TYPE!
+  updatedAt: DateTime!
+}
+
+type NotificationStats {
+  unreadCount: Int!
+}
+
+type PaginatedCategories {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Category!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+type PaginatedConversationPreviews {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [ConversationPreview!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+type PaginatedDangerousDonations {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [DangerousDonation!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+type PaginatedDonations {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Donation!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+type PaginatedMessages {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [ChatMessage!]!
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+type PaginatedNotifications {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Notification!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+type PaginatedReports {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Report!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+type PaginatedReservations {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [Reservation!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+type PaginatedUsers {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  items: [User!]
+  limit: Int!
+  page: Int!
+  totalCount: Int!
+}
+
+input PaginationInput {
+  limit: Int = 10
+  page: Int = 1
+}
+
+input PaginationQueryInput {
+  limit: Int = 10
+  page: Int = 1
+}
+
+type Query {
+  """Admin: list dangerous donations ranked by risk score"""
+  adminDangerousDonations(limit: Int! = 20, page: Int! = 1): PaginatedDangerousDonations!
+
+  """Admin dashboard cards stats"""
+  adminDashboardStats(input: AdminDashboardStatsInput): AdminDashboardStats!
+
+  """Get user statistics for admin dashboard"""
+  adminGetUserStats: UserStats!
+
+  """Get paginated list of users for admin panel"""
+  adminGetUsers(
+    """Items per page"""
+    limit: Int! = 10
+
+    """Page number"""
+    page: Int! = 1
+
+    """Filter by user role"""
+    role: UserRole
+
+    """Search by name or email"""
+    search: String
+
+    """Filter by user status"""
+    status: String
+  ): PaginatedUsers!
+
+  """Admin growth chart for donations and users"""
+  adminGrowthStats(input: StatsGrowthInput!): StatsGrowth!
+
+  """
+  Admin: get total/open reports and report growth chart for selected period and status filter
+  """
+  adminReportStats(input: ReportStatsInput!): ReportStats!
+
+  """Admin: list reports with filters"""
+  adminReports(limit: Int! = 10, page: Int! = 1, status: ReportStatus, targetId: String, targetType: ReportTargetType): PaginatedReports!
+
+  """Get active badge catalog"""
+  badgeCatalog: [Badge!]!
+
+  """Retrieve a paginated list of all categories."""
+  categories(pagination: PaginationInput): PaginatedCategories!
+
+  """Retrieve a single category by its ID."""
+  category(id: ID!): Category!
+
+  """
+  Get a single conversation by id with counterpart preview (name and image)
+  """
+  conversationDetails(conversationId: ID!): ConversationPreview!
+
+  """Get paginated messages of a conversation"""
+  conversationMessages(input: ConversationMessagesInput!): PaginatedMessages!
+
+  """Get current authenticated user profile"""
+  currentUser: User!
+
+  """Get a single donation listing by id"""
+  donation(id: ID!): Donation!
+
+  """Get all reservations for a donation if current user is donation owner"""
+  donationReservations(donationId: ID!, pagination: PaginationInput): PaginatedReservations!
+
+  """
+  Get statistics for donations (total active, flagged, pending approvals)
+  """
+  donationStatistics: DonationStatistics!
+
+  """Get all donation listings with optional filters and donor access"""
+  donations(behaviorContext: DonationBehaviorContextInput, filter: DonationsFilterInput, pagination: PaginationInput, searchName: String): PaginatedDonations!
+
+  """
+  Get viewport-based donation activity heatmap cells with normalized score
+  """
+  donationsHeatmap(input: DonationsHeatmapInput!): DonationsHeatmap!
+
+  """
+  Get donations within a radius from a center point for map visualization
+  """
+  donationsMap(input: DonationsMapInput!): [DonationMapMarker!]!
+  getNotificationStats: NotificationStats!
+  getNotifications(pagination: PaginationQueryInput): PaginatedNotifications!
+  getUrgentNotification: [Notification!]
+  leaderboardAllTime(limit: Int! = 10): [LeaderboardEntry!]!
+  leaderboardLastMonth(limit: Int! = 10): [LeaderboardEntry!]!
+
+  """
+  Get liked donations for the authenticated user with the same standard filters and pagination
+  """
+  likedDonations(filter: DonationsFilterInput, pagination: PaginationInput): PaginatedDonations!
+
+  """Get current user achievements"""
+  myAchievements: [Achievement!]!
+
+  """
+  Get active conversations with minimal counterpart preview (name and image only)
+  """
+  myActiveConversations: [ConversationPreview!]!
+
+  """
+  Get paginated archived conversations for the current user, ordered by most recent message
+  """
+  myArchivedConversations(pagination: PaginationInput): PaginatedConversationPreviews!
+
+  """Get total count of archived conversations for the current user"""
+  myArchivedConversationsCount: Int!
+
+  """Get badges earned by current user"""
+  myBadges: [Badge!]!
+
+  """
+  Get donation listings created by the authenticated user with optional filters and pagination
+  """
+  myDonations(filter: DonationsFilterInput, pagination: PaginationInput): PaginatedDonations!
+
+  """Get the current user profile stats related to donations,"""
+  myDonationsStats: UsersDonationsStats!
+
+  """Get reports created by current user"""
+  myReports: [Report!]!
+
+  """Get a single reservation by ID if current user is donor or beneficiary"""
+  myReservation(id: ID!): Reservation!
+
+  """Get reservations where the current user is donor or beneficiary"""
+  myReservations(filter: ReservationsFilterInput, pagination: PaginationInput, searchName: String): PaginatedReservations!
+
+  """Get donation listings pending approval (Administrator only)"""
+  pendingDonationApprovals(filter: DonationsFilterInput, pagination: PaginationInput): PaginatedDonations!
+}
+
+input RegisterInput {
+  """Display name for the new user"""
+  displayName: String
+
+  """Email address for the new user"""
+  email: String!
+
+  """Location payload for user registration"""
+  location: RegisterLocationInput!
+
+  """Password for the new user, must be strong and secure"""
+  password: String!
+
+  """
+  Phone number of the user, optional but if provided must be a valid string
+  """
+  phoneNumber: String
+}
+
+input RegisterLocationInput {
+  """City for user location"""
+  city: String
+
+  """Country for user location"""
+  country: String
+
+  """Latitude for user location"""
+  latitude: Float
+
+  """Longitude for user location"""
+  longitude: Float
+
+  """Neighborhood for user location"""
+  neighborhood: String
+}
+
+type Report {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  reason: String!
+  reporter: User!
+  reporterId: ID!
+  reviewedAt: DateTime
+  reviewedById: ID
+  status: ReportStatus!
+  targetId: ID!
+  targetType: ReportTargetType!
+  updatedAt: DateTime!
+}
+
+type ReportStats {
+  chart: [ReportStatsPoint!]!
+  openReports: Int!
+  openReportsIncrease: Float!
+  totalReports: Int!
+  totalReportsIncrease: Float!
+}
+
+input ReportStatsInput {
+  period: ReportStatsPeriod!
+  statusFilter: ReportStatsStatusFilter = ALL
+}
+
+"""Time period for reporting chart"""
+enum ReportStatsPeriod {
+  LAST_MONTH
+  LAST_WEEK
+  LAST_YEAR
+}
+
+type ReportStatsPoint {
+  period: String!
+  reportsCount: Int!
+}
+
+"""Status filter for reports chart (accepted is treated as resolved)"""
+enum ReportStatsStatusFilter {
+  ACCEPTED
+  ALL
+  OPEN
+  REJECTED
+  RESOLVED
+  UNDER_REVIEW
+}
+
+"""Moderation status of the report"""
+enum ReportStatus {
+  OPEN
+  REJECTED
+  RESOLVED
+  UNDER_REVIEW
+}
+
+"""The type of entity being reported"""
+enum ReportTargetType {
+  DONATION
+  MESSAGE
+  USER
+}
+
+type Reservation {
+  beneficiary: User
+  beneficiaryId: ID!
+  confirmedAt: DateTime
+  createdAt: DateTime!
+  donation: Donation
+  donationId: ID!
+  id: ID!
+  quantity: Int!
+  status: ReservationStatus!
+  updatedAt: DateTime!
+}
+
+enum ReservationRoleFilter {
+  BENEFICIARY
+  DONOR
+}
+
+"""The possible statuses of a reservation"""
+enum ReservationStatus {
+  CANCELLED
+  COMPLETED
+  CONFIRMED
+  PENDING
+}
+
+input ReservationsFilterInput {
+  roleFilter: ReservationRoleFilter
+  status: ReservationStatus
+}
+
+input ResetPasswordInput {
+  """New password, must be strong and secure"""
+  password: String!
+
+  """Password reset token from email"""
+  token: String!
+}
+
+input ReviewReportInput {
+  reportId: ID!
+  status: ReportStatus!
+}
+
+input SendMessageInput {
+  content: String!
+  conversationId: ID!
+}
+
+input SendNotificationInput {
+  body: String!
+  metaData: JSON
+  title: String!
+  type: String!
+}
+
+type SendNotificationResponse {
+  message: String!
+  success: Boolean!
+}
+
+type StatsGrowth {
+  points: [StatsGrowthPoint!]!
+}
+
+input StatsGrowthInput {
+  """
+  When true, donation growth counts only Published, Reserved, and Completed statuses
+  """
+  applyDonationStatusFilter: Boolean
+  period: StatsGrowthPeriod!
+}
+
+"""Time period for growth charts"""
+enum StatsGrowthPeriod {
+  LAST_MONTH
+  LAST_WEEK
+  LAST_YEAR
+}
+
+type StatsGrowthPoint {
+  donationsCount: Int!
+  period: String!
+  usersCount: Int!
+}
+
+input UpdateBadgeInput {
+  code: String
+  description: String
+  iconAttachmentId: String
+  isActive: Boolean
+  name: String
+  sortOrder: Int
+}
+
+input UpdateCategoryInput {
+  name: String
+
+  """
+  The amount of reputation points a user gains when they complete a donation in this category. Defaults to 10.
+  """
+  reputationGain: Int
+  sensitivity: CategorySensitivity
+}
+
+input UpdateDonationInput {
+  """Optional additional attachment ids returned by upload endpoint"""
+  attachmentIds: [String!]
+
+  """Category id for this donation listing"""
+  categoryId: String
+
+  """Detailed donation description"""
+  description: String
+
+  """Expiry date/time for this donation"""
+  expiryDate: DateTime
+
+  """Approximate food weight in kilograms"""
+  foodWeightKg: Float
+
+  """Optional listing expiration date/time"""
+  listingExpiresAt: DateTime
+
+  """Optional pickup location id. On update, explicit null clears location."""
+  locationId: String
+
+  """
+  Optional pickup location payload. Provide either locationId or locationInput, not both.
+  """
+  locationInput: LocationInput
+
+  """Main attachment id used as cover photo"""
+  mainAttachmentId: String
+
+  """Available quantity in integer units"""
+  quantity: Int
+
+  """Whether safety checklist was completed"""
+  safetyChecklistCompleted: Boolean
+
+  """Structured specification payload (e.g. packaging, allergens)"""
+  specification: JSONObject
+
+  """Donation title"""
+  title: String
+
+  """Urgency level for the listing"""
+  urgency: DonationUrgencyValues
+}
+
+input UpdateProfileInput {
+  """Avatar attachment ID"""
+  avatarAttachmentId: String
+
+  """New display name for the user"""
+  displayName: String
+
+  """User email address"""
+  email: String
+
+  """User location details"""
+  location: LocationInput
+
+  """Phone number of the user"""
+  phoneNumber: String
+
+  """User account settings"""
+  settings: UserSettingsInput
+}
+
+input UpdateReadNotificationsInput {
+  """Array of notification IDs to mark as read"""
+  ids: [ID!]!
+}
+
+enum UploadStatusValues {
+  COMPLETED
+  FAILED
+  PENDING
+  UPLOADING
+}
+
+type User {
+  """Alias for avatar attachment details"""
+  attachment: Attachment
+
+  """User avatar attachment details"""
+  avatar: Attachment
+
+  """Attachment ID reference"""
+  avatarAttachmentId: String
+
+  """Date the user was created"""
+  createdAt: DateTime!
+
+  """User biography/description"""
+  description: String
+
+  """User display name"""
+  displayName: String
+
+  """User email address"""
+  email: String!
+
+  """User unique identifier"""
+  id: String!
+
+  """Whether the user is verified"""
+  isVerified: Boolean!
+
+  """Date the user last changed password"""
+  lastChangedPasswordDate: DateTime
+
+  """Location details associated with user"""
+  location: Location
+
+  """Location ID reference"""
+  locationId: String
+
+  """User phone number"""
+  phoneNumber: String
+
+  """User reputation score"""
+  reputationScore: Int!
+
+  """User role"""
+  role: UserRole!
+
+  """User account settings"""
+  settings: UserSettings
+
+  """User account status"""
+  status: String!
+
+  """Date the user was last updated"""
+  updatedAt: DateTime!
+}
+
+"""Available user roles"""
+enum UserRole {
+  ADMINISTRATOR
+  LOCAL_AUTHORITY
+  ORGANIZATION
+  STORE
+  USER
+}
+
+type UserSettings {
+  appearance: AppearanceTheme!
+  id: String!
+  isNewDonationsAlertsEnabled: Boolean!
+  isPushNotificationsEnabled: Boolean!
+  isSystemReports: Boolean!
+  isUrgentAlertsEnabled: Boolean!
+  userId: String!
+}
+
+input UserSettingsInput {
+  appearance: AppearanceTheme
+  isNewDonationsAlertsEnabled: Boolean
+  isPushNotificationsEnabled: Boolean
+  isSystemReports: Boolean
+  isUrgentAlertsEnabled: Boolean
+}
+
+type UserStats {
+  """Number of active accounts"""
+  activeAccounts: Int!
+
+  """Percentage increase of active accounts since last month"""
+  activeAccountsIncrease: Float!
+
+  """Number of reported issues"""
+  reportedIssues: Int!
+
+  """Percentage increase of reported issues since last month"""
+  reportedIssuesIncrease: Float!
+
+  """Total number of users"""
+  totalUsers: Int!
+
+  """Percentage increase of total users since last month"""
+  totalUsersIncrease: Float!
+}
+
+type UsersDonationsStats {
+  likedDonations: Float!
+  totalDonations: Float!
+}

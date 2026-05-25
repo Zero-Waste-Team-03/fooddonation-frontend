@@ -230,7 +230,7 @@ export function UserTable({
                   {user.reputationScore}
                 </TableCell>
                 <TableCell className="py-4">
-                  {user.isMailVerified ? (
+                  {user.isVerified ? (
                     <CheckCircle2 className="h-4 w-4 text-success" />
                   ) : (
                     <XCircle className="h-4 w-4 text-muted-foreground" />

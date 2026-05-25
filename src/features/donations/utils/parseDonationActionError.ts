@@ -3,6 +3,7 @@ import { CombinedGraphQLErrors, ServerError } from "@apollo/client/errors";
 export type DonationActionErrorMessage =
   | "This donation could not be found."
   | "You do not have permission to perform this action."
+  | "This donation has already been verified."
   | "This action could not be completed. Please try again."
   | "A network error occurred. Check your connection and try again.";
 
@@ -90,6 +91,16 @@ export function parseDonationActionError(error: unknown): DonationActionErrorMes
     message.includes("forbidden")
   ) {
     return "You do not have permission to perform this action.";
+  }
+
+  if (
+    code === "CONFLICT" ||
+    code === "BAD_USER_INPUT" ||
+    message.includes("already") ||
+    message.includes("approved") ||
+    message.includes("verified")
+  ) {
+    return "This donation has already been verified.";
   }
 
   return "This action could not be completed. Please try again.";

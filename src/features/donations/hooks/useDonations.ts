@@ -6,30 +6,16 @@ import {
   donationsPageAtom,
   donationsPageSizeAtom,
 } from "@/store";
+import { buildDonationsQueryVariables } from "../utils/buildDonationsQueryVariables";
 
 export function useDonations() {
   const page = useAtomValue(donationsPageAtom);
   const limit = useAtomValue(donationsPageSizeAtom);
   const filters = useAtomValue(donationFiltersAtom);
-
-  const filter =
-    filters.status != null ||
-    filters.urgency != null ||
-    (filters.category != null && filters.category.trim() !== "")
-      ? {
-          ...(filters.status != null ? { status: filters.status } : {}),
-          ...(filters.urgency != null ? { urgency: filters.urgency } : {}),
-          ...(filters.category != null && filters.category.trim() !== ""
-            ? { categoryId: filters.category.trim() }
-            : {}),
-        }
-      : undefined;
+  const variables = buildDonationsQueryVariables(page, limit, filters);
 
   const { data, loading, error, refetch } = useDonationsQuery({
-    variables: {
-      pagination: { page, limit },
-      filter,
-    },
+    variables,
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
   });
@@ -38,17 +24,14 @@ export function useDonations() {
     if (!import.meta.env.DEV) return;
 
     console.groupCollapsed("[Donations Query]");
-    console.log("variables", {
-      pagination: { page, limit },
-      filter,
-    });
+    console.log("variables", variables);
     console.log("loading", loading);
     console.log("error", error);
     console.log("pagination", data?.donations ?? null);
     console.log("itemsCount", data?.donations?.items?.length ?? 0);
     console.log("items", data?.donations?.items ?? []);
     console.groupEnd();
-  }, [page, limit, filter, loading, error, data]);
+  }, [variables, loading, error, data]);
 
   return {
     donations: data?.donations?.items ?? [],

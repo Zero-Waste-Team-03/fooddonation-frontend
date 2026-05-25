@@ -44,6 +44,11 @@ query AdminReports(
       targetType
       targetId
       reporterId
+      reporter {
+        id
+        displayName
+        email
+      }
       description
       createdAt
       reviewedAt

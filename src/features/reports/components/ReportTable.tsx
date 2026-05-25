@@ -1,16 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { MoreHorizontal } from "lucide-react";
-import { ReportStatus } from "@/gql/graphql";
+import { ReportStatus, ReportTargetType } from "@/gql/graphql";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -19,21 +16,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  getAllowedReportStatusTransitions,
+  reportStatusBadgeVariant,
+  reportStatusLabels,
+  reportTargetTypeLabels,
+  REPORT_TABLE_LABELS,
+} from "@/constants/reports.constants";
 import type { Report } from "@/types/report.types";
+import { cn } from "@/lib/utils";
 
 type ReportTableProps = {
   reports: Report[];
   loading: boolean;
-  onAction?: (reportId: string, action: string) => void;
+  statusUpdating: boolean;
+  onRowClick?: (report: Report) => void;
+  onStatusChange?: (reportId: string, status: ReportStatus) => void;
 };
-
-function formatEnumLabel(value: string): string {
-  return value
-    .toLowerCase()
-    .split("_")
-    .map((segment) => segment[0]?.toUpperCase() + segment.slice(1))
-    .join(" ");
-}
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -44,65 +43,28 @@ function formatDate(dateString: string): string {
   }).format(date);
 }
 
-function getStatusBadgeVariant(
-  status: ReportStatus
-): "warning" | "success" | "secondary" | "info" {
-  if (status === ReportStatus.Open) {
-    return "warning";
-  }
-
-  if (status === ReportStatus.Resolved) {
-    return "success";
-  }
-
-  if (status === ReportStatus.Rejected) {
-    return "secondary";
-  }
-
-  return "info";
+function isNavigableReport(report: Report): boolean {
+  return (
+    report.targetType === ReportTargetType.User ||
+    report.targetType === ReportTargetType.Donation
+  );
 }
 
-function useLongPress(onLongPress: () => void, delay = 450) {
-  const timerRef = useRef<number | null>(null);
-
-  const clearTimer = () => {
-    if (timerRef.current !== null) {
-      window.clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
-  const startTimer = () => {
-    clearTimer();
-    timerRef.current = window.setTimeout(() => {
-      onLongPress();
-      timerRef.current = null;
-    }, delay);
-  };
-
-  useEffect(() => clearTimer, []);
-
-  return {
-    onTouchStart: startTimer,
-    onTouchEnd: clearTimer,
-    onTouchCancel: clearTimer,
-    onMouseDown: startTimer,
-    onMouseUp: clearTimer,
-    onMouseLeave: clearTimer,
-  };
+function getReporterLabel(report: Report): string {
+  return report.reporter?.displayName ?? report.reporter?.email ?? report.reporterId;
 }
 
 function TableRowSkeleton() {
   return (
     <TableRow>
       <TableCell className="px-6 py-4">
-        <Skeleton className="h-4 w-32 bg-muted" />
+        <Skeleton className="h-6 w-20 rounded-full bg-muted" />
       </TableCell>
       <TableCell className="py-4">
         <Skeleton className="h-4 w-48 bg-muted" />
       </TableCell>
       <TableCell className="py-4">
-        <Skeleton className="h-6 w-20 rounded-full bg-muted" />
+        <Skeleton className="h-4 w-32 bg-muted" />
       </TableCell>
       <TableCell className="py-4">
         <Skeleton className="h-6 w-24 rounded-full bg-muted" />
@@ -110,128 +72,135 @@ function TableRowSkeleton() {
       <TableCell className="py-4">
         <Skeleton className="h-4 w-28 bg-muted" />
       </TableCell>
-      <TableCell className="px-6 py-4 text-right">
-        <Skeleton className="ml-auto h-8 w-8 rounded-full bg-muted" />
+      <TableCell className="px-6 py-4">
+        <Skeleton className="h-10 w-36 bg-muted" />
       </TableCell>
     </TableRow>
   );
 }
 
-type ReportActionsMenuProps = {
+type ReportStatusSelectProps = {
   report: Report;
-  onAction?: (reportId: string, action: string) => void;
+  disabled: boolean;
+  onStatusChange?: (reportId: string, status: ReportStatus) => void;
 };
 
-function ReportActionsMenu({ report, onAction }: ReportActionsMenuProps) {
-  const [open, setOpen] = useState(false);
-  const longPressHandlers = useLongPress(() => setOpen(true));
+function ReportStatusSelect({ report, disabled, onStatusChange }: ReportStatusSelectProps) {
+  const transitions = getAllowedReportStatusTransitions(report.status);
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-          aria-label={`Open actions for report ${report.id}`}
-          {...longPressHandlers}
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => onAction?.(report.id, "view")}>View detail</DropdownMenuItem>
-        {report.status !== ReportStatus.Resolved && (
-          <DropdownMenuItem
-            onClick={() => onAction?.(report.id, "resolve")}
-            className="text-success focus:bg-success/10 focus:text-success"
-          >
-            Resolve
-          </DropdownMenuItem>
-        )}
-        {report.status !== ReportStatus.Rejected && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => onAction?.(report.id, "dismiss")}
-              className="text-muted-foreground"
-            >
-              Dismiss
-            </DropdownMenuItem>
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Select
+      disabled={disabled || transitions.length === 0}
+      onValueChange={(value) => onStatusChange?.(report.id, value as ReportStatus)}
+    >
+      <SelectTrigger
+        className="h-10 w-full min-w-[10rem] sm:w-40"
+        aria-label={REPORT_TABLE_LABELS.changeStatus}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <SelectValue placeholder={reportStatusLabels[report.status]} />
+      </SelectTrigger>
+      <SelectContent>
+        {transitions.map((status) => (
+          <SelectItem key={status} value={status}>
+            {reportStatusLabels[status]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
-export function ReportTable({ reports, loading, onAction }: ReportTableProps) {
+export function ReportTable({
+  reports,
+  loading,
+  statusUpdating,
+  onRowClick,
+  onStatusChange,
+}: ReportTableProps) {
   return (
     <div className="overflow-x-auto rounded-2xl border bg-card">
       <Table>
-        <caption className="sr-only">
-          Reports list with reporter, target, type, status, creation date, and actions
-        </caption>
+        <caption className="sr-only">{REPORT_TABLE_LABELS.caption}</caption>
         <TableHeader>
           <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
-            <TableHead className="w-1/5 px-6 py-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
-              Reporter
+            <TableHead className="px-6 py-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
+              {REPORT_TABLE_LABELS.targetType}
             </TableHead>
             <TableHead className="py-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
-              Target
+              {REPORT_TABLE_LABELS.target}
             </TableHead>
             <TableHead className="py-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
-              Type
+              {REPORT_TABLE_LABELS.reporter}
             </TableHead>
             <TableHead className="py-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
-              Status
+              {REPORT_TABLE_LABELS.status}
             </TableHead>
             <TableHead className="py-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
-              Created
+              {REPORT_TABLE_LABELS.created}
             </TableHead>
-            <TableHead className="px-6 py-4 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase">
-              Actions
+            <TableHead className="px-6 py-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
+              {REPORT_TABLE_LABELS.statusAction}
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {loading ? (
-            Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} />)
+            Array.from({ length: 5 }).map((_, index) => <TableRowSkeleton key={index} />)
           ) : reports.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="p-6 text-center text-muted-foreground">
-                No reports found
+                {REPORT_TABLE_LABELS.empty}
               </TableCell>
             </TableRow>
           ) : (
-            reports.map((report) => (
-              <TableRow key={report.id} className="border-b border-border/50 hover:bg-muted/30">
-                <TableCell className="px-6 py-4 text-sm font-medium text-foreground">
-                  {report.reporterId}
-                </TableCell>
-                <TableCell className="py-4 text-sm text-muted-foreground">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-medium text-foreground">{formatEnumLabel(report.targetType)}</span>
-                    <span className="font-mono text-xs text-muted-foreground">{report.targetId}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="py-4">
-                  <Badge variant="outline">{formatEnumLabel(report.targetType)}</Badge>
-                </TableCell>
-                <TableCell className="py-4">
-                  <Badge variant={getStatusBadgeVariant(report.status)}>
-                    {formatEnumLabel(report.status)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="py-4 text-sm text-muted-foreground">
-                  {formatDate(report.createdAt)}
-                </TableCell>
-                <TableCell className="px-6 py-4 text-right">
-                  <ReportActionsMenu report={report} onAction={onAction} />
-                </TableCell>
-              </TableRow>
-            ))
+            reports.map((report) => {
+              const navigable = isNavigableReport(report);
+
+              return (
+                <TableRow
+                  key={report.id}
+                  className={cn(
+                    "border-b border-border/50 hover:bg-muted/30",
+                    navigable && "cursor-pointer"
+                  )}
+                  onClick={() => navigable && onRowClick?.(report)}
+                >
+                  <TableCell className="px-6 py-4">
+                    <Badge variant="outline">{reportTargetTypeLabels[report.targetType]}</Badge>
+                  </TableCell>
+                  <TableCell className="py-4 text-sm">
+                    <span
+                      className={cn(
+                        navigable
+                          ? "font-medium text-primary underline-offset-4 hover:underline"
+                          : "font-mono text-xs text-muted-foreground"
+                      )}
+                    >
+                      {report.targetId}
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-4 text-sm font-medium text-foreground">
+                    {getReporterLabel(report)}
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Badge variant={reportStatusBadgeVariant(report.status)}>
+                      {reportStatusLabels[report.status]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="py-4 text-sm text-muted-foreground">
+                    {formatDate(report.createdAt)}
+                  </TableCell>
+                  <TableCell className="px-6 py-4" onClick={(event) => event.stopPropagation()}>
+                    <ReportStatusSelect
+                      report={report}
+                      disabled={statusUpdating}
+                      onStatusChange={onStatusChange}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })
           )}
         </TableBody>
       </Table>
