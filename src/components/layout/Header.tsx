@@ -15,7 +15,7 @@ import {
 } from "@/store";
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { useNotificationActions } from "@/features/notifications/hooks/useNotificationActions";
-import { roleLabels } from "@/features/users/components/UserFilters";
+import { roleLabels } from "@/constants/users.constants";
 import { UserRole } from "@/types/user.types";
 
 function profileInitials(displayName: string | null | undefined, email: string) {

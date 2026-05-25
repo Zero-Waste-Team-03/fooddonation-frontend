@@ -5,6 +5,7 @@ export const userFiltersAtom = atom<UserFilters>({
   search: "",
   role: null,
   status: null,
+  verificationStatus: null,
 });
 
 export const selectedUserIdAtom = atom<string | null>(null);

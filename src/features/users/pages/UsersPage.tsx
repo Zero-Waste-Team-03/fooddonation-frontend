@@ -26,6 +26,9 @@ import { CreateUserDialog } from "../components/CreateUserDialog";
 import { useUserStats } from "../hooks/useUserStats";
 import { useUsers } from "../hooks/useUsers";
 import { useUserActions } from "../hooks/useUserActions";
+import { useUserVerificationActions } from "../hooks/useUserVerificationActions";
+import { matchesVerificationStatusFilter } from "@/constants/users.constants";
+import type { User } from "@/types/user.types";
 
 export function UsersPage() {
   // Dialog states
@@ -44,25 +47,54 @@ export function UsersPage() {
   const { stats, loading: statsLoading } = useUserStats();
   const { users = [], pagination, loading: usersLoading, refetch } = useUsers();
   const { handleSuspend, handleActivate, handleSendNotification, loading: actionLoading, errorMessage, clearError } = useUserActions();
+  const {
+    handleToggleFoodSaver,
+    handleToggleVerification,
+    loading: verificationActionLoading,
+  } = useUserVerificationActions();
 
   // Get selected user for dialogs
+  const verificationFilterActive = filters.verificationStatus !== null;
+
+  const filteredUsers = useMemo(() => {
+    if (!verificationFilterActive) {
+      return users;
+    }
+
+    return users.filter((user: User) =>
+      matchesVerificationStatusFilter(user, filters.verificationStatus)
+    );
+  }, [users, filters.verificationStatus, verificationFilterActive]);
+
+  const filteredCount = verificationFilterActive
+    ? filteredUsers.length
+    : users.length;
+
   const selectedUser = useMemo(
-    () => users.find((u) => u.id === selectedUserId) ?? null,
-    [users, selectedUserId]
+    () => filteredUsers.find((u) => u.id === selectedUserId) ?? users.find((u) => u.id === selectedUserId) ?? null,
+    [filteredUsers, users, selectedUserId]
   );
 
   const handleFilterChange = useCallback((newFilters: UserFiltersType) => {
     if (
       newFilters.search === filters.search &&
       newFilters.role === filters.role &&
-      newFilters.status === filters.status
+      newFilters.status === filters.status &&
+      newFilters.verificationStatus === filters.verificationStatus
     ) {
       return;
     }
 
     setFilters(newFilters);
     setPage(1);
-  }, [filters.role, filters.search, filters.status, setFilters, setPage]);
+  }, [
+    filters.role,
+    filters.search,
+    filters.status,
+    filters.verificationStatus,
+    setFilters,
+    setPage,
+  ]);
 
   const handleUserAction = (userId: string, action: "suspend" | "activate" | "notify") => {
     setSelectedUserId(userId);
@@ -126,16 +158,18 @@ export function UsersPage() {
           filters={filters}
           onFiltersChange={handleFilterChange}
           totalCount={pagination?.totalCount || 0}
-          filteredCount={users.length}
+          filteredCount={filteredCount}
         />
 
         {/* Users Table */}
         <UserTable
-          users={users}
-          loading={usersLoading}
+          users={filteredUsers}
+          loading={usersLoading || verificationActionLoading}
           onSuspend={(userId) => handleUserAction(userId, "suspend")}
           onActivate={(userId) => handleUserAction(userId, "activate")}
           onSendNotification={(userId) => handleUserAction(userId, "notify")}
+          onToggleFoodSaver={handleToggleFoodSaver}
+          onToggleVerification={handleToggleVerification}
         />
 
         {/* Pagination */}

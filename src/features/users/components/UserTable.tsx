@@ -1,8 +1,4 @@
-import {
-  CheckCircle2,
-  XCircle,
-  MoreHorizontal,
-} from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +17,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ACCOUNT_STATUSES,
+  accountStatusLabels,
+  roleLabels,
+  ROLES,
+  USER_ACTION_LABELS,
+  USER_TABLE_LABELS,
+} from "@/constants/users.constants";
 import type { User } from "@/types/user.types";
-import { roleLabels, ROLES, STATUSES, statusLabels } from "./UserFilters";
+import { UserStatusBadge } from "./UserStatusBadge";
 
 type UserTableProps = {
   users: User[];
@@ -30,6 +34,8 @@ type UserTableProps = {
   onSuspend: (userId: string) => void;
   onActivate: (userId: string) => void;
   onSendNotification: (userId: string) => void;
+  onToggleFoodSaver: (userId: string, currentIsFoodSaver: boolean) => void;
+  onToggleVerification: (userId: string, currentIsVerified: boolean) => void;
 };
 
 function getRoleBadgeVariant(role: string) {
@@ -57,12 +63,12 @@ function formatRoleLabel(role: string) {
   return isKnownRole(role) ? roleLabels[role] : role;
 }
 
-function isKnownStatus(status: string): status is (typeof STATUSES)[number] {
-  return (STATUSES as readonly string[]).includes(status);
+function isKnownStatus(status: string): status is (typeof ACCOUNT_STATUSES)[number] {
+  return (ACCOUNT_STATUSES as readonly string[]).includes(status);
 }
 
 function formatStatusLabel(status: string) {
-  return isKnownStatus(status) ? statusLabels[status] : status;
+  return isKnownStatus(status) ? accountStatusLabels[status] : status;
 }
 
 function getStatusBadgeVariant(status: string) {
@@ -113,10 +119,10 @@ function TableRowSkeleton() {
         <Skeleton className="h-6 w-16 bg-muted rounded-full" />
       </TableCell>
       <TableCell className="py-4">
-        <Skeleton className="h-4 w-12 bg-muted" />
+        <Skeleton className="h-6 w-20 bg-muted rounded-full" />
       </TableCell>
       <TableCell className="py-4">
-        <Skeleton className="h-4 w-5 bg-muted" />
+        <Skeleton className="h-4 w-12 bg-muted" />
       </TableCell>
       <TableCell className="py-4">
         <Skeleton className="h-4 w-24 bg-muted" />
@@ -137,38 +143,38 @@ export function UserTable({
   onSuspend,
   onActivate,
   onSendNotification,
+  onToggleFoodSaver,
+  onToggleVerification,
 }: UserTableProps) {
   return (
     <div className="overflow-x-auto rounded-2xl border bg-card">
       <Table>
-        <caption className="sr-only">
-          Platform users with role, reputation, join date, and status
-        </caption>
+        <caption className="sr-only">{USER_TABLE_LABELS.caption}</caption>
         <TableHeader>
           <TableRow className="bg-transparent hover:bg-transparent border-b border-border/50">
             <TableHead className="w-1/4 text-xs font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">
-              User
+              {USER_TABLE_LABELS.user}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Role
+              {USER_TABLE_LABELS.role}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Status
+              {USER_TABLE_LABELS.accountStatus}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Reputation
+              {USER_TABLE_LABELS.profileStatus}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Verified
+              {USER_TABLE_LABELS.reputation}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Location
+              {USER_TABLE_LABELS.location}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Joined
+              {USER_TABLE_LABELS.joined}
             </TableHead>
             <TableHead className="text-right text-xs font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">
-              Actions
+              {USER_TABLE_LABELS.actions}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -180,7 +186,7 @@ export function UserTable({
           ) : users.length === 0 ? (
             <TableRow>
               <TableCell colSpan={8} className="p-6 text-center text-muted-foreground">
-                No users found
+                {USER_TABLE_LABELS.empty}
               </TableCell>
             </TableRow>
           ) : (
@@ -208,7 +214,7 @@ export function UserTable({
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <span className="font-bold text-foreground text-sm">
-                        {user.displayName ?? "—"}
+                        {user.displayName ?? USER_TABLE_LABELS.emptyValue}
                       </span>
                       <span className="text-xs text-muted-foreground tracking-wide">
                         {user.email}
@@ -226,20 +232,19 @@ export function UserTable({
                     {formatStatusLabel(user.status)}
                   </Badge>
                 </TableCell>
+                <TableCell className="py-4">
+                  <UserStatusBadge
+                    isFoodSaver={user.isFoodSaver}
+                    isVerified={user.isVerified}
+                  />
+                </TableCell>
                 <TableCell className="py-4 text-sm font-medium text-foreground">
                   {user.reputationScore}
-                </TableCell>
-                <TableCell className="py-4">
-                  {user.isVerified ? (
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                  ) : (
-                    <XCircle className="h-4 w-4 text-muted-foreground" />
-                  )}
                 </TableCell>
                 <TableCell className="py-4 text-sm text-muted-foreground">
                   {user.location?.city && user.location?.country
                     ? `${user.location.city}, ${user.location.country}`
-                    : "—"}
+                    : USER_TABLE_LABELS.emptyValue}
                 </TableCell>
                 <TableCell className="py-4 text-sm text-muted-foreground">
                   {formatDate(user.createdAt)}
@@ -251,7 +256,7 @@ export function UserTable({
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted"
-                        aria-label={`Open actions for ${user.displayName ?? user.email}`}
+                        aria-label={`${USER_TABLE_LABELS.openActions} ${user.displayName ?? user.email}`}
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
@@ -262,21 +267,35 @@ export function UserTable({
                           onClick={() => onSuspend(user.id)}
                           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                         >
-                          Suspend User
+                          {USER_ACTION_LABELS.suspend}
                         </DropdownMenuItem>
                       ) : (
                         <DropdownMenuItem
                           onClick={() => onActivate(user.id)}
                           className="text-success focus:bg-success/10 focus:text-success"
                         >
-                          Activate User
+                          {USER_ACTION_LABELS.activate}
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => onSendNotification(user.id)}
                       >
-                        Send Notification
+                        {USER_ACTION_LABELS.sendNotification}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onToggleFoodSaver(user.id, user.isFoodSaver)}
+                      >
+                        {user.isFoodSaver
+                          ? USER_ACTION_LABELS.removeFoodSaver
+                          : USER_ACTION_LABELS.markFoodSaver}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onToggleVerification(user.id, user.isVerified)}
+                      >
+                        {user.isVerified
+                          ? USER_ACTION_LABELS.revokeVerification
+                          : USER_ACTION_LABELS.verifyUser}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

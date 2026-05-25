@@ -1,21 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useAdminGetUsersQuery } from "@/gql/graphql";
 import { useAtomValue } from "jotai";
 import { userFiltersAtom, usersPageAtom, usersPageSizeAtom } from "@/store";
+import { buildUsersQueryVariables } from "../utils/buildUsersQueryVariables";
 
 export function useUsers() {
   const page = useAtomValue(usersPageAtom);
   const limit = useAtomValue(usersPageSizeAtom);
   const filters = useAtomValue(userFiltersAtom);
+  const variables = useMemo(
+    () => buildUsersQueryVariables(page, limit, filters),
+    [page, limit, filters]
+  );
 
   const { data, loading, error, refetch } = useAdminGetUsersQuery({
-    variables: {
-      page,
-      limit,
-      search: filters.search || undefined,
-      role: filters.role || undefined,
-      status: filters.status || undefined,
-    },
+    variables,
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
   });
@@ -24,20 +23,14 @@ export function useUsers() {
     if (!import.meta.env.DEV) return;
 
     console.groupCollapsed("[Users Query]");
-    console.log("variables", {
-      page,
-      limit,
-      search: filters.search || undefined,
-      role: filters.role || undefined,
-      status: filters.status || undefined,
-    });
+    console.log("variables", variables);
     console.log("loading", loading);
     console.log("error", error);
     console.log("pagination", data?.adminGetUsers ?? null);
     console.log("itemsCount", data?.adminGetUsers?.items?.length ?? 0);
     console.log("items", data?.adminGetUsers?.items ?? []);
     console.groupEnd();
-  }, [page, limit, filters.search, filters.role, filters.status, loading, error, data]);
+  }, [variables, loading, error, data]);
 
   return {
     users: data?.adminGetUsers?.items ?? [],

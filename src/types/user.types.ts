@@ -1,3 +1,4 @@
+import type { UserVerificationStatus } from "@/constants/users.constants";
 import type {
   User as GqlUser,
   UserStats,
@@ -15,6 +16,7 @@ export type UserFilters = {
   search: string;
   role: UserRole | null;
   status: string | null;
+  verificationStatus: UserVerificationStatus | null;
 };
 
 export type UserAction = "suspend" | "activate" | "notify";

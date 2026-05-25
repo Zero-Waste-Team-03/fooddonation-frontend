@@ -8,6 +8,7 @@ mutation RefreshTokens {
       displayName
       role
       status
+      isFoodSaver
       isVerified
       avatar {
         id

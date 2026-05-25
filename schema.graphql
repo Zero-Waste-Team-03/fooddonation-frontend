@@ -553,6 +553,12 @@ type Mutation {
   """
   adminCreateAccount(input: AdminCreateAccountInput!): User!
 
+  """Admin: update user Food Saver status"""
+  adminUpdateUserFoodSaverStatus(isFoodSaver: Boolean!, userId: String!): User!
+
+  """Admin: update user verification status"""
+  adminUpdateUserVerificationStatus(isVerified: Boolean!, userId: String!): User!
+
   """Admin: review or resolve report"""
   adminReviewReport(input: ReviewReportInput!): Report!
 
@@ -1241,6 +1247,9 @@ type User {
 
   """User unique identifier"""
   id: String!
+
+  """Whether the user is a Food Saver"""
+  isFoodSaver: Boolean!
 
   """Whether the user is verified"""
   isVerified: Boolean!

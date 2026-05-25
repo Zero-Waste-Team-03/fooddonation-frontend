@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminCreateAccount } from "../hooks/useAdminCreateAccount";
-import { roleLabels, ROLES } from "./UserFilters";
+import { roleLabels, ROLES } from "@/constants/users.constants";
 
 const createAccountSchema = z.object({
   displayName: z.string().min(2, "Name must be at least 2 characters"),

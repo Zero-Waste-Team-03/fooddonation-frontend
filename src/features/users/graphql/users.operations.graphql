@@ -1,3 +1,33 @@
+fragment UserAdminListFields on User {
+  id
+  displayName
+  email
+  role
+  status
+  reputationScore
+  isFoodSaver
+  isVerified
+  avatar {
+    createdAt
+    fileName
+    fileSize
+    fileType
+    id
+    jobId
+    uploadStatus
+    uploadedById
+    url
+  }
+  createdAt
+  updatedAt
+  location {
+    id
+    city
+    country
+    neighborhood
+  }
+}
+
 query AdminGetUserStats {
   adminGetUserStats {
     activeAccounts
@@ -14,32 +44,7 @@ query AdminGetUsers($page: Int = 1, $limit: Int = 10, $search: String, $role: Us
     hasNextPage
     hasPreviousPage
     items {
-      id
-      displayName
-      email
-      role
-      status
-      reputationScore
-      isVerified
-      avatar {
-        createdAt
-        fileName
-        fileSize
-        fileType
-        id
-        jobId
-        uploadStatus
-        uploadedById
-        url
-      }
-      createdAt
-      updatedAt
-      location {
-        id
-        city
-        country
-        neighborhood
-      }
+      ...UserAdminListFields
     }
     limit
     page
@@ -80,5 +85,17 @@ mutation AdminCreateAccount($input: AdminCreateAccountInput!) {
     role
     status
     createdAt
+  }
+}
+
+mutation AdminUpdateUserFoodSaverStatus($isFoodSaver: Boolean!, $userId: String!) {
+  adminUpdateUserFoodSaverStatus(isFoodSaver: $isFoodSaver, userId: $userId) {
+    ...UserAdminListFields
+  }
+}
+
+mutation AdminUpdateUserVerificationStatus($isVerified: Boolean!, $userId: String!) {
+  adminUpdateUserVerificationStatus(isVerified: $isVerified, userId: $userId) {
+    ...UserAdminListFields
   }
 }
