@@ -59,6 +59,7 @@ type ReverseLocationIqResponse = {
     suburb?: string;
     neighbourhood?: string;
     quarter?: string;
+    postcode?: string;
   };
 };
 
@@ -159,7 +160,7 @@ export function SettingsPage() {
       const address = data.address ?? {};
       const city = address.city ?? address.town ?? address.village ?? address.county ?? "";
       const country = address.country ?? "";
-      const neighborhood = address.neighbourhood ?? address.suburb ?? address.quarter ?? "";
+      const neighborhood = address.postcode ?? "";
 
       locationForm.setValue("city", city, { shouldDirty: true });
       locationForm.setValue("country", country, { shouldDirty: true });
