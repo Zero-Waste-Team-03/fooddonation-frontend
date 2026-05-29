@@ -1,13 +1,6 @@
-import { ReportStatus, ReportTargetType } from "@/gql/graphql";
+import { ReportTargetType } from "@/gql/graphql";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -17,21 +10,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  getAllowedReportStatusTransitions,
   reportStatusBadgeVariant,
   reportStatusLabels,
   reportTargetTypeLabels,
   REPORT_TABLE_LABELS,
+  ReportAction,
 } from "@/constants/reports.constants";
 import type { Report } from "@/types/report.types";
 import { cn } from "@/lib/utils";
+import { ReportActionButtons } from "./ReportActionButtons";
+import { ReportUserInfoCell } from "./ReportUserInfoCell";
 
 type ReportTableProps = {
   reports: Report[];
   loading: boolean;
-  statusUpdating: boolean;
+  actionsLoading: boolean;
   onRowClick?: (report: Report) => void;
-  onStatusChange?: (reportId: string, status: ReportStatus) => void;
+  onReportAction: (report: Report, action: ReportAction) => void;
 };
 
 function formatDate(dateString: string): string {
@@ -50,10 +45,6 @@ function isNavigableReport(report: Report): boolean {
   );
 }
 
-function getReporterLabel(report: Report): string {
-  return report.reporter?.displayName ?? report.reporter?.email ?? report.reporterId;
-}
-
 function TableRowSkeleton() {
   return (
     <TableRow>
@@ -64,7 +55,7 @@ function TableRowSkeleton() {
         <Skeleton className="h-4 w-48 bg-muted" />
       </TableCell>
       <TableCell className="py-4">
-        <Skeleton className="h-4 w-32 bg-muted" />
+        <Skeleton className="h-11 w-48 bg-muted" />
       </TableCell>
       <TableCell className="py-4">
         <Skeleton className="h-6 w-24 rounded-full bg-muted" />
@@ -73,50 +64,22 @@ function TableRowSkeleton() {
         <Skeleton className="h-4 w-28 bg-muted" />
       </TableCell>
       <TableCell className="px-6 py-4">
-        <Skeleton className="h-10 w-36 bg-muted" />
+        <div className="flex justify-end gap-1">
+          <Skeleton className="h-8 w-8 rounded-full bg-muted" />
+          <Skeleton className="h-8 w-8 rounded-full bg-muted" />
+          <Skeleton className="h-8 w-8 rounded-full bg-muted" />
+        </div>
       </TableCell>
     </TableRow>
-  );
-}
-
-type ReportStatusSelectProps = {
-  report: Report;
-  disabled: boolean;
-  onStatusChange?: (reportId: string, status: ReportStatus) => void;
-};
-
-function ReportStatusSelect({ report, disabled, onStatusChange }: ReportStatusSelectProps) {
-  const transitions = getAllowedReportStatusTransitions(report.status);
-
-  return (
-    <Select
-      disabled={disabled || transitions.length === 0}
-      onValueChange={(value) => onStatusChange?.(report.id, value as ReportStatus)}
-    >
-      <SelectTrigger
-        className="h-10 w-full min-w-[10rem] sm:w-40"
-        aria-label={REPORT_TABLE_LABELS.changeStatus}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <SelectValue placeholder={reportStatusLabels[report.status]} />
-      </SelectTrigger>
-      <SelectContent>
-        {transitions.map((status) => (
-          <SelectItem key={status} value={status}>
-            {reportStatusLabels[status]}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
   );
 }
 
 export function ReportTable({
   reports,
   loading,
-  statusUpdating,
+  actionsLoading,
   onRowClick,
-  onStatusChange,
+  onReportAction,
 }: ReportTableProps) {
   return (
     <div className="overflow-x-auto rounded-2xl border bg-card">
@@ -140,7 +103,7 @@ export function ReportTable({
               {REPORT_TABLE_LABELS.created}
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold tracking-wider text-muted-foreground uppercase">
-              {REPORT_TABLE_LABELS.statusAction}
+              {REPORT_TABLE_LABELS.actions}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -156,6 +119,7 @@ export function ReportTable({
           ) : (
             reports.map((report) => {
               const navigable = isNavigableReport(report);
+              const isUserTarget = report.targetType === ReportTargetType.User;
 
               return (
                 <TableRow
@@ -170,18 +134,30 @@ export function ReportTable({
                     <Badge variant="outline">{reportTargetTypeLabels[report.targetType]}</Badge>
                   </TableCell>
                   <TableCell className="py-4 text-sm">
-                    <span
-                      className={cn(
-                        navigable
-                          ? "font-medium text-primary underline-offset-4 hover:underline"
-                          : "font-mono text-xs text-muted-foreground"
-                      )}
-                    >
-                      {report.targetId}
-                    </span>
+                    {isUserTarget ? (
+                      <ReportUserInfoCell
+                        userId={report.targetId}
+                        fallbackId={report.targetId}
+                        navigable={navigable}
+                      />
+                    ) : (
+                      <span
+                        className={cn(
+                          navigable
+                            ? "font-medium text-primary underline-offset-4 hover:underline"
+                            : "font-mono text-xs text-muted-foreground"
+                        )}
+                      >
+                        {report.targetId}
+                      </span>
+                    )}
                   </TableCell>
-                  <TableCell className="py-4 text-sm font-medium text-foreground">
-                    {getReporterLabel(report)}
+                  <TableCell className="py-4 text-sm">
+                    <ReportUserInfoCell
+                      userId={report.reporterId}
+                      fallbackId={report.reporterId}
+                      partialUser={report.reporter}
+                    />
                   </TableCell>
                   <TableCell className="py-4">
                     <Badge variant={reportStatusBadgeVariant(report.status)}>
@@ -192,10 +168,10 @@ export function ReportTable({
                     {formatDate(report.createdAt)}
                   </TableCell>
                   <TableCell className="px-6 py-4" onClick={(event) => event.stopPropagation()}>
-                    <ReportStatusSelect
+                    <ReportActionButtons
                       report={report}
-                      disabled={statusUpdating}
-                      onStatusChange={onStatusChange}
+                      loading={actionsLoading}
+                      onReportAction={onReportAction}
                     />
                   </TableCell>
                 </TableRow>

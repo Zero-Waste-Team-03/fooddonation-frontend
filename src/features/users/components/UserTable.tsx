@@ -26,6 +26,7 @@ import {
   USER_TABLE_LABELS,
 } from "@/constants/users.constants";
 import type { User } from "@/types/user.types";
+import { UserInfoDisplay, UserInfoSkeleton } from "./UserInfoDisplay";
 import { UserStatusBadge } from "./UserStatusBadge";
 
 type UserTableProps = {
@@ -81,16 +82,6 @@ function getStatusBadgeVariant(status: string) {
   return "secondary";
 }
 
-function getInitials(displayName: string | undefined | null, email: string) {
-  if (displayName) {
-    const parts = displayName.split(" ");
-    return (
-      (parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")
-    ).toUpperCase();
-  }
-  return email[0].toUpperCase();
-}
-
 function formatDate(dateString: string) {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat("en-US", {
@@ -104,13 +95,7 @@ function TableRowSkeleton() {
   return (
     <TableRow>
       <TableCell className="px-6 py-4">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-11 w-11 rounded-full bg-muted" />
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-4 w-32 bg-muted" />
-            <Skeleton className="h-3 w-40 bg-muted" />
-          </div>
-        </div>
+        <UserInfoSkeleton />
       </TableCell>
       <TableCell className="py-4">
         <Skeleton className="h-6 w-16 bg-muted rounded-full" />
@@ -196,31 +181,7 @@ export function UserTable({
                 className="hover:bg-muted/30 border-b border-border/50"
               >
                 <TableCell className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-11 w-11 shrink-0 rounded-full bg-muted border border-border/50 shadow-sm flex items-center justify-center overflow-hidden">
-                      {user.avatar?.url ? (
-                        <img
-                          src={user.avatar.url}
-                          alt={user.displayName ?? user.email}
-                          width={44}
-                          height={44}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-xs font-bold text-muted-foreground">
-                          {getInitials(user.displayName, user.email)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-bold text-foreground text-sm">
-                        {user.displayName ?? USER_TABLE_LABELS.emptyValue}
-                      </span>
-                      <span className="text-xs text-muted-foreground tracking-wide">
-                        {user.email}
-                      </span>
-                    </div>
-                  </div>
+                  <UserInfoDisplay user={user} />
                 </TableCell>
                 <TableCell className="py-4">
                   <Badge variant={getRoleBadgeVariant(user.role)}>

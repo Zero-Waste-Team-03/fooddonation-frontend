@@ -48,6 +48,9 @@ query AdminReports(
         id
         displayName
         email
+        avatar {
+          url
+        }
       }
       description
       createdAt

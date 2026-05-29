@@ -1,10 +1,12 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import { PageWrapper } from "@/components/layout/PageWrapper";
+import { ReportAction } from "@/constants/reports.constants";
 import { ReportTargetType } from "@/gql/graphql";
 import { reportFiltersAtom, reportsPageAtom } from "@/store";
 import type { Report, ReportFilters as ReportFiltersType } from "@/types/report.types";
+import { BanUserFromReportDialog } from "../components/BanUserFromReportDialog";
 import { ReportFilters } from "../components/ReportFilters";
 import { ReportPagination } from "../components/ReportPagination";
 import { ReportStatsBar } from "../components/ReportStatsBar";
@@ -24,9 +26,17 @@ export function ReportsPage() {
   const { stats, loading: statsLoading } = useReportStats();
   const { data: growthData, loading: growthLoading } = useGrowthStats();
   const { reports, pagination, loading: reportsLoading } = useReports();
-  const { handleStatusChange, loading: statusUpdating } = useReportActions();
+  const {
+    handleReportAction,
+    handleBanUser,
+    loading: actionsLoading,
+    banErrorMessage,
+    clearBanError,
+  } = useReportActions();
   const [filters, setFilters] = useAtom(reportFiltersAtom);
   const [, setPage] = useAtom(reportsPageAtom);
+  const [banReport, setBanReport] = useState<Report | null>(null);
+  const [banDialogOpen, setBanDialogOpen] = useState(false);
 
   const searchActive = filters.search.trim().length > 0;
 
@@ -88,6 +98,25 @@ export function ReportsPage() {
     }
   };
 
+  const handleReportActionWithBan = async (report: Report, action: ReportAction) => {
+    if (action === ReportAction.BanUser) {
+      setBanReport(report);
+      setBanDialogOpen(true);
+      return;
+    }
+
+    await handleReportAction(report, action);
+  };
+
+  const handleBanConfirm = async (report: Report) => {
+    const success = await handleBanUser(report);
+    if (success) {
+      setBanDialogOpen(false);
+      setBanReport(null);
+      clearBanError();
+    }
+  };
+
   return (
     <PageWrapper
       title="Reports & analytics"
@@ -112,9 +141,9 @@ export function ReportsPage() {
         <ReportTable
           reports={filteredReports}
           loading={reportsLoading}
-          statusUpdating={statusUpdating}
+          actionsLoading={actionsLoading}
           onRowClick={handleReportRowClick}
-          onStatusChange={handleStatusChange}
+          onReportAction={handleReportActionWithBan}
         />
 
         {pagination ? (
@@ -128,6 +157,21 @@ export function ReportsPage() {
           />
         ) : null}
       </div>
+
+      <BanUserFromReportDialog
+        report={banReport}
+        open={banDialogOpen}
+        onOpenChange={(open) => {
+          setBanDialogOpen(open);
+          if (!open) {
+            setBanReport(null);
+            clearBanError();
+          }
+        }}
+        onConfirm={handleBanConfirm}
+        loading={actionsLoading}
+        errorMessage={banErrorMessage}
+      />
     </PageWrapper>
   );
 }

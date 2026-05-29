@@ -18,10 +18,34 @@ export const REPORT_TABLE_LABELS = {
   reporter: "Reporter",
   status: "Status",
   created: "Created",
-  statusAction: "Status",
+  actions: "Actions",
   empty: "No reports found",
   caption: "Reports list with target type, target, reporter, status, and actions",
-  changeStatus: "Change report status",
+} as const;
+
+export enum ReportAction {
+  MarkUnderReview = "markUnderReview",
+  MarkOpen = "markOpen",
+  Resolve = "resolve",
+  Reject = "reject",
+  BanUser = "banUser",
+}
+
+export const REPORT_ACTION_LABELS: Record<ReportAction, string> = {
+  [ReportAction.MarkUnderReview]: "Mark as under review",
+  [ReportAction.MarkOpen]: "Mark as open",
+  [ReportAction.Resolve]: "Mark as resolved",
+  [ReportAction.Reject]: "Mark as rejected",
+  [ReportAction.BanUser]: "Ban user",
+};
+
+export const REPORT_BAN_DIALOG_LABELS = {
+  title: "Ban user and resolve report",
+  descriptionPrefix:
+    "This will suspend the reported user and mark the report as resolved. The user will not be able to log in or access services:",
+  cancel: "Cancel",
+  confirm: "Ban user",
+  confirming: "Banning user...",
 } as const;
 
 export const REPORT_STATUS_OPTIONS: ReportStatus[] = [
@@ -76,20 +100,48 @@ export function reportStatusBadgeVariant(
   return "info";
 }
 
-export function getAllowedReportStatusTransitions(
-  currentStatus: ReportStatus
-): ReportStatus[] {
-  if (currentStatus === ReportStatus.Open) {
-    return [
-      ReportStatus.UnderReview,
-      ReportStatus.Resolved,
-      ReportStatus.Rejected,
-    ];
+export function getVisibleReportActions(
+  status: ReportStatus,
+  targetType: ReportTargetType
+): ReportAction[] {
+  if (status === ReportStatus.Resolved || status === ReportStatus.Rejected) {
+    return [];
   }
 
-  if (currentStatus === ReportStatus.UnderReview) {
-    return [ReportStatus.Open, ReportStatus.Resolved, ReportStatus.Rejected];
+  const actions: ReportAction[] = [];
+
+  if (status === ReportStatus.Open) {
+    actions.push(ReportAction.MarkUnderReview);
   }
 
-  return [];
+  if (status === ReportStatus.UnderReview) {
+    actions.push(ReportAction.MarkOpen);
+  }
+
+  if (status === ReportStatus.Open || status === ReportStatus.UnderReview) {
+    if (targetType === ReportTargetType.User) {
+      actions.push(ReportAction.BanUser);
+    } else {
+      actions.push(ReportAction.Resolve);
+    }
+    actions.push(ReportAction.Reject);
+  }
+
+  return actions;
+}
+
+export function reportActionToStatus(action: ReportAction): ReportStatus | null {
+  if (action === ReportAction.MarkUnderReview) {
+    return ReportStatus.UnderReview;
+  }
+  if (action === ReportAction.MarkOpen) {
+    return ReportStatus.Open;
+  }
+  if (action === ReportAction.Resolve) {
+    return ReportStatus.Resolved;
+  }
+  if (action === ReportAction.Reject) {
+    return ReportStatus.Rejected;
+  }
+  return null;
 }
