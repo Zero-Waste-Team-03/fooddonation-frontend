@@ -1,10 +1,14 @@
 import { useCallback, useMemo, useState } from "react";
+import { Download } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom } from "jotai";
+import { Button } from "@/components/ui/button";
+import { ListExportDialog } from "@/components/export/ListExportDialog";
 import { PageWrapper } from "@/components/layout/PageWrapper";
+import { EXPORT_LABELS } from "@/constants/export.constants";
 import { ReportAction } from "@/constants/reports.constants";
 import { ReportTargetType } from "@/gql/graphql";
-import { reportFiltersAtom, reportsPageAtom } from "@/store";
+import { reportFiltersAtom, reportsExportDialogOpenAtom, reportsPageAtom } from "@/store";
 import type { Report, ReportFilters as ReportFiltersType } from "@/types/report.types";
 import { BanUserFromReportDialog } from "../components/BanUserFromReportDialog";
 import { ReportFilters } from "../components/ReportFilters";
@@ -16,10 +20,8 @@ import { useGrowthStats } from "../hooks/useGrowthStats";
 import { useReportActions } from "../hooks/useReportActions";
 import { useReports } from "../hooks/useReports";
 import { useReportStats } from "../hooks/useReportStats";
-
-function normalize(value: string | null | undefined): string {
-  return (value ?? "").toLowerCase();
-}
+import { useReportsListExport } from "../hooks/useReportsListExport";
+import { filterReportsBySearch } from "../utils/matchesReportSearchFilter";
 
 export function ReportsPage() {
   const navigate = useNavigate();
@@ -37,31 +39,21 @@ export function ReportsPage() {
   const [, setPage] = useAtom(reportsPageAtom);
   const [banReport, setBanReport] = useState<Report | null>(null);
   const [banDialogOpen, setBanDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useAtom(reportsExportDialogOpenAtom);
+
+  const {
+    loading: exportLoading,
+    errorMessage: exportErrorMessage,
+    exportCurrentPage,
+    exportEntireList,
+  } = useReportsListExport();
 
   const searchActive = filters.search.trim().length > 0;
 
-  const filteredReports = useMemo(() => {
-    const search = filters.search.trim().toLowerCase();
-    if (!search) {
-      return reports;
-    }
-
-    return reports.filter((report) => {
-      const searchableFields = [
-        report.id,
-        report.reason,
-        report.reporterId,
-        report.reporter?.displayName ?? "",
-        report.reporter?.email ?? "",
-        report.targetId,
-        report.targetType,
-        report.status,
-        report.description ?? "",
-      ];
-
-      return searchableFields.some((field) => normalize(field).includes(search));
-    });
-  }, [reports, filters.search]);
+  const filteredReports = useMemo(
+    () => filterReportsBySearch(reports, filters.search),
+    [reports, filters.search]
+  );
 
   const filteredCount = searchActive ? filteredReports.length : (pagination?.totalCount ?? reports.length);
 
@@ -117,10 +109,23 @@ export function ReportsPage() {
     }
   };
 
+  const pageActions = (
+    <Button
+      type="button"
+      variant="outline"
+      className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
+      onClick={() => setExportDialogOpen(true)}
+    >
+      <Download className="mr-2 size-4" />
+      {EXPORT_LABELS.exportButton}
+    </Button>
+  );
+
   return (
     <PageWrapper
       title="Reports & analytics"
       description={`Monitor moderation activity across ${pagination?.totalCount ?? 0} reports.`}
+      actions={pageActions}
     >
       <div className="flex flex-col -mt-2 pb-8 gap-6">
         <ReportStatsBar stats={stats} loading={statsLoading} />
@@ -171,6 +176,16 @@ export function ReportsPage() {
         onConfirm={handleBanConfirm}
         loading={actionsLoading}
         errorMessage={banErrorMessage}
+      />
+
+      <ListExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        title={EXPORT_LABELS.listDialogTitle}
+        loading={exportLoading}
+        errorMessage={exportErrorMessage}
+        onExportCurrentPage={() => exportCurrentPage(filteredReports)}
+        onExportEntireList={() => void exportEntireList()}
       />
     </PageWrapper>
   );

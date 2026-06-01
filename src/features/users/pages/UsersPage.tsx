@@ -1,8 +1,10 @@
 import { useCallback, useMemo } from "react";
-import { UserPlus } from "lucide-react";
+import { Download, UserPlus } from "lucide-react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button } from "@/components/ui/button";
+import { ListExportDialog } from "@/components/export/ListExportDialog";
 import { PageWrapper } from "@/components/layout/PageWrapper";
+import { EXPORT_LABELS } from "@/constants/export.constants";
 import {
   createUserDialogOpenAtom,
   userFiltersAtom,
@@ -11,6 +13,7 @@ import {
   suspendUserDialogOpenAtom,
   activateUserDialogOpenAtom,
   sendNotificationDialogOpenAtom,
+  usersExportDialogOpenAtom,
 } from "@/store/atoms/users.atoms";
 import type { UserFilters as UserFiltersType } from "@/types/user.types";
 
@@ -27,6 +30,7 @@ import { useUserStats } from "../hooks/useUserStats";
 import { useUsers } from "../hooks/useUsers";
 import { useUserActions } from "../hooks/useUserActions";
 import { useUserVerificationActions } from "../hooks/useUserVerificationActions";
+import { useUsersListExport } from "../hooks/useUsersListExport";
 import { matchesVerificationStatusFilter } from "@/constants/users.constants";
 import type { User } from "@/types/user.types";
 
@@ -36,6 +40,7 @@ export function UsersPage() {
   const [suspendUserDialogOpen, setSuspendUserDialogOpen] = useAtom(suspendUserDialogOpenAtom);
   const [activateUserDialogOpen, setActivateUserDialogOpen] = useAtom(activateUserDialogOpenAtom);
   const [sendNotificationDialogOpen, setSendNotificationDialogOpen] = useAtom(sendNotificationDialogOpenAtom);
+  const [exportDialogOpen, setExportDialogOpen] = useAtom(usersExportDialogOpenAtom);
 
   // User filters and pagination
   const [filters, setFilters] = useAtom(userFiltersAtom);
@@ -52,6 +57,12 @@ export function UsersPage() {
     handleToggleVerification,
     loading: verificationActionLoading,
   } = useUserVerificationActions();
+  const {
+    loading: exportLoading,
+    errorMessage: exportErrorMessage,
+    exportCurrentPage,
+    exportEntireList,
+  } = useUsersListExport();
 
   // Get selected user for dialogs
   const verificationFilterActive = filters.verificationStatus !== null;
@@ -134,13 +145,24 @@ export function UsersPage() {
   };
 
   const customActions = (
-    <Button
-      className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
-      onClick={() => setCreateUserDialogOpen(true)}
-    >
-      <UserPlus className="mr-2 size-4" />
-      Add New User
-    </Button>
+    <div className="flex flex-wrap items-center gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
+        onClick={() => setExportDialogOpen(true)}
+      >
+        <Download className="mr-2 size-4" />
+        {EXPORT_LABELS.exportButton}
+      </Button>
+      <Button
+        className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
+        onClick={() => setCreateUserDialogOpen(true)}
+      >
+        <UserPlus className="mr-2 size-4" />
+        Add New User
+      </Button>
+    </div>
   );
 
   return (
@@ -225,6 +247,16 @@ export function UsersPage() {
       <CreateUserDialog
         open={createUserDialogOpen}
         onOpenChange={setCreateUserDialogOpen}
+      />
+
+      <ListExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        title={EXPORT_LABELS.listDialogTitle}
+        loading={exportLoading}
+        errorMessage={exportErrorMessage}
+        onExportCurrentPage={() => exportCurrentPage(filteredUsers)}
+        onExportEntireList={() => void exportEntireList()}
       />
     </PageWrapper>
   );

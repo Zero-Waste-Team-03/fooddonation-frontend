@@ -23,3 +23,5 @@ export const selectedCategoryForEditAtom = atom<Category | null>(null);
 export const donationsPageAtom = atom<number>(1);
 
 export const donationsPageSizeAtom = atom<number>(20);
+
+export const donationsExportDialogOpenAtom = atom<boolean>(false);

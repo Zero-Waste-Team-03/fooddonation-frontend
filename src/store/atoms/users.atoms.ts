@@ -21,3 +21,5 @@ export const sendNotificationDialogOpenAtom = atom<boolean>(false);
 export const usersPageAtom = atom<number>(1);
 
 export const usersPageSizeAtom = atom<number>(20);
+
+export const usersExportDialogOpenAtom = atom<boolean>(false);

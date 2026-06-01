@@ -14,3 +14,5 @@ export const selectedReportIdAtom = atom<string | null>(null);
 export const reportsPageAtom = atom<number>(1);
 
 export const reportsPageSizeAtom = atom<number>(20);
+
+export const reportsExportDialogOpenAtom = atom<boolean>(false);

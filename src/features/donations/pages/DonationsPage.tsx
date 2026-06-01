@@ -1,10 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ListExportDialog } from "@/components/export/ListExportDialog";
 import { PageWrapper } from "@/components/layout/PageWrapper";
+import { EXPORT_LABELS } from "@/constants/export.constants";
 import {
   createCategoryDialogOpenAtom,
   createDonationDialogOpenAtom,
@@ -17,6 +19,7 @@ import {
   selectedCategoryForEditAtom,
   selectedCategoryIdAtom,
   selectedDonationIdAtom,
+  donationsExportDialogOpenAtom,
 } from "@/store";
 import type { DonationFilters as DonationFiltersType } from "@/types/donation.types";
 
@@ -38,7 +41,9 @@ import { useCategoryActions } from "../hooks/useCategoryActions";
 import { useDonationStats } from "../hooks/useDonationStats";
 import { useDonations } from "../hooks/useDonations";
 import { useDonationActions } from "../hooks/useDonationActions";
+import { useDonationsListExport } from "../hooks/useDonationsListExport";
 import { useDonationsHeatmap } from "../hooks/useDonationsHeatmap";
+import { filterDonationsBySearch } from "../utils/matchesDonationSearchFilter";
 
 export function DonationsPage() {
   const [activeTab, setActiveTab] = useState<"donations" | "categories">("donations");
@@ -63,6 +68,7 @@ export function DonationsPage() {
     editCategoryDialogOpenAtom
   );
   const [categoryForEdit, setCategoryForEdit] = useAtom(selectedCategoryForEditAtom);
+  const [exportDialogOpen, setExportDialogOpen] = useAtom(donationsExportDialogOpenAtom);
 
   const [filters, setFilters] = useAtom(donationFiltersAtom);
   const [, setPage] = useAtom(donationsPageAtom);
@@ -92,23 +98,20 @@ export function DonationsPage() {
     errorMessage: categoryErrorMessage,
     clearError: clearCategoryError,
   } = useCategoryActions();
+  const {
+    loading: exportLoading,
+    errorMessage: exportErrorMessage,
+    exportCurrentPage,
+    exportEntireList,
+  } = useDonationsListExport();
 
-  const filteredDonations = useMemo(() => {
-    const q = filters.search.trim().toLowerCase();
-    if (!q) {
-      return donations;
-    }
-    return donations.filter((d) => {
-      const title = d.title.toLowerCase();
-      const desc = d.description.toLowerCase();
-      const categoryName = d.category?.name.toLowerCase() ?? "";
-      return (
-        title.includes(q) ||
-        desc.includes(q) ||
-        categoryName.includes(q)
-      );
-    });
-  }, [donations, filters.search]);
+  const filteredDonations = useMemo(
+    () => filterDonationsBySearch(donations, filters.search),
+    [donations, filters.search]
+  );
+
+  const showDonationsExport =
+    activeTab === "donations" && donationsViewTab === "list";
 
   const selectedDonation = useMemo(
     () => donations.find((d) => d.id === selectedDonationId) ?? null,
@@ -178,17 +181,30 @@ export function DonationsPage() {
   };
 
   const customActions = (
-    <Button
-      className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
-      onClick={() =>
-        activeTab === "donations"
-          ? setCreateDonationDialogOpen(true)
-          : setCreateCategoryDialogOpen(true)
-      }
-    >
-      <Plus className="mr-2 size-4" />
-      {activeTab === "donations" ? "New donation" : "New category"}
-    </Button>
+    <div className="flex flex-wrap items-center gap-2">
+      {showDonationsExport ? (
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold"
+          onClick={() => setExportDialogOpen(true)}
+        >
+          <Download className="mr-2 size-4" />
+          {EXPORT_LABELS.exportButton}
+        </Button>
+      ) : null}
+      <Button
+        className="h-11 min-h-11 rounded-xl px-6 text-sm font-semibold shadow-card"
+        onClick={() =>
+          activeTab === "donations"
+            ? setCreateDonationDialogOpen(true)
+            : setCreateCategoryDialogOpen(true)
+        }
+      >
+        <Plus className="mr-2 size-4" />
+        {activeTab === "donations" ? "New donation" : "New category"}
+      </Button>
+    </div>
   );
 
   const handleDeleteCategoryClick = (categoryId: string) => {
@@ -340,6 +356,16 @@ export function DonationsPage() {
         onConfirm={handleDeleteCategoryConfirm}
         loading={categoryActionLoading}
         errorMessage={categoryErrorMessage}
+      />
+
+      <ListExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        title={EXPORT_LABELS.listDialogTitle}
+        loading={exportLoading}
+        errorMessage={exportErrorMessage}
+        onExportCurrentPage={() => exportCurrentPage(filteredDonations)}
+        onExportEntireList={() => void exportEntireList()}
       />
     </PageWrapper>
   );

@@ -17,8 +17,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DonationStatusValues, DonationUrgencyValues } from "@/gql/graphql";
-import { DONATION_ACTION_LABELS, canVerifyDonation } from "@/constants/donations.constants";
+import {
+  DONATION_ACTION_LABELS,
+  DONATION_TABLE_LABELS,
+  canVerifyDonation,
+} from "@/constants/donations.constants";
 import type { Donation } from "@/types/donation.types";
+import { formatDonationDate, formatDonationLocation } from "../utils/formatDonationDisplay";
 import { donationStatusLabels, donationUrgencyLabels } from "./DonationFilters";
 
 type DonationTableProps = {
@@ -61,23 +66,6 @@ function getUrgencyBadgeVariant(urgency: DonationUrgencyValues) {
     default:
       return "secondary";
   }
-}
-
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(date);
-}
-
-function formatLocation(donation: Donation): string {
-  const city = donation.location?.city ?? "";
-  const country = donation.location?.country ?? "";
-  const neighborhood = donation.location?.neighborhood ?? "";
-  const parts = [neighborhood, city, country].filter((p) => p.trim().length > 0);
-  return parts.length ? parts.join(", ") : "—";
 }
 
 function TableRowSkeleton() {
@@ -130,37 +118,35 @@ export function DonationTable({
   return (
     <div className="overflow-x-auto rounded-2xl border bg-card">
       <Table>
-        <caption className="sr-only">
-          Donation listings with donor, status, urgency, and dates
-        </caption>
+        <caption className="sr-only">{DONATION_TABLE_LABELS.caption}</caption>
         <TableHeader>
           <TableRow className="bg-transparent hover:bg-transparent border-b border-border/50">
             <TableHead className="min-w-[140px] text-xs font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">
-              Listing
+              {DONATION_TABLE_LABELS.listing}
             </TableHead>
             <TableHead className="min-w-[120px] text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Donor
+              {DONATION_TABLE_LABELS.donor}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Status
+              {DONATION_TABLE_LABELS.status}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Urgency
+              {DONATION_TABLE_LABELS.urgency}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Category
+              {DONATION_TABLE_LABELS.category}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Location
+              {DONATION_TABLE_LABELS.location}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Created
+              {DONATION_TABLE_LABELS.created}
             </TableHead>
             <TableHead className="text-xs font-bold text-muted-foreground uppercase tracking-wider py-4">
-              Expires
+              {DONATION_TABLE_LABELS.expires}
             </TableHead>
             <TableHead className="text-right text-xs font-bold text-muted-foreground uppercase tracking-wider py-4 px-6">
-              Actions
+              {DONATION_TABLE_LABELS.actions}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -172,7 +158,7 @@ export function DonationTable({
           ) : donations.length === 0 ? (
             <TableRow>
               <TableCell colSpan={9} className="p-6 text-center text-muted-foreground">
-                No donations found
+                {DONATION_TABLE_LABELS.empty}
               </TableCell>
             </TableRow>
           ) : (
@@ -241,13 +227,13 @@ export function DonationTable({
                   )}
                 </TableCell>
                 <TableCell className="py-4 text-sm text-muted-foreground">
-                  {formatLocation(donation)}
+                  {formatDonationLocation(donation)}
                 </TableCell>
                 <TableCell className="py-4 text-sm text-muted-foreground">
-                  {formatDate(donation.createdAt)}
+                  {formatDonationDate(donation.createdAt)}
                 </TableCell>
                 <TableCell className="py-4 text-sm text-muted-foreground">
-                  {formatDate(donation.expiryDate)}
+                  {formatDonationDate(donation.expiryDate)}
                 </TableCell>
                 <TableCell className="text-right px-6 py-4">
                   <DropdownMenu>

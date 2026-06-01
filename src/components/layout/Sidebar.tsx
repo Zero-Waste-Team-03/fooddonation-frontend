@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue } from "jotai";
 import { Link } from "@tanstack/react-router";
-import { BarChart2, Gift, LayoutDashboard, LogOut, Settings2, Users } from "lucide-react";
+import { BarChart2, Download, Gift, LayoutDashboard, LogOut, Settings2, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { APP_ROUTES } from "@/constants/routes.constants";
@@ -9,9 +9,11 @@ import {
   SidebarNavItemId,
   sidebarNavItems,
 } from "@/constants/navigation.constants";
+import { GlobalExportDialog } from "@/components/export/GlobalExportDialog";
+import { EXPORT_LABELS } from "@/constants/export.constants";
 import { cn } from "@/lib/utils";
 import { canAccessRestrictedRoute } from "@/lib/rolePermissions";
-import { sidebarCollapsedAtom, authUserAtom } from "@/store/atoms";
+import { authUserAtom, globalExportDialogOpenAtom, sidebarCollapsedAtom } from "@/store/atoms";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 const navIcons: Record<SidebarNavItemId, LucideIcon> = {
@@ -24,6 +26,7 @@ const navIcons: Record<SidebarNavItemId, LucideIcon> = {
 
 export function Sidebar() {
   const [collapsed] = useAtom(sidebarCollapsedAtom);
+  const [exportDialogOpen, setExportDialogOpen] = useAtom(globalExportDialogOpenAtom);
   const authUser = useAtomValue(authUserAtom);
   const { logout } = useAuthContext();
 
@@ -88,6 +91,20 @@ export function Sidebar() {
         })}
       </nav>
       <div className="mt-auto border-t border-sidebar-section-border p-4">
+        <div className="border-b border-sidebar-section-border pb-4 mb-4">
+          <button
+            type="button"
+            onClick={() => setExportDialogOpen(true)}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-md py-2.5 pr-3 pl-3 text-sm font-medium text-sidebar-text transition-colors hover:bg-accent hover:text-accent-foreground",
+              collapsed && "w-10 justify-center px-0"
+            )}
+            aria-label={EXPORT_LABELS.exportData}
+          >
+            <Download className="size-5 shrink-0" aria-hidden />
+            {!collapsed && <span className="truncate">{EXPORT_LABELS.exportData}</span>}
+          </button>
+        </div>
         <button
           type="button"
           onClick={logout}
@@ -101,6 +118,8 @@ export function Sidebar() {
           {!collapsed && <span className="truncate">{SIDEBAR_NAV_LABELS.logout}</span>}
         </button>
       </div>
+
+      <GlobalExportDialog open={exportDialogOpen} onOpenChange={setExportDialogOpen} />
     </aside>
   );
 }
